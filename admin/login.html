@@ -1,21 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NailFinder Admin Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Đăng nhập Admin</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-
-<body class="login-bg">
+<body>
   <div class="login-box">
-    <div class="logo">NailFinder Admin</div>
-    <input id="email" type="email" placeholder="Email đăng nhập" />
-    <input id="password" type="password" placeholder="Mật khẩu" />
+    <h2>Đăng nhập quản trị</h2>
+
+    <input id="email" type="email" placeholder="Email quản trị">
+    <input id="password" type="password" placeholder="Mật khẩu">
+
     <button onclick="login()">Đăng nhập</button>
-    <p class="note">Chỉ dành cho quản trị viên</p>
+    <p id="error"></p>
   </div>
-  <script type="module" src="admin.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
