@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Khuyến mãi</title>
+<style>
+body{margin:0;font-family:Arial;background:#fff7fc;}
+.wrapper{margin-left:260px;padding:30px;}
+input,button{padding:10px;margin:6px;width:250px}
+button{background:#b6007c;color:#fff;border:none;border-radius:6px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>ADMIN PANEL</h2>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="salons.html">Quản lý Salon</a>
+  <a href="services.html">Quản lý Dịch vụ</a>
+  <a href="promo.html">Khuyến mãi</a>
+</div>
+
+<div class="wrapper">
+<h1>Quản lý Khuyến mãi</h1>
+<input type="text" id="title" placeholder="Nội dung banner">
+<input type="text" id="img" placeholder="Link ảnh banner">
+<button onclick="save()">Lưu Banner</button>
+</div>
+
+<script type="module">
+import { db, doc, setDoc } from "./firebase.js";
+
+window.save = async function() {
+  await setDoc(doc(db, "promo", "main"), {
+    title: title.value, img: img.value
+  });
+  alert("Lưu thành công!");
+};
+</script>
+
+</body>
+</html>
