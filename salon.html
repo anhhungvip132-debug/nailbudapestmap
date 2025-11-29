@@ -4,8 +4,14 @@
   <meta charset="UTF-8">
   <title>Nail Budapest Map - Salon Detail</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="salon.css">
+
+  <!-- CSS GLOBAL (bắt buộc) -->
+  <link rel="stylesheet" href="/assets/css/style.css">
+
+  <!-- CSS RIÊNG CHO SALON PAGE -->
+  <link rel="stylesheet" href="/assets/css/salon.css">
 </head>
+
 <body>
 
 <header class="hero">
@@ -14,29 +20,32 @@
 </header>
 
 <section class="gallery">
-  <img src="img/gallery1.jpg">
-  <img src="img/gallery2.jpg">
-  <img src="img/gallery3.jpg">
+  <img src="img/gallery1.jpg" alt="Salon photo 1">
+  <img src="img/gallery2.jpg" alt="Salon photo 2">
+  <img src="img/gallery3.jpg" alt="Salon photo 3">
 </section>
 
 <section class="info">
   <h2>📍 Địa chỉ</h2>
-  <p>Dohány utca 22, Budapest</p>
+  <p id="salonAddress">Dohány utca 22, Budapest</p>
 
   <h2>💅 Dịch vụ nổi bật</h2>
-  <ul>
+  <ul id="salonServices">
     <li>Manicure Luxury — 6.500 Ft</li>
     <li>Gel Nails Premium — 12.000 Ft</li>
     <li>Nail Art Design — 4.000 Ft</li>
   </ul>
 
   <h2>⭐ Đánh giá khách hàng</h2>
-  <p>4.9 ★★★★★ (128 reviews)</p>
+  <p id="salonRating">4.9 ★★★★★ (128 reviews)</p>
 
   <button class="book-btn" onclick="goBooking()">
     ĐẶT LỊCH NGAY
   </button>
 </section>
+
+<!-- JS RIÊNG CỦA SALON PAGE -->
+<script type="module" src="/assets/js/salon.js"></script>
 
 <script>
 function goBooking() {
