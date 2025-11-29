@@ -1,7 +1,6 @@
-// firebase.js
+// src/admin/firebase.js
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore"; 
-import { getAuth } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDkq0DKue8884V3AAu_O-cpEmlcalJhDOs",
@@ -13,9 +12,7 @@ const firebaseConfig = {
   measurementId: "G-DSW8H0CZN3"
 };
 
-// Initialize Firebase
+// Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
-
-// Export services
-export const db = getFirestore(app);
 export const auth = getAuth(app);
+export { signInWithEmailAndPassword };
