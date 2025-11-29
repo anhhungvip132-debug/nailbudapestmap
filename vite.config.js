@@ -1,14 +1,4 @@
-import { defineConfig } from 'vite'
-import { resolve } from 'path'
-
-export default defineConfig({
-  build: {
-    rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'index.html'),
-        admin: resolve(__dirname, 'admin/login.html'),
-        dashboard: resolve(__dirname, 'admin/dashboard.html')
-      }
-    }
-  }
-})
+input: {
+  admin: './src/admin/login.html',
+  dashboard: './src/admin/dashboard.html'
+}
