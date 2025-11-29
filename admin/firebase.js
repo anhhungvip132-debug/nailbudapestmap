@@ -1,6 +1,5 @@
-// src/admin/firebase.js
-import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDkq0DKue8884V3AAu_O-cpEmlcalJhDOs",
@@ -12,7 +11,5 @@ const firebaseConfig = {
   measurementId: "G-DSW8H0CZN3"
 };
 
-// Khởi tạo Firebase
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export { signInWithEmailAndPassword };
