@@ -1,143 +1,182 @@
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Budapest Map - MVP Luxury</title>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nail Budapest Map - MVP Luxury</title>
 
-    <style>
-      /* ====== GLOBAL LUXURY RESET ====== */
-      body {
-        margin: 0;
-        font-family: "Helvetica", sans-serif;
-        background: linear-gradient(180deg, #fff8f6 0%, #ffe9f2 100%);
-        color: #3e2a2a;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        overflow-x: hidden;
-      }
+  <style>
+    /* ===== GLOBAL RESET ===== */
+    body {
+      margin: 0;
+      font-family: "Helvetica", sans-serif;
+      background: linear-gradient(180deg, #fff8f6 0%, #ffe9f2 100%);
+      color: #3e2a2a;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
 
-      /* ====== HEADER ====== */
-      .header {
-        text-align: center;
-        padding: 40px 0 10px;
-        font-size: 34px;
-        color: #b6007c;
-        letter-spacing: 1px;
-        font-weight: bold;
-        text-transform: uppercase;
-      }
+    /* ===== HEADER ===== */
+    .header {
+      text-align: center;
+      padding: 40px 0 10px;
+      font-size: 34px;
+      color: #b6007c;
+      letter-spacing: 1px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
 
-      /* ====== SALON LIST GRID ====== */
-      #salonList {
-        padding: 20px;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 28px;
-      }
+    /* ===== MAP ===== */
+    #map {
+      width: 100%;
+      height: 420px;
+      border-bottom: 3px solid #b6007c30;
+    }
 
-      /* ====== SALON CARD ====== */
-      .salon-card {
-        background: #ffffff;
-        width: 300px;
-        padding: 22px;
-        border-radius: 18px;
-        border: 1px solid #f4d6df;
-        box-shadow: 0 4px 22px rgba(0, 0, 0, 0.06);
-        transition: transform .2s ease, box-shadow .3s ease;
-      }
+    /* ===== SALON GRID ===== */
+    #salonList {
+      padding: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 28px;
+    }
 
-      .salon-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 26px rgba(0, 0, 0, 0.08);
-      }
+    /* ===== SALON CARD ===== */
+    .salon-card {
+      background: #ffffff;
+      width: 300px;
+      padding: 22px;
+      border-radius: 18px;
+      border: 1px solid #f4d6df;
+      box-shadow: 0 4px 22px rgba(0, 0, 0, 0.06);
+      transition: transform .2s ease, box-shadow .3s ease;
+    }
 
-      .salon-card h3 {
-        margin: 0 0 10px;
-        color: #b6007c;
-        font-size: 20px;
-      }
+    .salon-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.08);
+    }
 
-      .salon-card p {
-        margin: 6px 0;
-        font-size: 15px;
-        opacity: 0.9;
-      }
+    .salon-card h3 {
+      margin: 0 0 10px;
+      color: #b6007c;
+    }
 
-      .salon-card a {
-        display: inline-block;
-        margin-top: 14px;
-        background: #b6007c;
-        padding: 10px 18px;
-        border-radius: 8px;
-        font-size: 14px;
-        color: #fff;
-        text-decoration: none;
-      }
+    .salon-card p {
+      margin: 6px 0;
+      font-size: 15px;
+      opacity: 0.9;
+    }
 
-      .salon-card a:hover {
-        opacity: .85;
-      }
+    .salon-card a {
+      display: inline-block;
+      margin-top: 14px;
+      background: #b6007c;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #fff;
+      text-decoration: none;
+    }
 
-      /* ====== LOADING ====== */
-      .loading {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 60vh;
-        font-size: 24px;
-        color: #b57c7c;
-        animation: blink 1.2s infinite ease-in-out;
-      }
+    .salon-card a:hover { opacity: .85; }
 
-      @keyframes blink {
-        0%, 100% { opacity: .4; }
-        50% { opacity: 1; }
-      }
-    </style>
-  </head>
+    /* ===== LOADING ===== */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 60vh;
+      font-size: 24px;
+      color: #b57c7c;
+      animation: blink 1.2s infinite ease-in-out;
+    }
 
-  <body>
-    <!-- ====== TITLE ====== -->
-    <div class="header">Nail Budapest Map</div>
+    @keyframes blink {
+      0%, 100% { opacity: .4; }
+      50% { opacity: 1; }
+    }
+  </style>
+</head>
 
-    <!-- ====== MAP MOUNT POINT (React) ====== -->
-    <div id="root">
-      <div class="loading">Đang tải NailBudapestMap...</div>
-    </div>
+<body>
+  <!-- === HEADER === -->
+  <div class="header">Nail Budapest Map</div>
 
-    <!-- ====== SALON LIST ====== -->
-    <div id="salonList"></div>
+  <!-- === GOOGLE MAP === -->
+  <div id="map"></div>
 
-    <!-- ====== REACT ENGINE FOR MAP OVERLAY ====== -->
-    <script type="module" src="/src/main.jsx"></script>
+  <!-- === REACT MOUNT (overlay, animation etc) === -->
+  <div id="root">
+    <div class="loading">Đang tải NailBudapestMap...</div>
+  </div>
 
-    <!-- ====== FETCH SALONS FROM FIREBASE ====== -->
-    <script type="module">
-      import { db, collection, getDocs } from "./admin/firebase.js";
+  <!-- === SALON LIST === -->
+  <div id="salonList"></div>
 
-      async function loadSalons() {
-        const box = document.getElementById("salonList");
-        box.innerHTML = "<div class='loading'>Đang tải salon...</div>";
+  <!-- React engine -->
+  <script type="module" src="/src/main.jsx"></script>
 
-        const salons = await getDocs(collection(db, "salons"));
-        box.innerHTML = "";
+  <!-- Google Maps API (THAY KEY CỦA BẠN VÀO ĐÂY) -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAP_KEY"></script>
 
-        salons.forEach((doc) => {
-          const data = doc.data();
-          box.innerHTML += `
-            <div class="salon-card">
-              <h3>${data.name}</h3>
-              <p>📍 ${data.address}</p>
-              <p>📞 ${data.phone}</p>
-              <a href="salon.html?id=${doc.id}">Xem dịch vụ</a>
-            </div>
-          `;
+  <!-- FIREBASE & LOAD SALONS + MAP MARKERS -->
+  <script type="module">
+    import { db, collection, getDocs } from "./admin/firebase.js";
+
+    async function loadSalons() {
+      const box = document.getElementById("salonList");
+      box.innerHTML = "<div class='loading'>Đang tải salon...</div>";
+
+      const salons = await getDocs(collection(db, "salons"));
+      box.innerHTML = "";
+
+      salons.forEach(doc => {
+        const s = doc.data();
+        box.innerHTML += `
+          <div class="salon-card">
+            <h3>${s.name}</h3>
+            <p>📍 ${s.address}</p>
+            <p>📞 ${s.phone}</p>
+            <a href="salon.html?id=${doc.id}">Xem dịch vụ</a>
+          </div>`;
+      });
+    }
+    loadSalons();
+
+    async function initMap() {
+      const salons = await getDocs(collection(db, "salons"));
+      const map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 47.4979, lng: 19.0402 },
+        zoom: 12,
+        styles: [{ elementType: "geometry", stylers: [{ color: "#fff6f8" }] }]
+      });
+
+      let autoFocus = true;
+
+      salons.forEach(doc => {
+        const s = doc.data();
+        const marker = new google.maps.Marker({
+          position: { lat: s.lat, lng: s.lng },
+          map,
+          title: s.name
         });
-      }
 
-      loadSalons();
-    </script>
-  </body>
+        if (autoFocus) {
+          map.setCenter(marker.position);
+          autoFocus = false;
+        }
+
+        marker.addListener("click", () => {
+          window.location.href = `salon.html?id=${doc.id}`;
+        });
+      });
+    }
+
+    initMap();
+  </script>
+</body>
 </html>
