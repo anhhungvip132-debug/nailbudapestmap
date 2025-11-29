@@ -1,40 +1,16 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Đăng nhập Admin</title>
-  <link rel="stylesheet" href="./style.css" />
-</head>
-<body>
+<script type="module">
+import { auth } from './firebase.js';
+import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-  <div class="login-box">
-    <h2>Admin Login</h2>
+document.getElementById("loginForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-    <input type="email" id="email" placeholder="Email đăng nhập" />
-    <input type="password" id="password" placeholder="Mật khẩu" />
-
-    <button id="btnLogin">Đăng nhập</button>
-    <p id="errorMsg"></p>
-  </div>
-
-  <script type="module">
-    import { auth, signInWithEmailAndPassword } from "./firebase.js";
-
-    document.getElementById("btnLogin").addEventListener("click", () => {
-      const email = document.getElementById("email").value;
-      const pass = document.getElementById("password").value;
-
-      signInWithEmailAndPassword(auth, email, pass)
-        .then(() => {
-          window.location.href = "/admin/dashboard.html"; // trang sau login
-        })
-        .catch(err => {
-          document.getElementById("errorMsg").innerText = "Sai email hoặc mật khẩu!";
-          console.log(err.code, err.message);
-        });
-    });
-  </script>
-
-</body>
-</html>
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      window.location.href = "./dashboard.html";
+    })
+    .catch((error) => alert("Sai tài khoản hoặc mật khẩu!"));
+});
+</script>
