@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Quản lý Salon - Nail Budapest Map</title>
+<link rel="stylesheet" href="./style.css">
+
+<style>
+body { margin: 0; font-family: Arial; background:#fff7fc; }
+.wrapper { margin-left:260px; padding:30px; }
+input, button { padding:10px; margin:6px; width:250px; }
+table { width:100%; border-collapse:collapse; margin-top:20px; }
+th, td { border:1px solid #ddd; padding:10px; text-align:left; }
+button.add { background:#b6007c;color:#fff;border:none;border-radius:6px;cursor:pointer }
+button.del { background:red;color:#fff;border:none;border-radius:6px;cursor:pointer }
+</style>
+</head>
+
+<body>
+<div class="sidebar">
+  <h2>ADMIN PANEL</h2>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="salons.html">Quản lý Salon</a>
+  <a href="services.html">Quản lý Dịch vụ</a>
+  <a href="promo.html">Quản lý Khuyến mãi</a>
+</div>
+
+<div class="wrapper">
+  <h1>Quản lý Salon</h1>
+
+  <input type="text" id="name" placeholder="Tên salon">
+  <input type="text" id="address" placeholder="Địa chỉ">
+  <input type="text" id="phone" placeholder="Số điện thoại">
+  <button class="add" onclick="addSalon()">Thêm Salon</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Tên salon</th>
+        <th>Địa chỉ</th>
+        <th>Điện thoại</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="salonList"></tbody>
+  </table>
+</div>
+
+<script type="module">
+import { db, collection, addDoc, getDocs, deleteDoc, doc } from "./firebase.js";
+
+async function load() {
+  const list = document.getElementById("salonList");
+  list.innerHTML = "";
+  const salons = await getDocs(collection(db, "salons"));
+  salons.forEach(s => {
+    list.innerHTML += `
+      <tr>
+        <td>${s.data().name}</td>
+        <td>${s.data().address}</td>
+        <td>${s.data().phone}</td>
+        <td><button class="del" onclick="delSalon('${s.id}')">Xóa</button></td>
+      </tr>`;
+  });
+}
+load();
+
+window.addSalon = async function () {
+  await addDoc(collection(db, "salons"), {
+    name: name.value, address: address.value, phone: phone.value
+  });
+  load();
+};
+
+window.delSalon = async function(id) {
+  await deleteDoc(doc(db, "salons", id));
+  load();
+};
+</script>
+
+</body>
+</html>
