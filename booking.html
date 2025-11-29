@@ -2,57 +2,133 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Đặt lịch</title>
+<title>Đặt lịch Luxury</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-body{background:#fff8f6;font-family:Helvetica;padding:30px}
-input,select,button{padding:12px;margin:8px;width:260px;border-radius:6px;border:1px solid #eac4d1}
-button{background:#b6007c;color:#fff;border:none;cursor:pointer}
-button:hover{opacity:.85}
+  body {
+    background: linear-gradient(180deg,#fff8f6 0%,#ffe9f2 100%);
+    font-family: Helvetica, sans-serif;
+    padding: 26px;
+    color: #3e2a2a;
+  }
+  h2 { color:#b6007c; text-align:center; margin-bottom:18px; }
+  .box {
+    max-width: 380px;
+    margin: auto;
+    background:#fff;
+    padding:26px;
+    border-radius:14px;
+    box-shadow: 0 4px 22px rgba(0,0,0,0.08);
+    border:1px solid #f4d6df;
+  }
+  input, select, button {
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border-radius:8px;
+    border:1px solid #e7c6d7;
+    font-size:15px;
+  }
+  button {
+    background:#b6007c;
+    color:#fff;
+    border:none;
+    font-weight:bold;
+    cursor:pointer;
+  }
+  button:hover { opacity:.85; }
+  .info { text-align:center; margin-bottom:8px; opacity:.8; }
 </style>
 </head>
+
 <body>
 
-<h2>Đặt lịch Nail</h2>
+<h2>Đặt lịch tại Nail Budapest Map</h2>
 
-<input id="name" placeholder="Tên khách">
-<input id="phone" placeholder="Số điện thoại">
+<div class="box">
+  <div class="info" id="salonName"></div>
+  <div class="info" id="serviceName"></div>
 
-<select id="date">
-  <option>Hôm nay</option>
-  <option>Ngày mai</option>
-  <option>Ngày kia</option>
-</select>
+  <input id="name" placeholder="Tên khách">
+  <input id="phone" placeholder="Số điện thoại">
 
-<select id="time">
-  <option>10:00</option>
-  <option>12:00</option>
-  <option>14:00</option>
-  <option>16:00</option>
-</select>
+  <select id="date"></select>
+  <select id="time"></select>
 
-<button onclick="send()">Xác nhận</button>
+  <button onclick="send()">Xác nhận đặt lịch</button>
+</div>
 
 <script type="module">
-import { db, addDoc, collection } from "./admin/firebase.js";
-const s = new URLSearchParams(location.search).get("service");
+  import { db, doc, getDoc, collection, addDoc, getDocs } from "./admin/firebase.js";
 
-window.send = async function() {
-  await addDoc(collection(db,"booking"),{
-    name:name.value, phone:phone.value,
-    date:date.value, time:time.value, service:s, timeStamp:Date.now()
-  });
+  const url = new URLSearchParams(location.search);
+  const service = url.get("service");
+  const salonId = url.get("salon");
 
-  alert("Đặt lịch thành công!");
+  document.getElementById("serviceName").innerText = "Dịch vụ: " + service;
 
-  fetch("https://formsubmit.co/ajax/anhhungvip1324@gmail.com",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({
-      name:name.value, phone:phone.value,
-      date:date.value, time:time.value, service:s
-    })
-  });
-};
+  // Load salon + giờ làm
+  async function loadSalon() {
+    const snap = await getDoc(doc(db, "salons", salonId));
+    const s = snap.data();
+
+    document.getElementById("salonName").innerText = s.name;
+
+    const working = s.workingHours || { open: 9, close: 20 }; // fallback
+
+    loadDates();
+    loadTimes(working.open, working.close);
+  }
+
+  function loadDates() {
+    const select = document.getElementById("date");
+    const today = new Date();
+
+    for(let i=0;i<7;i++){
+      const d = new Date(today);
+      d.setDate(d.getDate()+i);
+      select.innerHTML += `<option>${d.toLocaleDateString("vi-VN")}</option>`;
+    }
+  }
+
+  function loadTimes(open, close) {
+    const select = document.getElementById("time");
+    for(let h=open; h<=close; h++){
+      select.innerHTML += `<option>${h}:00</option>`;
+    }
+  }
+
+  // Lưu booking
+  window.send = async function () {
+    await addDoc(collection(db,"bookings"),{
+      name:name.value,
+      phone:phone.value,
+      service:service,
+      salon:salonId,
+      date:date.value,
+      time:time.value,
+      created:Date.now()
+    });
+
+    fetch("https://formsubmit.co/ajax/anhhungvip1324@gmail.com", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
+        name:name.value,
+        phone:phone.value,
+        date:date.value,
+        time:time.value,
+        service: service
+      })
+    });
+
+    alert("Đặt lịch thành công! Chúng tôi sẽ liên hệ lại.");
+    location.href = "/";
+  }
+
+  loadSalon();
 </script>
+
 </body>
 </html>
