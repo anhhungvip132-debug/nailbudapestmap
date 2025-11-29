@@ -5,6 +5,10 @@
 <title>Đặt lịch Luxury</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- CSS GLOBAL CỦA DỰ ÁN -->
+<link rel="stylesheet" href="/assets/css/style.css">
+
+<!-- CSS RIÊNG CHO TRANG BOOKING (hiện tại bạn để inline, sau này tách cũng ok) -->
 <style>
   body {
     background: linear-gradient(180deg,#fff8f6 0%,#ffe9f2 100%);
@@ -59,76 +63,7 @@
   <button onclick="send()">Xác nhận đặt lịch</button>
 </div>
 
-<script type="module">
-  import { db, doc, getDoc, collection, addDoc, getDocs } from "./admin/firebase.js";
+<!-- MODULE BOOKING JS -->
+<script type="module" src="/assets/js/booking.js"></script>
 
-  const url = new URLSearchParams(location.search);
-  const service = url.get("service");
-  const salonId = url.get("salon");
-
-  document.getElementById("serviceName").innerText = "Dịch vụ: " + service;
-
-  // Load salon + giờ làm
-  async function loadSalon() {
-    const snap = await getDoc(doc(db, "salons", salonId));
-    const s = snap.data();
-
-    document.getElementById("salonName").innerText = s.name;
-
-    const working = s.workingHours || { open: 9, close: 20 }; // fallback
-
-    loadDates();
-    loadTimes(working.open, working.close);
-  }
-
-  function loadDates() {
-    const select = document.getElementById("date");
-    const today = new Date();
-
-    for(let i=0;i<7;i++){
-      const d = new Date(today);
-      d.setDate(d.getDate()+i);
-      select.innerHTML += `<option>${d.toLocaleDateString("vi-VN")}</option>`;
-    }
-  }
-
-  function loadTimes(open, close) {
-    const select = document.getElementById("time");
-    for(let h=open; h<=close; h++){
-      select.innerHTML += `<option>${h}:00</option>`;
-    }
-  }
-
-  // Lưu booking
-  window.send = async function () {
-    await addDoc(collection(db,"bookings"),{
-      name:name.value,
-      phone:phone.value,
-      service:service,
-      salon:salonId,
-      date:date.value,
-      time:time.value,
-      created:Date.now()
-    });
-
-    fetch("https://formsubmit.co/ajax/anhhungvip1324@gmail.com", {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({
-        name:name.value,
-        phone:phone.value,
-        date:date.value,
-        time:time.value,
-        service: service
-      })
-    });
-
-    alert("Đặt lịch thành công! Chúng tôi sẽ liên hệ lại.");
-    location.href = "/";
-  }
-
-  loadSalon();
-</script>
-
-</body>
-</html>
+</b
