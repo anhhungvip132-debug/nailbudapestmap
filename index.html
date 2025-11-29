@@ -1,64 +1,86 @@
 <!DOCTYPE html>
 <html lang="vi">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nail Budapest Map - MVP Luxury</title>
 
     <style>
+      /* ====== GLOBAL LUXURY RESET ====== */
       body {
         margin: 0;
         font-family: "Helvetica", sans-serif;
-        background: #fff8f6;
+        background: linear-gradient(180deg, #fff8f6 0%, #ffe9f2 100%);
         color: #3e2a2a;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden;
       }
 
+      /* ====== HEADER ====== */
       .header {
         text-align: center;
         padding: 40px 0 10px;
-        font-size: 32px;
+        font-size: 34px;
         color: #b6007c;
+        letter-spacing: 1px;
         font-weight: bold;
+        text-transform: uppercase;
       }
 
+      /* ====== SALON LIST GRID ====== */
       #salonList {
         padding: 20px;
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 25px;
+        gap: 28px;
       }
 
+      /* ====== SALON CARD ====== */
       .salon-card {
         background: #ffffff;
         width: 300px;
-        padding: 20px;
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 22px;
+        border-radius: 18px;
         border: 1px solid #f4d6df;
+        box-shadow: 0 4px 22px rgba(0, 0, 0, 0.06);
+        transition: transform .2s ease, box-shadow .3s ease;
+      }
+
+      .salon-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 26px rgba(0, 0, 0, 0.08);
       }
 
       .salon-card h3 {
         margin: 0 0 10px;
         color: #b6007c;
+        font-size: 20px;
       }
 
       .salon-card p {
         margin: 6px 0;
-        font-size: 14px;
+        font-size: 15px;
+        opacity: 0.9;
       }
 
       .salon-card a {
         display: inline-block;
-        margin-top: 12px;
+        margin-top: 14px;
         background: #b6007c;
-        padding: 10px 16px;
-        color: #fff;
-        text-decoration: none;
+        padding: 10px 18px;
         border-radius: 8px;
         font-size: 14px;
+        color: #fff;
+        text-decoration: none;
       }
 
+      .salon-card a:hover {
+        opacity: .85;
+      }
+
+      /* ====== LOADING ====== */
       .loading {
         display: flex;
         align-items: center;
@@ -66,42 +88,50 @@
         height: 60vh;
         font-size: 24px;
         color: #b57c7c;
+        animation: blink 1.2s infinite ease-in-out;
+      }
+
+      @keyframes blink {
+        0%, 100% { opacity: .4; }
+        50% { opacity: 1; }
       }
     </style>
   </head>
 
   <body>
+    <!-- ====== TITLE ====== -->
     <div class="header">Nail Budapest Map</div>
 
+    <!-- ====== MAP MOUNT POINT (React) ====== -->
     <div id="root">
       <div class="loading">Đang tải NailBudapestMap...</div>
     </div>
 
-    <!-- Danh sách salon -->
+    <!-- ====== SALON LIST ====== -->
     <div id="salonList"></div>
 
-    <!-- React khởi động map + overlay -->
+    <!-- ====== REACT ENGINE FOR MAP OVERLAY ====== -->
     <script type="module" src="/src/main.jsx"></script>
 
-    <!-- Load salon từ Firebase -->
+    <!-- ====== FETCH SALONS FROM FIREBASE ====== -->
     <script type="module">
       import { db, collection, getDocs } from "./admin/firebase.js";
 
       async function loadSalons() {
-        const container = document.getElementById("salonList");
-        container.innerHTML = "<div class='loading'>Đang tải salon...</div>";
+        const box = document.getElementById("salonList");
+        box.innerHTML = "<div class='loading'>Đang tải salon...</div>";
 
         const salons = await getDocs(collection(db, "salons"));
-        container.innerHTML = "";
+        box.innerHTML = "";
 
-        salons.forEach((s) => {
-          const data = s.data();
-          container.innerHTML += `
+        salons.forEach((doc) => {
+          const data = doc.data();
+          box.innerHTML += `
             <div class="salon-card">
               <h3>${data.name}</h3>
               <p>📍 ${data.address}</p>
               <p>📞 ${data.phone}</p>
-              <a href="salon.html?id=${s.id}">Xem dịch vụ</a>
+              <a href="salon.html?id=${doc.id}">Xem dịch vụ</a>
             </div>
           `;
         });
