@@ -1,56 +1,51 @@
 body {
-  margin: 0;
-  font-family: "Poppins", sans-serif;
-}
-
-/* Login page */
-.login-bg {
+  font-family: Arial, sans-serif;
+  background: #f6dce1;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #c49ec4, #f6d3e3);
+  margin: 0;
 }
 
 .login-box {
-  background: white;
-  padding: 40px;
-  border-radius: 16px;
-  text-align: center;
-  width: 360px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-}
-
-.logo {
-  font-size: 30px;
-  font-weight: 600;
-  color: #b57c7c;
-  margin-bottom: 20px;
-}
-
-.note {
-  color: #8b6f6f;
-  font-size: 12px;
-}
-
-/* Dashboard layout */
-.sidebar {
-  width: 220px;
-  height: 100vh;
-  background: #c49ec4;
-  padding: 20px;
-  position: fixed;
-}
-
-.sidebar a {
-  display: block;
-  color: white;
-  margin: 15px 0;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.main {
-  margin-left: 240px;
+  background: #fff;
   padding: 30px;
+  width: 320px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.login-box h2 {
+  margin-bottom: 20px;
+  color: #c2185b;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: #c2185b;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+button:hover {
+  background: #a3154b;
+}
+
+#errorMsg {
+  color: red;
+  margin-top: 10px;
 }
