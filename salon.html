@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Salon</title>
+<style>
+body{ font-family: Arial;margin:0;padding:30px;background:#fff7fc; }
+.service-card { border:1px solid #eee;padding:15px;margin:10px;border-radius:8px;background:#fff }
+</style>
+</head>
+<body>
+
+<h1 id="salonName"></h1>
+<div id="services"></div>
+
+<script type="module">
+import { db, doc, getDoc, collection, getDocs, query, where } from "./admin/firebase.js";
+
+const params = new URLSearchParams(window.location.search);
+const salonId = params.get("id");
+
+async function load() {
+  const salon = await getDoc(doc(db, "salons", salonId));
+  document.getElementById("salonName").innerText = salon.data().name;
+
+  const q = query(collection(db, "services"), where("salon", "==", salonId));
+  const services = await getDocs(q);
+
+  const box = document.getElementById("services");
+  services.forEach(s => {
+    const d = s.data();
+    box.innerHTML += `
+      <div class="service-card">
+        <strong>${d.service}</strong> — ${d.price} HUF
+        <button onclick="book('${d.service}')">Đặt lịch</button>
+      </div>
+    `;
+  });
+}
+load();
+</script>
+
+<script>
+function book(service) {
+  window.location.href = "booking.html?service="+service;
+}
+</script>
+
+</body>
+</html>
