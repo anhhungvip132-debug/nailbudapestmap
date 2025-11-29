@@ -1,6 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
+// firebase.js
 const firebaseConfig = {
   apiKey: "AIzaSyDkq0DKue8884V3AAu_O-cpEmlcalJhDOs",
   authDomain: "nailfinder-6146a.firebaseapp.com",
@@ -11,5 +9,4 @@ const firebaseConfig = {
   measurementId: "G-DSW8H0CZN3"
 };
 
-export const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+export default firebaseConfig;
