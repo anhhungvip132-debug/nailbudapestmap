@@ -33,6 +33,7 @@
       width: 100%;
       height: 420px;
       border-bottom: 3px solid #b6007c30;
+      margin-bottom: 18px;
     }
 
     /* ===== SALON GRID ===== */
@@ -54,23 +55,20 @@
       box-shadow: 0 4px 22px rgba(0, 0, 0, 0.06);
       transition: transform .2s ease, box-shadow .3s ease;
     }
-
     .salon-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 26px rgba(0, 0, 0, 0.08);
     }
-
     .salon-card h3 {
       margin: 0 0 10px;
       color: #b6007c;
+      font-size: 20px;
     }
-
     .salon-card p {
       margin: 6px 0;
       font-size: 15px;
       opacity: 0.9;
     }
-
     .salon-card a {
       display: inline-block;
       margin-top: 14px;
@@ -81,7 +79,6 @@
       color: #fff;
       text-decoration: none;
     }
-
     .salon-card a:hover { opacity: .85; }
 
     /* ===== LOADING ===== */
@@ -94,7 +91,6 @@
       color: #b57c7c;
       animation: blink 1.2s infinite ease-in-out;
     }
-
     @keyframes blink {
       0%, 100% { opacity: .4; }
       50% { opacity: 1; }
@@ -103,27 +99,17 @@
 </head>
 
 <body>
+
   <!-- === HEADER === -->
   <div class="header">Nail Budapest Map</div>
 
   <!-- === GOOGLE MAP === -->
   <div id="map"></div>
 
-  <!-- === REACT MOUNT (overlay, animation etc) === -->
-  <div id="root">
-    <div class="loading">Đang tải NailBudapestMap...</div>
-  </div>
-
-  <!-- === SALON LIST === -->
+  <!-- === LIST SALON === -->
   <div id="salonList"></div>
 
-  <!-- React engine -->
-  <script type="module" src="/src/main.jsx"></script>
-
-  <!-- Google Maps API (THAY KEY CỦA BẠN VÀO ĐÂY) -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAP_KEY"></script>
-
-  <!-- FIREBASE & LOAD SALONS + MAP MARKERS -->
+  <!-- === FIREBASE + MAP + SALON LOADER === -->
   <script type="module">
     import { db, collection, getDocs } from "./admin/firebase.js";
 
@@ -142,32 +128,36 @@
             <p>📍 ${s.address}</p>
             <p>📞 ${s.phone}</p>
             <a href="salon.html?id=${doc.id}">Xem dịch vụ</a>
-          </div>`;
+          </div>
+        `;
       });
     }
-    loadSalons();
 
     async function initMap() {
       const salons = await getDocs(collection(db, "salons"));
+      let first = true;
+
       const map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: 47.4979, lng: 19.0402 },
         zoom: 12,
-        styles: [{ elementType: "geometry", stylers: [{ color: "#fff6f8" }] }]
+        styles: [
+          { elementType: "geometry", stylers: [{ color: "#fff6f8" }] },
+          { elementType: "labels.text.fill", stylers: [{ color: "#b6007c" }] }
+        ]
       });
-
-      let autoFocus = true;
 
       salons.forEach(doc => {
         const s = doc.data();
+
         const marker = new google.maps.Marker({
           position: { lat: s.lat, lng: s.lng },
           map,
           title: s.name
         });
 
-        if (autoFocus) {
+        if (first) {
           map.setCenter(marker.position);
-          autoFocus = false;
+          first = false;
         }
 
         marker.addListener("click", () => {
@@ -176,7 +166,12 @@
       });
     }
 
+    loadSalons();
     initMap();
   </script>
+
+  <!-- === GOOGLE MAPS API KEY (BẮT BUỘC THAY) === -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAP_KEY"></script>
+
 </body>
 </html>
