@@ -59,16 +59,8 @@
       transform: translateY(-4px);
       box-shadow: 0 8px 26px rgba(0, 0, 0, 0.08);
     }
-    .salon-card h3 {
-      margin: 0 0 10px;
-      color: #b6007c;
-      font-size: 20px;
-    }
-    .salon-card p {
-      margin: 6px 0;
-      font-size: 15px;
-      opacity: 0.9;
-    }
+    .salon-card h3 { margin: 0 0 10px; color: #b6007c; }
+    .salon-card p { margin: 6px 0; font-size: 15px; opacity: 0.9; }
     .salon-card a {
       display: inline-block;
       margin-top: 14px;
@@ -91,10 +83,24 @@
       color: #b57c7c;
       animation: blink 1.2s infinite ease-in-out;
     }
-    @keyframes blink {
-      0%, 100% { opacity: .4; }
-      50% { opacity: 1; }
+    @keyframes blink { 0%,100%{opacity:.4}50%{opacity:1} }
+
+    /* ===== OVERLAY SLIDE RIGHT ===== */
+    .overlay {
+      position: fixed;
+      top: 0;
+      right: -420px;
+      width: 380px;
+      height: 100vh;
+      background: #ffffff;
+      box-shadow: -5px 0 18px rgba(0,0,0,.12);
+      transition: .35s ease;
+      padding: 26px;
+      border-left: 4px solid #b6007c;
+      overflow-y: auto;
+      z-index: 9999;
     }
+    .overlay.active { right: 0; }
   </style>
 </head>
 
@@ -106,7 +112,10 @@
   <!-- === GOOGLE MAP === -->
   <div id="map"></div>
 
-  <!-- === LIST SALON === -->
+  <!-- === OVERLAY (NEW) === -->
+  <div id="overlay" class="overlay"></div>
+
+  <!-- === SALON LIST === -->
   <div id="salonList"></div>
 
   <!-- === FIREBASE + MAP + SALON LOADER === -->
@@ -123,7 +132,7 @@
       salons.forEach(doc => {
         const s = doc.data();
         box.innerHTML += `
-          <div class="salon-card">
+          <div class="salon-card" onclick="openOverlay('${doc.id}')">
             <h3>${s.name}</h3>
             <p>📍 ${s.address}</p>
             <p>📞 ${s.phone}</p>
@@ -140,15 +149,11 @@
       const map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: 47.4979, lng: 19.0402 },
         zoom: 12,
-        styles: [
-          { elementType: "geometry", stylers: [{ color: "#fff6f8" }] },
-          { elementType: "labels.text.fill", stylers: [{ color: "#b6007c" }] }
-        ]
+        styles: [{ elementType: "geometry", stylers: [{ color: "#fff6f8" }] }]
       });
 
       salons.forEach(doc => {
         const s = doc.data();
-
         const marker = new google.maps.Marker({
           position: { lat: s.lat, lng: s.lng },
           map,
@@ -160,17 +165,38 @@
           first = false;
         }
 
-        marker.addListener("click", () => {
-          window.location.href = `salon.html?id=${doc.id}`;
-        });
+        marker.addListener("click", () => openOverlay(doc.id));
       });
     }
+
+    // OPEN OVERLAY
+    window.openOverlay = async function(id) {
+      const overlay = document.getElementById("overlay");
+      overlay.classList.add("active");
+      overlay.innerHTML = "<h2>Đang tải...</h2>";
+
+      const data = (await getDocs(collection(db, "salons")))
+        .docs.find(s => s.id === id).data();
+
+      overlay.innerHTML = `
+        <h2>${data.name}</h2>
+        <p>📍 ${data.address}</p>
+        <p>📞 ${data.phone}</p>
+        <hr>
+        <a href="salon.html?id=${id}" style="color:#b6007c;">Xem dịch vụ</a>
+        <br><br>
+        <button onclick="closeOverlay()" style="background:#b6007c;color:#fff;padding:10px 16px;border:none;border-radius:8px">Đóng</button>
+      `;
+    }
+
+    window.closeOverlay = () =>
+      document.getElementById("overlay").classList.remove("active");
 
     loadSalons();
     initMap();
   </script>
 
-  <!-- === GOOGLE MAPS API KEY (BẮT BUỘC THAY) === -->
+  <!-- === GOOGLE MAPS KEY (THAY BẰNG KEY CỦA BẠN) === -->
   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAP_KEY"></script>
 
 </body>
