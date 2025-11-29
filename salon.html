@@ -1,59 +1,48 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="hu">
 <head>
-<meta charset="UTF-8">
-<title>Salon Luxury</title>
-<style>
-body { font-family: 'Helvetica'; margin:0; background:#fff8f6; }
-.banner { background:#b6007c;color:#fff;padding:30px;font-size:28px }
-.service-card {
-  background:#fff;
-  border:1px solid #f3cfe0;
-  padding:14px;
-  border-radius:10px;
-  margin:10px;
-  box-shadow:0 2px 10px rgba(0,0,0,.06);
-  display:flex;
-  justify-content:space-between;
-}
-button {
-  background:#b6007c;color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Nail Budapest Map - Salon Detail</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="salon.css">
 </head>
 <body>
 
-<div id="banner" class="banner"></div>
-<div id="services"></div>
+<header class="hero">
+  <h1 id="salonName">Luxury Nail Studio Budapest</h1>
+  <p id="salonTag">Budapest • District 7 • Premium Nail Art</p>
+</header>
 
-<script type="module">
-import { db, doc, getDoc, getDocs, collection, query, where } from "./admin/firebase.js";
+<section class="gallery">
+  <img src="img/gallery1.jpg">
+  <img src="img/gallery2.jpg">
+  <img src="img/gallery3.jpg">
+</section>
 
-const params = new URLSearchParams(window.location.search);
-const id = params.get("id");
+<section class="info">
+  <h2>📍 Địa chỉ</h2>
+  <p>Dohány utca 22, Budapest</p>
 
-async function load() {
-  const salon = await getDoc(doc(db, "salons", id));
-  document.getElementById("banner").innerText = salon.data().name;
+  <h2>💅 Dịch vụ nổi bật</h2>
+  <ul>
+    <li>Manicure Luxury — 6.500 Ft</li>
+    <li>Gel Nails Premium — 12.000 Ft</li>
+    <li>Nail Art Design — 4.000 Ft</li>
+  </ul>
 
-  const q = query(collection(db,"services"), where("salon","==",id));
-  const s = await getDocs(q);
-  const box = document.getElementById("services");
-  box.innerHTML = "";
+  <h2>⭐ Đánh giá khách hàng</h2>
+  <p>4.9 ★★★★★ (128 reviews)</p>
 
-  s.forEach(v => {
-    box.innerHTML += `
-      <div class="service-card">
-        <span>${v.data().service}</span>
-        <strong>${v.data().price} HUF</strong>
-        <button onclick="book('${v.data().service}')">Đặt</button>
-      </div>
-    `;
-  });
+  <button class="book-btn" onclick="goBooking()">
+    ĐẶT LỊCH NGAY
+  </button>
+</section>
+
+<script>
+function goBooking() {
+  window.location.href = 'booking.html';
 }
-load();
-
-window.book = s => location.href = "booking.html?service=" + s;
 </script>
+
 </body>
 </html>
