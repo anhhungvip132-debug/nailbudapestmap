@@ -56,23 +56,7 @@
   <div id="message"></div>
 </div>
 
-<script type="module">
-  import { auth, signInWithEmailAndPassword } from './firebase.js';
-
-  window.login = async function () {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const message = document.getElementById("message");
-
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = "dashboard.html";
-    } catch (err) {
-      message.innerText = "Sai thông tin đăng nhập!";
-      console.log(err);
-    }
-  }
-</script>
+<script type="module" src="./login.js"></script>
 
 </body>
 </html>
