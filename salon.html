@@ -2,49 +2,58 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Salon</title>
+<title>Salon Luxury</title>
 <style>
-body{ font-family: Arial;margin:0;padding:30px;background:#fff7fc; }
-.service-card { border:1px solid #eee;padding:15px;margin:10px;border-radius:8px;background:#fff }
+body { font-family: 'Helvetica'; margin:0; background:#fff8f6; }
+.banner { background:#b6007c;color:#fff;padding:30px;font-size:28px }
+.service-card {
+  background:#fff;
+  border:1px solid #f3cfe0;
+  padding:14px;
+  border-radius:10px;
+  margin:10px;
+  box-shadow:0 2px 10px rgba(0,0,0,.06);
+  display:flex;
+  justify-content:space-between;
+}
+button {
+  background:#b6007c;color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;
+}
 </style>
 </head>
 <body>
 
-<h1 id="salonName"></h1>
+<div id="banner" class="banner"></div>
 <div id="services"></div>
 
 <script type="module">
-import { db, doc, getDoc, collection, getDocs, query, where } from "./admin/firebase.js";
+import { db, doc, getDoc, getDocs, collection, query, where } from "./admin/firebase.js";
 
 const params = new URLSearchParams(window.location.search);
-const salonId = params.get("id");
+const id = params.get("id");
 
 async function load() {
-  const salon = await getDoc(doc(db, "salons", salonId));
-  document.getElementById("salonName").innerText = salon.data().name;
+  const salon = await getDoc(doc(db, "salons", id));
+  document.getElementById("banner").innerText = salon.data().name;
 
-  const q = query(collection(db, "services"), where("salon", "==", salonId));
-  const services = await getDocs(q);
-
+  const q = query(collection(db,"services"), where("salon","==",id));
+  const s = await getDocs(q);
   const box = document.getElementById("services");
-  services.forEach(s => {
-    const d = s.data();
+  box.innerHTML = "";
+
+  s.forEach(v => {
     box.innerHTML += `
       <div class="service-card">
-        <strong>${d.service}</strong> — ${d.price} HUF
-        <button onclick="book('${d.service}')">Đặt lịch</button>
+        <span>${v.data().service}</span>
+        <strong>${v.data().price} HUF</strong>
+        <button onclick="book('${v.data().service}')">Đặt</button>
       </div>
     `;
   });
 }
 load();
-</script>
 
-<script>
-function book(service) {
-  window.location.href = "booking.html?service="+service;
-}
+window.book = s => location.href = "booking.html?service=" + s;
 </script>
-
 </body>
 </html>
