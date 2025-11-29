@@ -1,31 +1,113 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nail Budapest Map - MVP Luxury</title>
+
     <style>
       body {
         margin: 0;
-        font-family: 'Helvetica', sans-serif;
+        font-family: "Helvetica", sans-serif;
         background: #fff8f6;
+        color: #3e2a2a;
+      }
+
+      .header {
+        text-align: center;
+        padding: 40px 0 10px;
+        font-size: 32px;
+        color: #b6007c;
+        font-weight: bold;
+      }
+
+      #salonList {
+        padding: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 25px;
+      }
+
+      .salon-card {
+        background: #ffffff;
+        width: 300px;
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #f4d6df;
+      }
+
+      .salon-card h3 {
+        margin: 0 0 10px;
+        color: #b6007c;
+      }
+
+      .salon-card p {
+        margin: 6px 0;
+        font-size: 14px;
+      }
+
+      .salon-card a {
+        display: inline-block;
+        margin-top: 12px;
+        background: #b6007c;
+        padding: 10px 16px;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 14px;
       }
 
       .loading {
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 100vh;
+        height: 60vh;
         font-size: 24px;
         color: #b57c7c;
       }
     </style>
   </head>
+
   <body>
+    <div class="header">Nail Budapest Map</div>
+
     <div id="root">
       <div class="loading">Đang tải NailBudapestMap...</div>
     </div>
 
+    <!-- Danh sách salon -->
+    <div id="salonList"></div>
+
+    <!-- React khởi động map + overlay -->
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Load salon từ Firebase -->
+    <script type="module">
+      import { db, collection, getDocs } from "./admin/firebase.js";
+
+      async function loadSalons() {
+        const container = document.getElementById("salonList");
+        container.innerHTML = "<div class='loading'>Đang tải salon...</div>";
+
+        const salons = await getDocs(collection(db, "salons"));
+        container.innerHTML = "";
+
+        salons.forEach((s) => {
+          const data = s.data();
+          container.innerHTML += `
+            <div class="salon-card">
+              <h3>${data.name}</h3>
+              <p>📍 ${data.address}</p>
+              <p>📞 ${data.phone}</p>
+              <a href="salon.html?id=${s.id}">Xem dịch vụ</a>
+            </div>
+          `;
+        });
+      }
+
+      loadSalons();
+    </script>
   </body>
 </html>
