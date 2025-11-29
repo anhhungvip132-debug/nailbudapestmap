@@ -1,37 +1,49 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>Đặt lịch</title>
 <style>
-body{font-family:Arial;background:#fff7fc;padding:30px}
-input,button{padding:10px;margin:6px;width:250px}
-button{background:#b6007c;color:#fff;border:none;border-radius:6px;cursor:pointer}
+body{background:#fff8f6;font-family:Helvetica;padding:30px}
+input,button{padding:12px;margin:8px;width:260px}
+button{background:#b6007c;color:#fff;border:none;border-radius:8px;cursor:pointer}
+button:hover{opacity:.85}
 </style>
 </head>
 <body>
 
-<h1>Đặt lịch dịch vụ</h1>
-<input type="text" id="name" placeholder="Tên khách hàng">
-<input type="text" id="phone" placeholder="Số điện thoại">
-<button onclick="submitBooking()">Gửi yêu cầu</button>
+<h2>Đặt lịch</h2>
+
+<input id="name" placeholder="Tên khách">
+<input id="phone" placeholder="Số điện thoại">
+<button onclick="send()">Xác nhận</button>
 
 <script type="module">
 import { db, addDoc, collection } from "./admin/firebase.js";
 
-const params = new URLSearchParams(window.location.search);
-const service = params.get("service");
+const s = new URLSearchParams(location.search).get("service");
 
-window.submitBooking = async function() {
+window.send = async function() {
   await addDoc(collection(db,"booking"),{
-    name: name.value,
-    phone: phone.value,
-    service: service,
-    time: Date.now()
+    name:name.value,
+    phone:phone.value,
+    service:s,
+    time:Date.now()
   });
-  alert("Đặt lịch thành công!");
+
+  alert("Đặt lịch thành công! Chúng tôi sẽ liên hệ lại.");
+
+  // Gửi email về admin
+  fetch("https://formsubmit.co/ajax/anhhungvip1324@gmail.com", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
+      name: name.value,
+      phone: phone.value,
+      service: s
+    })
+  });
 };
 </script>
-
 </body>
 </html>
