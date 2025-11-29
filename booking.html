@@ -1,46 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <title>Đặt lịch</title>
 <style>
 body{background:#fff8f6;font-family:Helvetica;padding:30px}
-input,button{padding:12px;margin:8px;width:260px}
-button{background:#b6007c;color:#fff;border:none;border-radius:8px;cursor:pointer}
+input,select,button{padding:12px;margin:8px;width:260px;border-radius:6px;border:1px solid #eac4d1}
+button{background:#b6007c;color:#fff;border:none;cursor:pointer}
 button:hover{opacity:.85}
 </style>
 </head>
 <body>
 
-<h2>Đặt lịch</h2>
+<h2>Đặt lịch Nail</h2>
 
 <input id="name" placeholder="Tên khách">
 <input id="phone" placeholder="Số điện thoại">
+
+<select id="date">
+  <option>Hôm nay</option>
+  <option>Ngày mai</option>
+  <option>Ngày kia</option>
+</select>
+
+<select id="time">
+  <option>10:00</option>
+  <option>12:00</option>
+  <option>14:00</option>
+  <option>16:00</option>
+</select>
+
 <button onclick="send()">Xác nhận</button>
 
 <script type="module">
 import { db, addDoc, collection } from "./admin/firebase.js";
-
 const s = new URLSearchParams(location.search).get("service");
 
 window.send = async function() {
   await addDoc(collection(db,"booking"),{
-    name:name.value,
-    phone:phone.value,
-    service:s,
-    time:Date.now()
+    name:name.value, phone:phone.value,
+    date:date.value, time:time.value, service:s, timeStamp:Date.now()
   });
 
-  alert("Đặt lịch thành công! Chúng tôi sẽ liên hệ lại.");
+  alert("Đặt lịch thành công!");
 
-  // Gửi email về admin
-  fetch("https://formsubmit.co/ajax/anhhungvip1324@gmail.com", {
+  fetch("https://formsubmit.co/ajax/anhhungvip1324@gmail.com",{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body:JSON.stringify({
-      name: name.value,
-      phone: phone.value,
-      service: s
+      name:name.value, phone:phone.value,
+      date:date.value, time:time.value, service:s
     })
   });
 };
