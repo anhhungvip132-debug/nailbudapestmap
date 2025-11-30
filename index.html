@@ -5,59 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nail Budapest Map - Luxury</title>
-
-  <!-- CSS giao diện -->
   <link rel="stylesheet" href="/assets/css/style.css" />
-
-  <style>
-    #map {
-      width: 100%;
-      height: 520px;
-      background: #ffe6f3;
-      border-bottom: 4px solid #ffb6d9;
-    }
-    #salonList {
-      padding: 20px;
-      min-height: 260px;
-    }
-    #overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      backdrop-filter: blur(3px);
-      background: rgba(0, 0, 0, 0.35);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-    #overlay.active {
-      display: flex;
-    }
-    .overlay-box {
-      background: #fff;
-      width: 330px;
-      padding: 24px;
-      border-radius: 14px;
-      text-align: center;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    }
-    .overlay-box h2 {
-      margin-top: 0;
-      color: #b6007c;
-    }
-    .close-btn {
-      margin-top: 14px;
-      padding: 10px 18px;
-      border: none;
-      border-radius: 6px;
-      background: #b6007c;
-      color: #fff;
-      cursor: pointer;
-    }
-  </style>
 </head>
 
 <body>
@@ -70,17 +18,15 @@
   <!-- DANH SÁCH SALON -->
   <div id="salonList">Đang tải dữ liệu...</div>
 
-  <!-- OVERLAY CHI TIẾT -->
+  <!-- OVERLAY -->
   <div id="overlay"></div>
 
-  <!-- MAP.JS — CHỈ DUY NHẤT FILE NÀY -->
-  <script src="/assets/js/map.js"></script>
+  <!-- PHẢI ĐỂ type="module" CHO map.js -->
+  <script type="module" src="/assets/js/map.js"></script>
 
-  <!-- GOOGLE MAPS CALLBACK -->
-  <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAX0qJVDsB2FWUELDeCY3hw71NEBLqiCpU&callback=initMap"
-    async defer>
-  </script>
+  <!-- GOOGLE MAP API LUÔN ĐỂ SAU CÙNG -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkq0DKue8884V3AAu_O-cpEmlcalJhDOs&callback=initMap"
+          async defer></script>
 
 </body>
 </html>
