@@ -25,7 +25,7 @@ function getDistance(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-async function initMap() {
+async function initApp() {
   const loader = new Loader({
     apiKey: "AIzaSyAX0qJVDsB2FWUELDeCY3hw71NEBLqiCpU",
     version: "weekly"
@@ -34,12 +34,9 @@ async function initMap() {
   const google = await loader.load();
 
   const map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: 47.4979, lng: 19.0402 },
     zoom: 13,
-    styles: [
-      { elementType: "geometry", stylers: [{ color: "#fff0f8" }] },
-      { elementType: "labels.text.fill", stylers: [{ color: "#c4007f" }] }
-    ]
+    center: { lat: 47.4979, lng: 19.0402 },
+    styles: []
   });
 
   navigator.geolocation.getCurrentPosition(
@@ -50,13 +47,12 @@ async function initMap() {
 
 async function loadSalons(map, google, lat, lng) {
   const snap = await getDocs(collection(db, "salons"));
-  const salons = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const salons = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
   new google.maps.Marker({
     position: { lat, lng },
     map,
-    icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-    title: "Bạn đang ở đây"
+    icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
   });
 
   const list = document.getElementById("salonList");
@@ -84,25 +80,21 @@ async function loadSalons(map, google, lat, lng) {
   });
 }
 
-window.openOverlay = async function (id) {
+window.openOverlay = async function(id) {
   const snap = await getDoc(doc(db, "salons", id));
   const s = snap.data();
-  const overlay = document.getElementById("overlay");
 
-  overlay.innerHTML = `
-    <div class="overlay-box">
-      <h2>${s.name}</h2>
-      <p>${s.address}</p>
-      <p>${s.phone ?? "Đang cập nhật"}</p>
-      <a href="salon.html?id=${id}" class="lux-btn">Xem dịch vụ 💅</a>
-      <a href="booking.html?id=${id}" class="lux-btn">Đặt lịch 📆</a>
-      <button onclick="closeOverlay()" class="close-btn">Đóng</button>
-    </div>
-  `;
+  const overlay = document.getElementById("overlay");
   overlay.classList.add("active");
+  overlay.innerHTML = `
+    <h2>${s.name}</h2>
+    <p>${s.address}</p>
+    <p>${s.phone ?? "Đang cập nhật"}</p>
+    <button onclick="closeOverlay()">Đóng</button>
+  `;
 };
 
 window.closeOverlay = () =>
   document.getElementById("overlay").classList.remove("active");
 
-initMap();
+initApp();
