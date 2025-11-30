@@ -1,17 +1,28 @@
-console.log("Booking page loaded");
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Xử lý nút đặt lịch
-window.send = function () {
-  const name = document.getElementById("name").value;
-  const phone = document.getElementById("phone").value;
-  const date = document.getElementById("date").value;
-  const time = document.getElementById("time").value;
-
-  if (!name || !phone) {
-    alert("Vui lòng nhập tên và số điện thoại!");
-    return;
-  }
-
-  alert("Đặt lịch thành công!\n" + name + "\n" + phone + "\n" + date + " / " + time);
-  location.href = "/";
+const firebaseConfig = {
+  apiKey: "AIzaSyDkq0DKue8884V3AAu_O-cpEmlcalJhDOs",
+  authDomain: "nailfinder-6146a.firebaseapp.com",
+  projectId: "nailfinder-6146a",
+  storageBucket: "nailfinder-6146a.firebasestorage.app",
+  messagingSenderId: "703195233020",
+  appId: "1:703195233020:web:d0fd8877b2986f03a27579"
 };
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+document.getElementById("bookingForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  await addDoc(collection(db, "booking"), {
+    name: bookingName.value,
+    phone: bookingPhone.value,
+    time: bookingTime.value,
+    created: new Date()
+  });
+
+  alert("Đặt lịch thành công!");
+  bookingForm.reset();
+});
