@@ -1,10 +1,14 @@
-// ========================
-// MAP.JS — CALLBACK VERSION
-// ========================
+// ============ MAP.JS FINAL VERSION ============
 
+// FIREBASE
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, getDocs, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, getDocs, doc, getDoc, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+// GOOGLE MAPS LOADER
+import { Loader } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import "https://maps.googleapis.com/maps/api/js?key=AIzaSyAX0qJVDsB2FWUELDeCY3hw71NEBLqiCpU";
+
+// CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDkq0DKue8884V3AAu_O-cpEmlcalJhDOs",
   authDomain: "nailfinder-6146a.firebaseapp.com",
@@ -17,81 +21,64 @@ const firebaseConfig = {
 initializeApp(firebaseConfig);
 const db = getFirestore();
 
-// Hàm tính khoảng cách
+// HAVERSINE
 function getDistance(a, b, c, d) {
   const R = 6371;
-  const dLat = ((c - a) * Math.PI) / 180;
-  const dLng = ((d - b) * Math.PI) / 180;
-  const x =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(a * Math.PI / 180) *
-      Math.cos(c * Math.PI / 180) *
-      Math.sin(dLng / 2) ** 2;
-  return (R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x))).toFixed(1);
+  const x = (c - a) * Math.PI / 180;
+  const y = (d - b) * Math.PI / 180;
+  const h = Math.sin(x/2)**2 + Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;
+  return (R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1-h))).toFixed(1);
 }
 
-// Google Map callback
-window.initMap = async function () {
+// INIT APP
+async function initMap() {
+  const google = window.google;
+
   const map = new google.maps.Map(document.getElementById("map"), {
     zoom: 13,
-    center: { lat: 47.4979, lng: 19.0402 },
+    center: { lat: 47.4979, lng: 19.0402 }
   });
 
   navigator.geolocation.getCurrentPosition(
     pos => loadSalons(map, pos.coords.latitude, pos.coords.longitude),
     () => loadSalons(map, 47.4979, 19.0402)
   );
-};
+}
 
-// Load salon
+// LOAD & PRINT SALONS
 async function loadSalons(map, lat, lng) {
   const snap = await getDocs(collection(db, "salons"));
-  const salons = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const salons = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  new google.maps.Marker({
-    position: { lat, lng },
-    map,
-    icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-    title: "Bạn đang ở đây",
-  });
+  map.setCenter({ lat, lng });
 
-  document.getElementById("salonList").innerHTML = "";
+  new google.maps.Marker({ position: { lat, lng }, map, icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png" });
+
+  const list = document.getElementById("salonList");
+  list.innerHTML = "";
 
   salons.forEach(s => {
-    const dist = getDistance(lat, lng, s.lat, s.lng);
+    const marker = new google.maps.Marker({ position: { lat: s.lat, lng: s.lng }, map });
 
-    new google.maps.Marker({
-      position: { lat: s.lat, lng: s.lng },
-      map,
-      title: s.name,
-    });
+    marker.addListener("click", () => openOverlay(s.id));
 
-    document.getElementById("salonList").innerHTML += `
+    list.innerHTML += `
       <div class="salon-card" onclick="openOverlay('${s.id}')">
         <h3>${s.name}</h3>
-        <p>📍 ${s.address}</p>
-        <p>📞 ${s.phone ?? "Đang cập nhật"}</p>
-        <p>🚶 ${dist} km</p>
-      </div>
-    `;
+        <p>${s.address}</p>
+        <p>🚶 ${getDistance(lat, lng, s.lat, s.lng)} km</p>
+      </div>`;
   });
 }
 
-// Overlay
-window.openOverlay = async id => {
+window.openOverlay = async function(id) {
   const snap = await getDoc(doc(db, "salons", id));
   const s = snap.data();
-  const overlay = document.getElementById("overlay");
-
-  overlay.innerHTML = `
-    <div class="overlay-box">
-      <h2>${s.name}</h2>
-      <p>${s.address}</p>
-      <button onclick="closeOverlay()">Đóng</button>
-    </div>
-  `;
-  overlay.classList.add("active");
+  const div = document.getElementById("overlay");
+  div.classList.add("active");
+  div.innerHTML = `<h2>${s.name}</h2><p>${s.address}</p><button onclick="closeOverlay()">Đóng</button>`;
 };
+window.closeOverlay = () => document.getElementById("overlay").classList.remove("active");
 
-window.closeOverlay = () =>
-  document.getElementById("overlay").classList.remove("active");
+// RUN
+initMap();
