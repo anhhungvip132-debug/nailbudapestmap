@@ -1,19 +1,26 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nail Budapest Map - Luxury</title>
 
+  <!-- CSS -->
   <link rel="stylesheet" href="/assets/css/style.css" />
 
   <style>
+    body { margin: 0; }
     #map {
       width: 100%;
-      height: 480px; /* BẮT BUỘC */
+      height: 520px; /* CHIỀU CAO BẮT BUỘC */
+      background: #ffe6f3;
       border-bottom: 4px solid #ffb6d9;
     }
-    #salonList { padding: 20px; }
+    #salonList {
+      padding: 20px;
+      min-height: 200px;
+    }
   </style>
 </head>
 
@@ -21,15 +28,20 @@
 
   <div class="header">NAIL BUDAPEST MAP - LUXURY</div>
 
-  <!-- BẢN ĐỒ -->
+  <!-- MAP -->
   <div id="map"></div>
 
-  <!-- DANH SÁCH SALON -->
-  <div id="salonList"></div>
+  <!-- LIST -->
+  <div id="salonList">Đang tải dữ liệu...</div>
 
-  <!-- SCRIPT BẢN ĐỒ GỌI SAU KHI MAP.JS LOAD -->
+  <!-- LOAD MAP.JS TRƯỚC -->
   <script type="module" src="/assets/js/map.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAX0qJVDsB2FWUELDeCY3hw71NEBLqiCpU&callback=initMap" async defer></script>
+
+  <!-- GOOGLE MAP API CALL CALLBACK -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAX0qJVDsB2FWUELDeCY3hw71NEBLqiCpU&callback=initMap"
+    async defer>
+  </script>
 
 </body>
 </html>
