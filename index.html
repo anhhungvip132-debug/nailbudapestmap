@@ -6,6 +6,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nail Budapest Map - Luxury</title>
   <link rel="stylesheet" href="/assets/css/style.css" />
+
+  <style>
+    #map {
+      width: 100%;
+      height: 520px;
+      background: #ffe6f3;
+      border-bottom: 4px solid #ffb6d9;
+    }
+    #salonList {
+      padding: 20px;
+      min-height: 200px;
+    }
+    #overlay {
+      position: fixed;
+      top: 0; right: -420px;
+      width: 400px;
+      height: 100vh;
+      background: #fff0f7;
+      padding: 20px;
+      transition: .4s;
+      box-shadow: -4px 0 20px rgba(0,0,0,.1);
+    }
+    #overlay.active {
+      right: 0;
+    }
+  </style>
+
+  <!-- 🔥 FIREBASE V9 CDN (NON-MODULE) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
+
 </head>
 
 <body>
@@ -18,14 +49,14 @@
   <!-- DANH SÁCH SALON -->
   <div id="salonList">Đang tải dữ liệu...</div>
 
-  <!-- OVERLAY -->
+  <!-- OVERLAY CHI TIẾT -->
   <div id="overlay"></div>
 
-  <!-- PHẢI ĐỂ type="module" CHO map.js -->
-  <script type="module" src="/assets/js/map.js"></script>
+  <!-- MAP.JS DUY NHẤT -->
+  <script src="/assets/js/map.js"></script>
 
-  <!-- GOOGLE MAP API LUÔN ĐỂ SAU CÙNG -->
- <script type="module" src="/assets/js/map.js"></script>
+  <!-- GOOGLE MAP API + CALLBACK -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAX0qJVDsB2FWUELDeCY3hw71NEBLqiCpU&callback=initMap" async defer></script>
 
 </body>
 </html>
