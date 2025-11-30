@@ -1,8 +1,10 @@
-// MAP.JS — Luxury Overlay Version
+// ================================================
+// MAP.JS — Nail Budapest Map (Luxury Version)
+// ================================================
 
-// ========== 1️⃣ HÀM TÍNH KHOẢNG CÁCH (Haversine) ==========
+// 1️⃣ HÀM TÍNH KHOẢNG CÁCH THEO CÔNG THỨC HAVERSINE
 function getDistance(lat1, lng1, lat2, lng2) {
-  const R = 6371; // Bán kính Trái Đất theo km
+  const R = 6371; // km
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLng = (lng2 - lng1) * Math.PI / 180;
   const a =
@@ -12,10 +14,9 @@ function getDistance(lat1, lng1, lat2, lng2) {
     Math.sin(dLng / 2) * Math.sin(dLng / 2);
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
-// ==========================================================
 
 
-// ===== Firebase =====
+// 2️⃣ FIREBASE KẾT NỐI
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -31,45 +32,47 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ===== DOM =====
+
+// 3️⃣ DOM ELEMENTS
 const salonList = document.getElementById("salonList");
 const overlay = document.createElement("div");
 overlay.id = "overlay";
 overlay.className = "overlay";
 document.body.appendChild(overlay);
 
+let salonCache = []; // Cache salons để xử lý khoảng cách
 
-// ===== LOAD SALONS =====
-async function loadSalons() {
-  const salons = await getDocs(collection(db, "salons"));
+
+// 4️⃣ TẢI DANH SÁCH SALON + TÍNH KHOẢNG CÁCH
+async function loadSalons(userPos) {
+  const salonsSnap = await getDocs(collection(db, "salons"));
+  salonCache = salonsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  
   salonList.innerHTML = "";
 
-  // Ví dụ: tọa độ người dùng tại Budapest trung tâm
-  const userLat = 47.4979;
-  const userLng = 19.0402;
-
-  salons.forEach(doc => {
-    const s = doc.data();
-    const km = getDistance(userLat, userLng, s.lat, s.lng).toFixed(1);
+  salonCache.forEach(s => {
+    const dist = userPos
+      ? getDistance(userPos.lat, userPos.lng, s.lat, s.lng).toFixed(1)
+      : "—";
 
     salonList.innerHTML += `
-      <div class="salon-card" onclick="openOverlay('${doc.id}')">
+      <div class="salon-card" onclick="openOverlay('${s.id}')">
         <h3>${s.name}</h3>
         <p>📍 ${s.address}</p>
         <p>📞 ${s.phone ?? "Đang cập nhật"}</p>
-        <p>🚶 Cách bạn: <b>${km} km</b></p>
+        <p>🚶 Gần bạn: <b>${dist} km</b></p>
       </div>
     `;
   });
 }
 
 
-// ===== INIT MAP =====
+// 5️⃣ KHỞI TẠO GOOGLE MAP + LẤY VỊ TRÍ USER
 async function initMap() {
-  const salons = await getDocs(collection(db, "salons"));
+  const salonsSnap = await getDocs(collection(db, "salons"));
+  salonCache = salonsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
   const map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: 47.4979, lng: 19.0402 },
     zoom: 13,
     styles: [
       { elementType: "geometry", stylers: [{ color: "#fff8fc" }] },
@@ -78,20 +81,47 @@ async function initMap() {
     ]
   });
 
-  salons.forEach(doc => {
-    const s = doc.data();
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      map.setCenter(userPos);
+
+      new google.maps.Marker({
+        position: userPos,
+        map,
+        icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+        title: "Vị trí của bạn"
+      });
+
+      loadSalons(userPos);
+      renderSalonMarkers(map, userPos);
+    },
+    () => {
+      const defaultPos = { lat: 47.4979, lng: 19.0402 }; // Budapest
+      map.setCenter(defaultPos);
+
+      loadSalons(defaultPos);
+      renderSalonMarkers(map, defaultPos);
+    }
+  );
+}
+
+
+// 6️⃣ HIỂN THỊ MARKER SALONS LÊN MAP
+function renderSalonMarkers(map, userPos) {
+  salonCache.forEach(s => {
     const marker = new google.maps.Marker({
       position: { lat: s.lat, lng: s.lng },
       map,
       title: s.name
     });
 
-    marker.addListener("click", () => openOverlay(doc.id));
+    marker.addListener("click", () => openOverlay(s.id));
   });
 }
 
 
-// ===== OVERLAY =====
+// 7️⃣ OVERLAY DETAIL
 window.openOverlay = async function (id) {
   overlay.classList.add("active");
   overlay.innerHTML = "<h2>Đang tải...</h2>";
@@ -101,18 +131,17 @@ window.openOverlay = async function (id) {
 
   overlay.innerHTML = `
     <h2 style="color:#b6007c;font-size:26px;margin:0 0 10px;">${s.name}</h2>
-    <p style="margin:6px 0;">📍 ${s.address}</p>
-    <p style="margin:6px 0;">📞 ${s.phone ?? "Đang cập nhật"}</p>
+    <p>📍 ${s.address}</p>
+    <p>📞 ${s.phone ?? "Đang cập nhật"}</p>
     <hr style="margin:14px 0;border-color:#f3c5d7;">
     <a href="salon.html?id=${id}" class="lux-btn">💅 Xem dịch vụ</a>
     <a href="booking.html?id=${id}" class="lux-btn">📆 Đặt lịch</a>
     <button onclick="closeOverlay()" class="close-btn">Đóng</button>
   `;
-}
+};
 
 window.closeOverlay = () => overlay.classList.remove("active");
 
 
-// ===== START =====
-loadSalons();
-initMap();
+// 8️⃣ CHẠY APP
+window.initMap = initMap;
