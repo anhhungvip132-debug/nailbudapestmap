@@ -5,32 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nail Budapest Map - Luxury</title>
 
-  <!-- CSS giao diện -->
   <link rel="stylesheet" href="/assets/css/style.css" />
 
   <style>
-    /* Đảm bảo map luôn có chiều cao để không bị trắng */
     #map {
       width: 100%;
-      height: 420px;
+      height: 480px; /* BẮT BUỘC */
+      border-bottom: 4px solid #ffb6d9;
     }
+    #salonList { padding: 20px; }
   </style>
 </head>
 
 <body>
-  <!-- HEADER -->
+
   <div class="header">NAIL BUDAPEST MAP - LUXURY</div>
 
-  <!-- GOOGLE MAP -->
+  <!-- BẢN ĐỒ -->
   <div id="map"></div>
 
   <!-- DANH SÁCH SALON -->
   <div id="salonList"></div>
 
-  <!-- GOOGLE MAP API (KHÔNG callback) -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAX0qJVDsB2FWUELDeCY3hw71NEBLqiCpU"></script>
-
-  <!-- JS MAP (đường dẫn đúng) -->
+  <!-- SCRIPT BẢN ĐỒ GỌI SAU KHI MAP.JS LOAD -->
   <script type="module" src="/assets/js/map.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAX0qJVDsB2FWUELDeCY3hw71NEBLqiCpU&callback=initMap" async defer></script>
+
 </body>
 </html>
