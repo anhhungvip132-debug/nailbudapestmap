@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nail Budapest Map</title>
 
-  <!-- Tách CSS ra file riêng -->
-  <link rel="stylesheet" href="/assets/css/style.css">
+  <!-- CSS GIAO DIỆN -->
+  <link rel="stylesheet" href="/assets/css/style.css" />
 </head>
 
 <body>
@@ -14,18 +15,17 @@
   <!-- HEADER -->
   <div class="header">Nail Budapest Map - Luxury</div>
 
-  <!-- GOOGLE MAP -->
+  <!-- BẢN ĐỒ GOOGLE MAP -->
   <div id="map"></div>
 
-  <!-- DANH SÁCH SALON -->
+  <!-- DANH SÁCH CÁC SALON -->
   <div id="salonList"></div>
 
-  <!-- FILE JS ĐIỀU KHIỂN MAP -->
-  <script type="module" src="/assets/js/map.js"></script>
+  <!-- GOOGLE MAPS API (ĐÃ GẮN API KEY CỦA BẠN) -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAX0qJVDsB2FWUELDeCY3hw71NEBLqiCpU&callback=initMap" async defer></script>
 
-  <!-- GOOGLE MAPS API KEY -->
-  <!-- Hãy thay YOUR_GOOGLE_MAP_KEY bằng key thật của bạn -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAP_KEY"></script>
+  <!-- FILE JS MAP -->
+  <script type="module" src="/assets/js/map.js"></script>
 
 </body>
 </html>
