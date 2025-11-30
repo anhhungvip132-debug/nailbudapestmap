@@ -1,14 +1,8 @@
-// ============ MAP.JS FINAL VERSION ============
+// ===========================================
+// MAP.JS — Google Maps + Firebase NO-MODULE
+// ===========================================
 
-// FIREBASE
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, getDocs, doc, getDoc, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-// GOOGLE MAPS LOADER
-import { Loader } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import "https://maps.googleapis.com/maps/api/js?key=AIzaSyAX0qJVDsB2FWUELDeCY3hw71NEBLqiCpU";
-
-// CONFIG
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDkq0DKue8884V3AAu_O-cpEmlcalJhDOs",
   authDomain: "nailfinder-6146a.firebaseapp.com",
@@ -18,67 +12,107 @@ const firebaseConfig = {
   appId: "1:703195233020:web:d0fd8877b2986f03a27579"
 };
 
-initializeApp(firebaseConfig);
-const db = getFirestore();
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-// HAVERSINE
-function getDistance(a, b, c, d) {
+
+// Hàm Haversine tính khoảng cách
+function getDistance(lat1, lng1, lat2, lng2) {
   const R = 6371;
-  const x = (c - a) * Math.PI / 180;
-  const y = (d - b) * Math.PI / 180;
-  const h = Math.sin(x/2)**2 + Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;
-  return (R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1-h))).toFixed(1);
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 +
+            Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180) *
+            Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-// INIT APP
-async function initMap() {
-  const google = window.google;
+let salonCache = [];
+let map;
 
-  const map = new google.maps.Map(document.getElementById("map"), {
+
+// GOOGLE MAP CALLBACK
+window.initMap = async function () {  
+  map = new google.maps.Map(document.getElementById("map"), {
     zoom: 13,
-    center: { lat: 47.4979, lng: 19.0402 }
+    center: { lat: 47.4979, lng: 19.0402 },
+    styles: []
   });
 
   navigator.geolocation.getCurrentPosition(
-    pos => loadSalons(map, pos.coords.latitude, pos.coords.longitude),
-    () => loadSalons(map, 47.4979, 19.0402)
+    pos => loadSalons(pos.coords.latitude, pos.coords.longitude),
+    () => loadSalons(47.4979, 19.0402)
   );
+};
+
+
+// LOAD SALONS + MARKER
+async function loadSalons(lat, lng) {
+  const snap = await db.collection("salons").get();
+  salonCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  new google.maps.Marker({
+    position: { lat, lng },
+    map,
+    icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+    title: "Vị trí của bạn"
+  });
+
+  renderList(lat, lng);
+  renderMarkers();
 }
 
-// LOAD & PRINT SALONS
-async function loadSalons(map, lat, lng) {
-  const snap = await getDocs(collection(db, "salons"));
-  const salons = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  map.setCenter({ lat, lng });
-
-  new google.maps.Marker({ position: { lat, lng }, map, icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png" });
-
+// HIỂN THỊ DANH SÁCH
+function renderList(lat, lng) {
   const list = document.getElementById("salonList");
   list.innerHTML = "";
 
-  salons.forEach(s => {
-    const marker = new google.maps.Marker({ position: { lat: s.lat, lng: s.lng }, map });
-
-    marker.addListener("click", () => openOverlay(s.id));
-
+  salonCache.forEach(s => {
+    const dist = getDistance(lat, lng, s.lat, s.lng).toFixed(1);
     list.innerHTML += `
       <div class="salon-card" onclick="openOverlay('${s.id}')">
         <h3>${s.name}</h3>
-        <p>${s.address}</p>
-        <p>🚶 ${getDistance(lat, lng, s.lat, s.lng)} km</p>
-      </div>`;
+        <p>📍 ${s.address}</p>
+        <p>📞 ${s.phone ?? "Đang cập nhật"}</p>
+        <p>🚶 ${dist} km từ bạn</p>
+      </div>
+    `;
   });
 }
 
-window.openOverlay = async function(id) {
-  const snap = await getDoc(doc(db, "salons", id));
-  const s = snap.data();
-  const div = document.getElementById("overlay");
-  div.classList.add("active");
-  div.innerHTML = `<h2>${s.name}</h2><p>${s.address}</p><button onclick="closeOverlay()">Đóng</button>`;
-};
-window.closeOverlay = () => document.getElementById("overlay").classList.remove("active");
 
-// RUN
-initMap();
+// MARKER SALONS
+function renderMarkers() {
+  salonCache.forEach(s => {
+    const marker = new google.maps.Marker({
+      position: { lat: s.lat, lng: s.lng },
+      map,
+      title: s.name
+    });
+
+    marker.addListener("click", () => openOverlay(s.id));
+  });
+}
+
+
+// OVERLAY
+window.openOverlay = async function(id) {
+  const snap = await db.collection("salons").doc(id).get();
+  const s = snap.data();
+  const el = document.getElementById("overlay");
+
+  el.innerHTML = `
+    <h2>${s.name}</h2>
+    <p>${s.address}</p>
+    <p>${s.phone ?? "Đang cập nhật"}</p>
+    <a href="salon.html?id=${id}" class="lux-btn">💅 Xem dịch vụ</a>
+    <a href="booking.html?id=${id}" class="lux-btn">📆 Đặt lịch</a>
+    <button onclick="closeOverlay()">Đóng</button>
+  `;
+
+  el.classList.add("active");
+};
+
+window.closeOverlay = () =>
+  document.getElementById("overlay").classList.remove("active");
