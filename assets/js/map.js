@@ -1,9 +1,24 @@
 // MAP.JS — Luxury Overlay Version
 
+// ========== 1️⃣ HÀM TÍNH KHOẢNG CÁCH (Haversine) ==========
+function getDistance(lat1, lng1, lat2, lng2) {
+  const R = 6371; // Bán kính Trái Đất theo km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+// ==========================================================
+
+
+// ===== Firebase =====
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// === Firebase Config ===
 const firebaseConfig = {
   apiKey: "AIzaSyDkq0DKue8884V3AAu_O-cpEmlcalJhDOs",
   authDomain: "nailfinder-6146a.firebaseapp.com",
@@ -16,31 +31,40 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// === DOM elements ===
+// ===== DOM =====
 const salonList = document.getElementById("salonList");
 const overlay = document.createElement("div");
 overlay.id = "overlay";
 overlay.className = "overlay";
 document.body.appendChild(overlay);
 
-// ===== LOAD SALONS TO LIST =====
+
+// ===== LOAD SALONS =====
 async function loadSalons() {
   const salons = await getDocs(collection(db, "salons"));
   salonList.innerHTML = "";
 
+  // Ví dụ: tọa độ người dùng tại Budapest trung tâm
+  const userLat = 47.4979;
+  const userLng = 19.0402;
+
   salons.forEach(doc => {
     const s = doc.data();
+    const km = getDistance(userLat, userLng, s.lat, s.lng).toFixed(1);
+
     salonList.innerHTML += `
       <div class="salon-card" onclick="openOverlay('${doc.id}')">
         <h3>${s.name}</h3>
         <p>📍 ${s.address}</p>
         <p>📞 ${s.phone ?? "Đang cập nhật"}</p>
+        <p>🚶 Cách bạn: <b>${km} km</b></p>
       </div>
     `;
   });
 }
 
-// ===== INIT GOOGLE MAP =====
+
+// ===== INIT MAP =====
 async function initMap() {
   const salons = await getDocs(collection(db, "salons"));
 
@@ -56,7 +80,6 @@ async function initMap() {
 
   salons.forEach(doc => {
     const s = doc.data();
-
     const marker = new google.maps.Marker({
       position: { lat: s.lat, lng: s.lng },
       map,
@@ -67,7 +90,8 @@ async function initMap() {
   });
 }
 
-// ===== LUXURY OVERLAY =====
+
+// ===== OVERLAY =====
 window.openOverlay = async function (id) {
   overlay.classList.add("active");
   overlay.innerHTML = "<h2>Đang tải...</h2>";
@@ -88,6 +112,7 @@ window.openOverlay = async function (id) {
 
 window.closeOverlay = () => overlay.classList.remove("active");
 
-// ===== INITIAL CALL =====
+
+// ===== START =====
 loadSalons();
 initMap();
