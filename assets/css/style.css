@@ -50,3 +50,42 @@ body {
   border-radius:8px;
   text-decoration:none;
 }
+.overlay {
+  position: fixed;
+  top: 0;
+  right: -420px;
+  width: 360px;
+  height: 100vh;
+  background: #ffffff;
+  box-shadow: -5px 0 20px rgba(0,0,0,0.12);
+  transition: 0.35s ease;
+  padding: 26px;
+  border-left: 4px solid #b6007c;
+  overflow-y: auto;
+  z-index: 9999;
+}
+
+.overlay.active { right: 0; }
+
+.lux-btn {
+  display: block;
+  margin: 10px 0;
+  padding: 12px;
+  text-align: center;
+  background: #b6007c;
+  color: #fff !important;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.close-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px;
+  background: #444;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
