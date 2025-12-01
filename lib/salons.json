@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "name": "Lily Pink Nails",
+    "lat": 47.4979,
+    "lng": 19.0402,
+    "address": "District 5, Budapest",
+    "rating": 5,
+    "image": "https://images.unsplash.com/photo-1582095133179-2988c318be0c?w=800"
+  },
+  {
+    "id": 2,
+    "name": "Beauty Nails Spa",
+    "lat": 47.5005,
+    "lng": 19.045,
+    "address": "District 8, Budapest",
+    "rating": 4,
+    "image": "https://images.unsplash.com/photo-1562259949-e8e7689d7827?w=800"
+  },
+  {
+    "id": 3,
+    "name": "Pink Blossom Studio",
+    "lat": 47.4951,
+    "lng": 19.0352,
+    "address": "District 7, Budapest",
+    "rating": 5,
+    "image": "https://images.unsplash.com/photo-1601302192932-b7c3f51610ab?w=800"
+  }
+]
