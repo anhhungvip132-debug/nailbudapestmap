@@ -1,29 +1,96 @@
 [
   {
     "id": 1,
-    "name": "Lily Pink Nails",
-    "lat": 47.4979,
-    "lng": 19.0402,
-    "address": "District 5, Budapest",
+    "name": "Edi Nails",
+    "address": "Mozsár u. 6, 1066 Budapest",
+    "district": "District 6",
+    "lat": 47.50252,
+    "lng": 19.05501,
     "rating": 5,
-    "image": "https://images.unsplash.com/photo-1582095133179-2988c318be0c?w=800"
+    "image": "https://images.unsplash.com/photo-1582095133179-2988c318be0c?w=900"
   },
   {
     "id": 2,
-    "name": "Beauty Nails Spa",
-    "lat": 47.5005,
-    "lng": 19.045,
-    "address": "District 8, Budapest",
-    "rating": 4,
-    "image": "https://images.unsplash.com/photo-1562259949-e8e7689d7827?w=800"
+    "name": "Nail Budapest",
+    "address": "Jókai tér 1, 1065 Budapest",
+    "district": "District 6",
+    "lat": 47.50602,
+    "lng": 19.06210,
+    "rating": 5,
+    "image": "https://images.unsplash.com/photo-1562259949-e8e7689d7827?w=900"
   },
   {
     "id": 3,
-    "name": "Pink Blossom Studio",
-    "lat": 47.4951,
-    "lng": 19.0352,
-    "address": "District 7, Budapest",
+    "name": "Milano Nail Spa Budapest",
+    "address": "József krt. 36, 1085 Budapest",
+    "district": "District 8",
+    "lat": 47.49195,
+    "lng": 19.07895,
+    "rating": 4,
+    "image": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=900"
+  },
+  {
+    "id": 4,
+    "name": "Elite Nails",
+    "address": "Pálya u. 17, 1012 Budapest",
+    "district": "District 1",
+    "lat": 47.49780,
+    "lng": 19.02990,
     "rating": 5,
-    "image": "https://images.unsplash.com/photo-1601302192932-b7c3f51610ab?w=800"
-  }
-]
+    "image": "https://images.unsplash.com/photo-1558211583-d26f610c97f6?w=900"
+  },
+  {
+    "id": 5,
+    "name": "A-List Salon & Spa",
+    "address": "Budapest, Hungary",
+    "district": "Multiple Locations",
+    "lat": 47.51020,
+    "lng": 19.04480,
+    "rating": 4,
+    "image": "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=900"
+  },
+  {
+    "id": 6,
+    "name": "Best Nails Budapest",
+    "address": "Budapest, Hungary",
+    "district": "District 5",
+    "lat": 47.49550,
+    "lng": 19.05010,
+    "rating": 4,
+    "image": "https://images.unsplash.com/photo-1604654894610-68efc5f95f31?w=900"
+  },
+  {
+    "id": 7,
+    "name": "Nails by Stella",
+    "address": "Budapest, Hungary",
+    "district": "District 7",
+    "lat": 47.51050,
+    "lng": 19.06530,
+    "rating": 5,
+    "image": "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=900"
+  },
+  {
+    "id": 8,
+    "name": "Nails House",
+    "address": "Budapest, Hungary",
+    "district": "District 8",
+    "lat": 47.48010,
+    "lng": 19.07020,
+    "rating": 4,
+    "image": "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=900"
+  },
+  {
+    "id": 9,
+    "name": "Shadow Beauty Salon",
+    "address": "Budapest, Hungary",
+    "district": "District 5",
+    "lat": 47.50020,
+    "lng": 19.04550,
+    "rating": 4,
+    "image": "https://images.unsplash.com/photo-1582095133179-2988c318be0c?w=900"
+  },
+  {
+    "id": 10,
+    "name": "Hana Nail Lounge",
+    "address": "Budapest, Hungary",
+    "district": "D
