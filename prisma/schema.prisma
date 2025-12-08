@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // Không dùng URL trong Prisma 7!
+  // KHÔNG ĐƯỢC có dòng url ở đây trong Prisma 7
 }
 
 model Salon {
