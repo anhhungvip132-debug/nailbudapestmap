@@ -8,13 +8,21 @@
     "start": "next start"
   },
   "dependencies": {
+    "@prisma/client": "^7.0.1",
+    "@react-google-maps/api": "^2.20.7",
+    "marked": "^17.0.1",
     "next": "14.0.0",
+    "next-optimized-images": "^2.6.2",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "resend": "^6.5.2",
+    "swiper": "^12.0.3",
+    "yet-another-react-lightbox": "^3.25.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.31",
+    "prisma": "^7.0.1",
     "tailwindcss": "^3.3.3"
   }
 }

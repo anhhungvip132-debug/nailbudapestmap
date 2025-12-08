@@ -1,8 +1,9 @@
 import "./globals.css";
 
 export const metadata = {
+  metadataBase: new URL("https://nailbudapestmap.vercel.app"),
   title: "Nail Budapest Map",
-  description: "Find and book nail salons easily in Budapest."
+  description: "Tìm tiệm nail tốt nhất Budapest",
 };
 
 export default function RootLayout({ children }) {
