@@ -1,47 +1,47 @@
-// app/api/nearest/route.js
-import { NextResponse } from "next/server";
-import salons from "@/lib/salons.json";
+import { PrismaClient } from "@prisma/client";
 
-// Haversine: tính khoảng cách 2 tọa độ (km)
-function calcDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371; // bán kính Trái đất (km)
-  const toRad = (deg) => (deg * Math.PI) / 180;
+const prisma = new PrismaClient();
 
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
+// GET ALL SALONS
+export async function GET() {
+  try {
+    const salons = await prisma.salon.findMany({
+      orderBy: { createdAt: "desc" },
+    });
 
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+    return Response.json(salons);
+  } catch (error) {
+    console.error("Salons API Error:", error);
+    return Response.json({ error: error.message }, { status: 500 });
+  }
 }
 
-export async function GET(request) {
-  const { searchParams } = new URL(request.url);
+// CREATE NEW SALON (optional)
+export async function POST(req) {
+  try {
+    const body = await req.json();
 
-  const lat = parseFloat(searchParams.get("lat"));
-  const lng = parseFloat(searchParams.get("lng"));
-  const limit = parseInt(searchParams.get("limit") || "3", 10);
+    // Validate field bắt buộc
+    if (!body.name || !body.address || !body.lat || !body.lng) {
+      return Response.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
 
-  if (Number.isNaN(lat) || Number.isNaN(lng)) {
-    return NextResponse.json(
-      { error: "Missing lat or lng" },
-      { status: 400 }
-    );
+    const salon = await prisma.salon.create({
+      data: {
+        name: body.name,
+        address: body.address,
+        lat: Number(body.lat),
+        lng: Number(body.lng),
+        rating: body.rating ? Number(body.rating) : 0,
+      },
+    });
+
+    return Response.json({ success: true, salon }, { status: 201 });
+  } catch (error) {
+    console.error("Salon Create Error:", error);
+    return Response.json({ error: error.message }, { status: 500 });
   }
-
-  const nearest = salons
-    .map((s) => ({
-      ...s,
-      distance: calcDistance(lat, lng, s.lat, s.lng),
-    }))
-    .sort((a, b) => a.distance - b.distance)
-    .slice(0, limit);
-
-  return NextResponse.json(nearest);
 }

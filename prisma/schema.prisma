@@ -3,16 +3,25 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Booking {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   name      String
   phone     String
-  email     String?
   service   String
-  note      String?
+  date      DateTime
+  createdAt DateTime @default(now())
+}
+
+model Salon {
+  id        String   @id @default(uuid())
+  name      String
+  address   String
+  lat       Float
+  lng       Float
+  rating    Float    @default(0)
   createdAt DateTime @default(now())
 }
