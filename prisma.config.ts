@@ -7,5 +7,7 @@ export default defineConfig({
       url: process.env.DATABASE_URL!,
     },
   },
-  client: {},
+  client: {
+    preventReconnect: true,
+  },
 });
