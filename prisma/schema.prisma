@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // Prisma 7: KHÔNG dùng url tại đây
+  // Không dùng URL trong Prisma 7!
 }
 
 model Salon {
@@ -26,7 +26,7 @@ model Service {
   id        Int      @id @default(autoincrement())
   name      String
   price     Float
-  duration  Int      // minutes
+  duration  Int
   salonId   Int
 
   salon     Salon    @relation(fields: [salonId], references: [id])
