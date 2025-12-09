@@ -7,49 +7,40 @@ import SearchBar from "@/components/ui/SearchBar";
 import CategoryList from "@/components/ui/CategoryList";
 import NearestSalons from "@/components/ui/NearestSalons";
 import FeaturedAds from "@/components/ui/FeaturedAds";
+import BlogList from "@/components/ui/BlogList";
+import IntroSection from "@/components/ui/IntroSection";
+import RegisterSection from "@/components/ui/RegisterSection";
 import Map from "@/components/ui/Map";
 
 export default function HomePage() {
   const [salons, setSalons] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSalons = async () => {
-      try {
-        const res = await fetch("/api/salons");
-        const json = await res.json();
-
-        const normalized = Array.isArray(json)
-          ? json
-          : Array.isArray(json?.data)
-          ? json.data
-          : [];
-
-        setSalons(normalized);
-      } catch (err) {
-        console.error("Failed to load salons", err);
-        setSalons([]);
-      } finally {
-        setLoading(false);
-      }
+    const load = async () => {
+      const res = await fetch("/api/salons");
+      const data = await res.json();
+      const safe = Array.isArray(data) ? data : data?.data ?? [];
+      setSalons(safe);
     };
-
-    fetchSalons();
+    load();
   }, []);
-
-  const safeSalons = Array.isArray(salons) ? salons : [];
 
   return (
     <main className="min-h-screen bg-[#fafafa]">
       <Header />
+
       <section className="container section">
-        <HeroSlider salons={safeSalons} />
-        <SearchBar salons={safeSalons} />
-        <CategoryList salons={safeSalons} />
-        <NearestSalons salons={safeSalons} />
-        <FeaturedAds salons={safeSalons} />
-        <div className="mt-6">
-          {!loading && <Map salons={safeSalons} />}
+        <HeroSlider salons={salons} />
+        <SearchBar salons={salons} />
+        <CategoryList salons={salons} />
+        <NearestSalons salons={salons} />
+        <FeaturedAds salons={salons} />
+        <BlogList />
+        <IntroSection />
+        <RegisterSection />
+
+        <div className="mt-10">
+          <Map salons={salons} />
         </div>
       </section>
     </main>
