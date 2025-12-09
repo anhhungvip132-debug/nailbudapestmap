@@ -8,8 +8,6 @@ export default function Map({ salons = [] }) {
   useEffect(() => {
     if (!mapRef.current) return;
 
-    const safe = Array.isArray(salons) ? salons : [];
-
     const load = async () => {
       if (!window.google) {
         await new Promise((resolve) => {
@@ -21,8 +19,12 @@ export default function Map({ salons = [] }) {
         });
       }
 
+      const safe = Array.isArray(salons) ? salons : [];
+
       const map = new window.google.maps.Map(mapRef.current, {
-        center: safe.length ? { lat: safe[0].lat, lng: safe[0].lng } : { lat: 47.4979, lng: 19.0402 },
+        center: safe.length
+          ? { lat: safe[0].lat, lng: safe[0].lng }
+          : { lat: 47.4979, lng: 19.0402 },
         zoom: 13,
       });
 
@@ -38,9 +40,5 @@ export default function Map({ salons = [] }) {
     load();
   }, [salons]);
 
-  return (
-    <div className="map-container">
-      <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
-    </div>
-  );
+  return <div className="map-container"><div ref={mapRef} style={{ width: "100%", height: "100%" }} /></div>;
 }

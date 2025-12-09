@@ -18,8 +18,8 @@ export default function HomePage() {
   useEffect(() => {
     const load = async () => {
       const res = await fetch("/api/salons");
-      const data = await res.json();
-      const safe = Array.isArray(data) ? data : data?.data ?? [];
+      const json = await res.json();
+      const safe = Array.isArray(json) ? json : json?.data ?? [];
       setSalons(safe);
     };
     load();
@@ -34,12 +34,13 @@ export default function HomePage() {
         <SearchBar salons={salons} />
         <CategoryList salons={salons} />
         <NearestSalons salons={salons} />
+
         <FeaturedAds salons={salons} />
         <BlogList />
         <IntroSection />
         <RegisterSection />
 
-        <div className="mt-10">
+        <div className="mt-8">
           <Map salons={salons} />
         </div>
       </section>
