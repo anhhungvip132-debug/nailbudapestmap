@@ -1,0 +1,36 @@
+import { promises as fs } from "fs";
+import path from "path";
+
+const bookingsPath = path.join(process.cwd(), "data/bookings.json");
+
+export async function POST(req) {
+  try {
+    const data = await req.json();
+
+    const existing = JSON.parse(await fs.readFile(bookingsPath, "utf-8"));
+
+    const newBooking = {
+      id: Date.now(),
+      name: data.name,
+      phone: data.phone,
+      service: data.service,
+      date: data.date,
+      createdAt: new Date().toISOString(),
+    };
+
+    existing.push(newBooking);
+
+    await fs.writeFile(bookingsPath, JSON.stringify(existing, null, 2));
+
+    return Response.json({
+      success: true,
+      message: "Booking saved successfully!",
+      data: newBooking,
+    });
+  } catch (error) {
+    return Response.json(
+      { success: false, message: error.message },
+      { status: 500 }
+    );
+  }
+}

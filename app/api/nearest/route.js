@@ -1,37 +1,42 @@
-import salons from "@/lib/salons.json";
+import { getAllSalons } from "../salons/data";
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const lat = parseFloat(searchParams.get("lat"));
   const lng = parseFloat(searchParams.get("lng"));
-  const limit = parseInt(searchParams.get("limit")) || 10;
 
   if (!lat || !lng) {
-    return Response.json({ error: "Missing coordinates" }, { status: 400 });
+    return Response.json(
+      { success: false, message: "Missing lat/lng" },
+      { status: 400 }
+    );
   }
 
-  const toRad = (value) => (value * Math.PI) / 180;
+  const salons = getAllSalons();
 
-  const calculateDistance = (lat1, lng1, lat2, lng2) => {
+  // Haversine function
+  function distance(a, b) {
     const R = 6371;
-    const dLat = toRad(lat2 - lat1);
-    const dLng = toRad(lng2 - lng1);
-    const a =
+    const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+    const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+    const x =
       Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
+      Math.cos(a.lat * (Math.PI / 180)) *
+        Math.cos(b.lat * (Math.PI / 180)) *
         Math.sin(dLng / 2) ** 2;
-
-    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-  };
+    return R * (2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)));
+  }
 
   const sorted = salons
     .map((s) => ({
       ...s,
-      distance: calculateDistance(lat, lng, s.lat, s.lng),
+      distance: distance({ lat, lng }, { lat: s.lat, lng: s.lng }),
     }))
     .sort((a, b) => a.distance - b.distance)
-    .slice(0, limit);
+    .slice(0, 10);
 
-  return Response.json(sorted);
+  return Response.json({
+    success: true,
+    data: sorted,
+  });
 }

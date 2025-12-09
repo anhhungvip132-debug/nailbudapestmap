@@ -1,45 +1,31 @@
-import { PrismaClient } from "@prisma/client";
+import { promises as fs } from "fs";
+import path from "path";
 
-const prisma = new PrismaClient();
+const bookingsPath = path.join(process.cwd(), "data/bookings.json");
 
-// CREATE BOOKING
 export async function POST(req) {
   try {
     const body = await req.json();
+    const existing = JSON.parse(await fs.readFile(bookingsPath, "utf8"));
 
-    // Validate dữ liệu
-    if (!body.name || !body.phone || !body.service || !body.date) {
-      return Response.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
+    const newBooking = {
+      id: Date.now(),
+      ...body,
+      createdAt: new Date().toISOString(),
+    };
 
-    const booking = await prisma.booking.create({
-      data: {
-        name: body.name,
-        phone: body.phone,
-        service: body.service,
-        date: new Date(body.date),
-      },
+    existing.push(newBooking);
+    await fs.writeFile(bookingsPath, JSON.stringify(existing, null, 2));
+
+    return Response.json({
+      success: true,
+      message: "Booking saved",
+      data: newBooking,
     });
-
-    return Response.json({ success: true, booking }, { status: 201 });
-  } catch (error) {
-    console.error("Booking API Error:", error);
-    return Response.json({ error: error.message }, { status: 500 });
-  }
-}
-
-// GET ALL BOOKINGS (optional)
-export async function GET() {
-  try {
-    const bookings = await prisma.booking.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-
-    return Response.json(bookings);
-  } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+  } catch (err) {
+    return Response.json(
+      { success: false, message: err.message },
+      { status: 500 }
+    );
   }
 }
