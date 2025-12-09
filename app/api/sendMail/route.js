@@ -6,7 +6,6 @@ export async function POST(req) {
 
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    // Gửi email thật đến bạn
     const result = await resend.emails.send({
       from: "Nail Budapest <booking@nailbudapest.app>",
       to: "anhhungvip132@gmail.com",
@@ -19,12 +18,8 @@ export async function POST(req) {
       `,
     });
 
-    // Trả về dữ liệu gửi email
     return Response.json({ success: true, data: result });
   } catch (err) {
-    return Response.json(
-      { success: false, error: err.message },
-      { status: 500 }
-    );
+    return Response.json({ success: false, error: err.message }, { status: 500 });
   }
 }
