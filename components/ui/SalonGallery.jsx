@@ -1,51 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import dynamic from "next/dynamic";
-
-const Lightbox = dynamic(() => import("yet-another-react-lightbox"), { ssr: false });
+import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
-import Zoom from "yet-another-react-lightbox/plugins/zoom";
-import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
-import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
 
-export default function SalonGallery({ gallery }) {
+export default function SalonGallery({ images = [] }) {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
 
+  const slides = images.map((img) => ({ src: img }));
+
   return (
-    <div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {gallery.map((img, i) => (
-          <div
+    <div className="w-full">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {images.map((img, i) => (
+          <img
             key={i}
-            className="relative h-40 rounded-xl overflow-hidden cursor-pointer group"
+            src={img}
+            alt={`Gallery image ${i}`}
+            className="rounded-lg cursor-pointer hover:opacity-80 transition"
             onClick={() => {
               setIndex(i);
               setOpen(true);
             }}
-          >
-            <Image
-              src={img}
-              alt=""
-              fill
-              className="object-cover group-hover:scale-110 transition duration-500"
-              loading="lazy"
-              placeholder="blur"
-              blurDataURL="/placeholder.png"
-            />
-          </div>
+          />
         ))}
       </div>
 
+      {/* LIGHTBOX */}
       {open && (
         <Lightbox
           open={open}
           close={() => setOpen(false)}
           index={index}
-          slides={gallery.map((src) => ({ src }))}
-          plugins={[Zoom, Fullscreen, Thumbnails]}
+          slides={slides}
         />
       )}
     </div>
