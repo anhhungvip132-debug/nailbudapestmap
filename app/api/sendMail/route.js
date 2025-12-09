@@ -1,22 +1,28 @@
-import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
-  const body = await req.json();
+  try {
+    const body = await req.json();
 
-  await resend.emails.send({
-    from: "NailBooking <noreply@nailbooking.com>",
-    to: body.email,
-    subject: "Xác nhận lịch hẹn NailBooking",
-    html: `
-      <h2>Xin chào ${body.name}</h2>
-      <p>Bạn đã đặt lịch tại <b>${body.salon}</b></p>
-      <p>Thời gian: ${body.date} – ${body.time}</p>
-      <p>Cảm ơn bạn!</p>
-    `,
-  });
+    const { name, email, phone, message } = body;
 
-  return NextResponse.json({ success: true });
+    const data = await resend.emails.send({
+      from: "NailBooking <noreply@nailbook.hu>",
+      to: "your-email@example.com",
+      subject: "New Booking Request",
+      html: `
+        <h2>New Appointment Request</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Message:</strong> ${message}</p>
+      `,
+    });
+
+    return Response.json({ success: true, data });
+  } catch (error) {
+    return Response.json({ success: false, error });
+  }
 }
