@@ -6,24 +6,31 @@ export async function POST(req) {
 
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    // Gửi email thật đến bạn
     const result = await resend.emails.send({
       from: "Nail Budapest <booking@nailbudapest.app>",
       to: "anhhungvip132@gmail.com",
       subject: `New booking from ${name}`,
       html: `
-        <h2>New Booking Request</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Message:</strong><br>${message}</p>
+        <h2>New Booking</h2>
+        <p><b>Name:</b> ${name}</p>
+        <p><b>Email:</b> ${email}</p>
+        <p><b>Message:</b> ${message}</p>
       `,
     });
 
-    // Trả về dữ liệu gửi email
-    return Response.json({ success: true, data: result });
+    return Response.json({
+      success: true,
+      data: result,   // <<–– QUAN TRỌNG: phải trả về result
+      error: null
+    });
+
   } catch (err) {
     return Response.json(
-      { success: false, error: err.message },
+      {
+        success: false,
+        data: null,
+        error: err.message
+      },
       { status: 500 }
     );
   }
