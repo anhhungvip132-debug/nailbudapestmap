@@ -1,0 +1,102 @@
+[
+  {
+    "id": 1,
+    "name": "Nailbar Budapest",
+    "address": "Budapest, Andrássy út 10",
+    "lat": 47.50077,
+    "lng": 19.0635,
+    "rating": 4.8,
+    "phone": "+36 30 123 4567",
+    "images": ["/salons/nailbar1.jpg", "/salons/nailbar2.jpg"]
+  },
+  {
+    "id": 2,
+    "name": "Luxury Nails Studio",
+    "address": "Budapest, Király u. 22",
+    "lat": 47.59431,
+    "lng": 19.09541,
+    "rating": 4.9,
+    "phone": "+36 20 888 1122",
+    "images": ["/salons/lux1.jpg", "/salons/lux2.jpg"]
+  },
+  {
+    "id": 3,
+    "name": "Pink Beauty Nails",
+    "address": "Budapest, Erzsébet krt. 25",
+    "lat": 47.50322,
+    "lng": 19.06555,
+    "rating": 4.7,
+    "phone": "+36 70 234 5566",
+    "images": ["/salons/pink1.jpg", "/salons/pink2.jpg"]
+  },
+  {
+    "id": 4,
+    "name": "Diamond Nails & Spa",
+    "address": "Budapest, Oktogon tér 6",
+    "lat": 47.50667,
+    "lng": 19.065,
+    "rating": 4.8,
+    "phone": "+36 30 900 4455",
+    "images": ["/salons/diamond1.jpg", "/salons/diamond2.jpg"]
+  },
+  {
+    "id": 5,
+    "name": "Budapest Nail Shop",
+    "address": "Budapest, Nyugati tér 5",
+    "lat": 47.51012,
+    "lng": 19.05644,
+    "rating": 4.6,
+    "phone": "+36 70 333 2211",
+    "images": ["/salons/shop1.jpg", "/salons/shop2.jpg"]
+  },
+  {
+    "id": 6,
+    "name": "Queen Nails",
+    "address": "Budapest, Rákóczi út 17",
+    "lat": 47.4989,
+    "lng": 19.06822,
+    "rating": 4.5,
+    "phone": "+36 20 505 7788",
+    "images": ["/salons/queen1.jpg", "/salons/queen2.jpg"]
+  },
+  {
+    "id": 7,
+    "name": "Sun Nails Studio",
+    "address": "Budapest, Deák Ferenc tér 4",
+    "lat": 47.4979,
+    "lng": 19.0542,
+    "rating": 4.7,
+    "phone": "+36 70 666 2211",
+    "images": ["/salons/sun1.jpg", "/salons/sun2.jpg"]
+  },
+  {
+    "id": 8,
+    "name": "City Nails Studio",
+    "address": "Budapest, Astoria M, Kossuth Lajos u. 1",
+    "lat": 47.4959,
+    "lng": 19.0608,
+    "rating": 4.8,
+    "phone": "+36 20 778 3311",
+    "images": ["/salons/city1.jpg", "/salons/city2.jpg"]
+  },
+  {
+    "id": 9,
+    "name": "Beauty Art Nails",
+    "address": "Budapest, Blaha Lujza tér 3",
+    "lat": 47.4972,
+    "lng": 19.0671,
+    "rating": 4.6,
+    "phone": "+36 30 292 1122",
+    "images": ["/salons/art1.jpg", "/salons/art2.jpg"]
+  },
+  {
+    "id": 10,
+    "name": "Rose Nails Salon",
+    "address": "Budapest, Blaha Lujza tér 3",
+    "lat": 47.4972,
+    "lng": 19.0671,
+    "rating": 4.6,
+    "phone": "+36 30 292 1122",
+    "images": ["/salons/rose1.jpg", "/salons/rose2.jpg"]
+  }
+]

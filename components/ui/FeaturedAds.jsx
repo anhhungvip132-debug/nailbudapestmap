@@ -1,42 +1,47 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 
-export default function FeaturedAds({ salons = [] }) {
-  if (!salons || salons.length === 0) {
-    return (
-      <p className="text-center text-gray-500 py-10">
-        Không có salon nổi bật.
-      </p>
-    );
-  }
+const featured = [
+  {
+    id: 1,
+    name: "Edi Nails Premium",
+    address: "Mozsár u. 6, Budapest",
+    image: "https://images.unsplash.com/photo-1558211583-d26f610c97f6?auto=format&w=900&q=80",
+  },
+  {
+    id: 2,
+    name: "Luxury Nail Spa",
+    address: "Jókai tér 1, Budapest",
+    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&w=900&q=80",
+  },
+  {
+    id: 3,
+    name: "VIP Nail Design",
+    address: "József krt. 36, Budapest",
+    image: "https://images.unsplash.com/photo-1604654894610-68efc5f95f31?auto=format&w=900&q=80",
+  },
+];
 
+export default function FeaturedAds() {
   return (
     <section className="max-w-7xl mx-auto px-4 mt-20">
-      <h2 className="text-3xl font-bold mb-6 text-center">🌟 Tiệm nổi bật</h2>
+      <h2 className="text-3xl font-bold mb-8 text-center">Salon nổi bật</h2>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        {salons.map((s) => (
-          <a
-            key={s.id}
-            href={`/salon/${s.id}`}
-            className="bg-white shadow rounded-xl overflow-hidden hover:scale-[1.02] transition"
-          >
+      <div className="grid md:grid-cols-3 gap-6">
+        {featured.map((s) => (
+          <div key={s.id} className="shadow p-4 rounded-xl bg-white">
             <Image
               src={s.image}
-              alt={s.name}
               width={600}
               height={400}
-              className="w-full h-48 object-cover"
+              className="rounded-xl object-cover"
+              alt={s.name}
             />
-
-            <div className="p-4">
-              <h3 className="font-bold text-lg">{s.name}</h3>
-              <p className="text-gray-600 text-sm">{s.address}</p>
-
-              <p className="mt-1 text-yellow-500">⭐ {s.rating}</p>
-            </div>
-          </a>
+            <h3 className="text-lg font-bold mt-3">{s.name}</h3>
+            <p className="text-gray-600">{s.address}</p>
+          </div>
         ))}
       </div>
     </section>

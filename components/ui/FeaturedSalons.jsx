@@ -1,36 +1,37 @@
 "use client";
 
+import salons from "@/lib/salons.json";
+import Image from "next/image";
 import Link from "next/link";
 
-export default function FeaturedSalons({ salons }) {
+export default function FeaturedSalons() {
+  const featured = salons.slice(0, 4); // Chọn 4 salon nổi bật
+
   return (
-    <section id="featured" className="max-w-7xl mx-auto mt-20 px-4">
-      <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">
-        Featured Nail Salons in Budapest
-      </h2>
+    <section className="mt-10">
+      <h2 className="text-2xl font-bold mb-4">Featured Nail Salons</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {salons.map((salon) => (
-          <div
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {featured.map((salon) => (
+          <Link
             key={salon.id}
-            className="bg-white shadow rounded-2xl overflow-hidden hover:shadow-2xl transition"
+            href={`/salon/${salon.id}`}
+            className="block rounded-xl shadow hover:shadow-lg transition overflow-hidden"
           >
-            <img src={salon.image} className="h-56 w-full object-cover" />
-            <div className="p-5">
-              <h3 className="font-bold text-xl">{salon.name}</h3>
-              <p className="text-gray-500">{salon.address}</p>
-              <p className="text-yellow-500 text-lg mt-2">
-                ⭐ {salon.rating}
-              </p>
+            <Image
+              src={salon.images[0]}
+              width={300}
+              height={200}
+              alt={salon.name}
+              className="w-full h-40 object-cover"
+            />
 
-              <Link
-                href={`/salon/${salon.id}`}
-                className="text-pink-600 underline mt-3 inline-block"
-              >
-                Xem chi tiết →
-              </Link>
+            <div className="p-4">
+              <h3 className="font-semibold text-lg">{salon.name}</h3>
+              <p className="text-sm text-gray-600">{salon.address}</p>
+              <p className="text-yellow-500 mt-1">⭐ {salon.rating}</p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </section>
