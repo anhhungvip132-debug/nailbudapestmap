@@ -8,29 +8,18 @@ export default function Map({ salons = [] }) {
   useEffect(() => {
     const safe = Array.isArray(salons) ? salons : [];
 
-    const loadGoogle = () => {
-      return new Promise((resolve) => {
-        if (window.google) return resolve();
+    // Xóa callback cũ (nếu có)
+    delete window.initMap;
 
-        const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`;
-        script.async = true;
-        script.defer = true;
-        script.onload = resolve;
-        document.body.appendChild(script);
-      });
-    };
-
-    const init = async () => {
-      await loadGoogle();
+    // Tạo callback toàn cục cho Google
+    window.initMap = () => {
+      if (!mapRef.current) return;
 
       const map = new window.google.maps.Map(mapRef.current, {
         center: safe.length
           ? { lat: safe[0].lat, lng: safe[0].lng }
           : { lat: 47.4979, lng: 19.0402 },
-        zoom: 12,
-        fullscreenControl: false,
-        mapTypeControl: false,
+        zoom: 13,
       });
 
       safe.forEach((s) => {
@@ -42,7 +31,22 @@ export default function Map({ salons = [] }) {
       });
     };
 
-    init();
+    // Nạp script Google
+    const loadScript = () => {
+      const existing = document.getElementById("googlemaps-script");
+      if (existing) {
+        existing.remove();
+      }
+
+      const script = document.createElement("script");
+      script.id = "googlemaps-script";
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&callback=initMap`;
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    };
+
+    loadScript();
   }, [salons]);
 
   return (
