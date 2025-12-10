@@ -1,35 +1,33 @@
 "use client";
-import ButtonPink from "./ButtonPink";
 
 export default function BlogSection() {
   const posts = [
     {
       id: 1,
-      title: "Xu hướng nail sang 2024",
-      text: "Những mẫu nail đang thịnh hành tại Budapest...",
+      title: "Top 10 mẫu nail sang trọng 2024",
+      content: "Full nội dung bài viết… (bạn có thể thêm vào sau)"
     },
     {
       id: 2,
       title: "Cách chọn salon uy tín",
-      text: "3 mẹo giúp bạn tránh salon kém chất lượng...",
+      content: "Full nội dung bài viết…"
     },
     {
       id: 3,
-      title: "Các mẫu nail hợp mùa đông",
-      text: "Gợi ý màu sắc nail mùa lạnh cực xinh...",
-    },
+      title: "5 mẫu nail hợp mùa đông",
+      content: "Full nội dung bài viết…"
+    }
   ];
 
   return (
     <div className="section card p-6">
       <h2 className="heading">Blog Làm Đẹp</h2>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        {posts.map((post) => (
-          <div key={post.id} className="rounded-2xl p-5 border shadow-md">
-            <h3 className="font-bold text-lg text-pink-600">{post.title}</h3>
-            <p className="text-gray-600 mt-2">{post.text}</p>
-            <ButtonPink text="Đọc bài →" className="mt-4" />
+      <div className="space-y-6">
+        {posts.map((p) => (
+          <div key={p.id} className="p-5 shadow-md rounded-xl bg-white">
+            <h3 className="text-xl font-bold text-pink-600">{p.title}</h3>
+            <p className="text-gray-700 mt-3 whitespace-pre-line">{p.content}</p>
           </div>
         ))}
       </div>
