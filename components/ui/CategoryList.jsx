@@ -1,34 +1,24 @@
 "use client";
 
-import Link from "next/link";
-
-const categories = [
-  { name: "Nail Gel", icon: "💅", slug: "gel-nails" },
-  { name: "Nail Art", icon: "🎨", slug: "nail-art" },
-  { name: "Manicure", icon: "✨", slug: "manicure" },
-  { name: "Pedicure", icon: "🦶", slug: "pedicure" },
-  { name: "Spa", icon: "🌺", slug: "spa" },
-];
-
 export default function CategoryList() {
-  return (
-    <section className="max-w-7xl mx-auto px-4 mt-12">
-      <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center">
-        Danh mục dịch vụ
-      </h2>
+  const categories = [
+    { name: "Nail Gel", emoji: "💅", color: "from-pink-200 to-pink-400" },
+    { name: "Spa", emoji: "🌸", color: "from-purple-200 to-purple-400" },
+    { name: "Gội đầu", emoji: "💆‍♀️", color: "from-blue-200 to-blue-400" },
+    { name: "Waxing", emoji: "✨", color: "from-yellow-200 to-yellow-400" },
+  ];
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {categories.map((c) => (
-          <Link
-            key={c.slug}
-            href={`/category/${c.slug}`}
-            className="p-5 bg-white shadow rounded-2xl flex flex-col items-center hover:shadow-xl transition"
-          >
-            <div className="text-4xl">{c.icon}</div>
-            <span className="mt-3 font-semibold text-gray-700">{c.name}</span>
-          </Link>
-        ))}
-      </div>
-    </section>
+  return (
+    <div className="grid grid-cols-4 gap-4">
+      {categories.map((c) => (
+        <div
+          key={c.name}
+          className={`bg-gradient-to-br ${c.color} rounded-2xl p-4 text-center shadow-md hover:scale-105 transition`}
+        >
+          <span className="text-3xl">{c.emoji}</span>
+          <p className="mt-2 font-semibold text-gray-700">{c.name}</p>
+        </div>
+      ))}
+    </div>
   );
 }

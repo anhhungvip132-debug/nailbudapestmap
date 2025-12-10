@@ -1,82 +1,40 @@
-"use client";
+import salons from "@/data/salons.json";
+import Image from "next/image";
+import RatingStars from "@/components/ui/RatingStars";
+import ButtonPink from "@/components/ui/ButtonPink";
 
-import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-
-// COMPONENTS
-import SalonHero from "../../../components/ui/SalonHero";
-import SalonGallery from "../../../components/ui/SalonGallery";
-import PriceList from "../../../components/ui/PriceList";
-import SalonReviews from "../../../components/ui/SalonReviews";
-import BookingForm from "../../../components/ui/BookingForm";
-
-// Dynamic Map load
-const Map = dynamic(() => import("../../../components/ui/Map"), {
-  ssr: false,
-  loading: () => (
-    <p className="text-center py-10 text-gray-500">Đang tải bản đồ…</p>
-  ),
-});
-
-export default function SalonPage({ params }) {
-  const { id } = params;
-  const [salon, setSalon] = useState(null);
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/salons");
-        const data = await res.json();
-
-        const found = data.find((s) => s.id == id);
-        setSalon(found || null);
-      } catch (e) {
-        console.error("Lỗi tải dữ liệu salon:", e);
-      }
-    }
-
-    load();
-  }, [id]);
+export default function SalonDetail({ params }) {
+  const salon = salons.find((s) => s.id == params.id);
 
   if (!salon)
-    return (
-      <p className="text-center py-20 text-gray-500 text-xl animate-pulse">
-        Đang tải thông tin salon…
-      </p>
-    );
+    return <p className="p-10 text-center">Salon không tồn tại.</p>;
 
   return (
-    <div className="pb-20">
-      {/* HERO */}
-      <SalonHero salon={salon} />
+    <div className="container py-10">
+      {/* IMAGE */}
+      <div className="relative w-full h-56 rounded-3xl overflow-hidden shadow-lg">
+        <Image
+          src={salon.image || "/images/salon-default.jpg"}
+          alt={salon.name}
+          fill
+          className="object-cover"
+        />
+      </div>
 
-      <div className="max-w-7xl mx-auto px-4 mt-10">
-        {/* GALLERY */}
-        <h2 className="text-3xl font-bold mb-4">Hình ảnh nổi bật</h2>
-        <SalonGallery gallery={salon.gallery} />
+      {/* TITLE */}
+      <h1 className="text-3xl font-bold text-pink-600 mt-6">{salon.name}</h1>
+      <p className="text-gray-600 mt-2">{salon.address}</p>
 
-        {/* PRICE LIST */}
-        <h2 className="text-3xl font-bold mt-12 mb-4">Bảng giá dịch vụ</h2>
-        <PriceList prices={salon.prices} />
+      {/* RATING */}
+      <RatingStars rating={salon.rating || 4.5} />
 
-        {/* BOOKING */}
-        <h2 className="text-3xl font-bold mt-12 mb-4">Đặt lịch ngay</h2>
-        <BookingForm salonId={salon.id} />
+      {/* CTA */}
+      <ButtonPink text="Đặt lịch ngay" className="mt-6" />
 
-        {/* REVIEWS */}
-        <h2 className="text-3xl font-bold mt-12 mb-4">Đánh giá khách hàng</h2>
-        <SalonReviews salonId={salon.id} reviews={salon.reviews || []} />
-
-        {/* MAP FIX — CHỈ RENDER KHI SALON CÓ DỮ LIỆU */}
-        <h2 className="text-3xl font-bold mt-12 mb-4">Vị trí trên bản đồ</h2>
-
-        {salon && salon.lat && salon.lng ? (
-          <Map salons={[salon]} />
-        ) : (
-          <p className="text-gray-500 py-10">
-            Salon chưa có thông tin vị trí hợp lệ.
-          </p>
-        )}
+      {/* DESCRIPTION */}
+      <div className="card p-6 mt-8">
+        <h2 className="heading text-left">Mô tả</h2>
+        <p>{salon.description || "Salon chưa có mô tả."}</p>
       </div>
     </div>
   );

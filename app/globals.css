@@ -1,195 +1,73 @@
-/* ===========================
-   🌸 GLOBALS.CSS – NAIL BUDAPEST MAP
-   =========================== */
-
-/* Tailwind layers */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ===========================
-   RESET CSS (Fix giao diện bị vỡ)
-   =========================== */
-
+/* RESET */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html,
 body {
   width: 100%;
-  min-height: 100%;
-  scroll-behavior: smooth;
+  min-height: 100vh;
+  font-family: system-ui, sans-serif;
   background: #fafafa;
-  font-family: ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #222;
 }
 
-/* Ngăn hình bị stretch hoặc phóng đại sai */
-img,
-picture,
-video,
-canvas {
-  display: block;
-  max-width: 100%;
-}
-
-/* Fix link mặc định */
+/* LINKS */
 a {
   text-decoration: none;
   color: inherit;
 }
 
-/* Fix button default */
+/* BUTTON */
 button {
   cursor: pointer;
-  border: none;
-  background: none;
 }
 
-/* Remove list bullets */
-ul,
-ol {
-  list-style: none;
+/* IMAGES FIX */
+img {
+  max-width: 100%;
+  display: block;
 }
 
-
-/* ===========================
-   LAYOUT UTILS
-   =========================== */
-
+/* CONTAINER */
 .container {
   width: 100%;
   max-width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
-/* ===========================
-   CUSTOM SCROLLBAR
-   =========================== */
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #ff70a6;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f0f0f0;
-}
-
-
-/* ===========================
-   REUSABLE CLASSES
-   =========================== */
-
-/* Section spacing */
+/* SECTIONS */
 .section {
-  padding-top: 4rem;
-  padding-bottom: 4rem;
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
 }
 
-/* Card shadow */
+/* CARD SHADOW */
 .card {
   background: white;
   border-radius: 1rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
 }
 
-/* Heading style */
+/* HEADING */
 .heading {
-  font-size: 2rem;
+  font-size: 1.7rem;
   font-weight: 700;
   text-align: center;
   margin-bottom: 1.5rem;
 }
 
-/* ===========================
-   IMAGE FIX FOR NEXTJS
-   =========================== */
-
-.next-image-fill > span {
-  position: unset !important;
-}
-
-.next-image-fill img {
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
-}
-
-/* ===========================
-   ANIMATIONS
-   =========================== */
-
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-
-/* ===========================
-   MAP CONTAINER FIX
-   =========================== */
-
+/* MAP CONTAINER */
 .map-container {
   width: 100%;
   height: 450px;
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* ===========================
-   INPUT & FORM STYLE
-   =========================== */
-
-input,
-textarea {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  border: 1px solid #ddd;
-  font-size: 1rem;
-}
-
-input:focus,
-textarea:focus {
-  outline: none;
-  border-color: #ff4f95;
-  box-shadow: 0 0 0 2px rgba(255, 79, 149, 0.2);
-}
-
-/* Form button */
-.btn-primary {
-  background: #ff4f95;
-  padding: 0.75rem 1rem;
-  color: white;
-  border-radius: 0.75rem;
-  font-weight: 600;
-  transition: 0.2s;
-}
-
-.btn-primary:hover {
-  background: #e93b85;
+  background: #ddd;
 }

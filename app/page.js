@@ -1,47 +1,70 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Header from "@/components/ui/Header";
 import HeroSlider from "@/components/ui/HeroSlider";
 import SearchBar from "@/components/ui/SearchBar";
 import CategoryList from "@/components/ui/CategoryList";
-import NearestSalons from "@/components/ui/NearestSalons";
 import FeaturedAds from "@/components/ui/FeaturedAds";
-import BlogList from "@/components/ui/BlogList";
-import IntroSection from "@/components/ui/IntroSection";
-import RegisterSection from "@/components/ui/RegisterSection";
+import NearestSalons from "@/components/ui/NearestSalons";
 import Map from "@/components/ui/Map";
+import BlogSection from "@/components/ui/BlogSection";
+import RegisterSection from "@/components/ui/RegisterSection";
+import salons from "@/data/salons.json";
 
 export default function HomePage() {
-  const [salons, setSalons] = useState([]);
-
-  useEffect(() => {
-    const load = async () => {
-      const res = await fetch("/api/salons");
-      const json = await res.json();
-      const safe = Array.isArray(json) ? json : json?.data ?? [];
-      setSalons(safe);
-    };
-    load();
-  }, []);
-
   return (
-    <main className="min-h-screen bg-[#fafafa]">
-      <Header />
+    <main className="w-full min-h-screen bg-[#fafafa] pb-20">
+      {/* HERO SLIDER */}
+      <section className="section">
+        <HeroSlider />
+      </section>
 
-      <section className="container section">
-        <HeroSlider salons={salons} />
-        <SearchBar salons={salons} />
-        <CategoryList salons={salons} />
-        <NearestSalons salons={salons} />
+      {/* SEARCH BAR */}
+      <section className="section">
+        <div className="container">
+          <SearchBar />
+        </div>
+      </section>
 
-        <FeaturedAds salons={salons} />
-        <BlogList />
-        <IntroSection />
-        <RegisterSection />
+      {/* CATEGORY LIST */}
+      <section className="section">
+        <div className="container">
+          <CategoryList />
+        </div>
+      </section>
 
-        <div className="mt-8">
+      {/* FEATURED ADS / HOT SERVICES */}
+      <section className="section">
+        <div className="container">
+          <FeaturedAds />
+        </div>
+      </section>
+
+      {/* MAP + SALON LIST */}
+      <section className="section">
+        <div className="container space-y-8">
+          <h2 className="heading">Bản Đồ Các Tiệm Nail Tại Budapest</h2>
           <Map salons={salons} />
+        </div>
+      </section>
+
+      {/* NEAREST SALONS */}
+      <section className="section">
+        <div className="container">
+          <NearestSalons salons={salons} />
+        </div>
+      </section>
+
+      {/* BLOG SECTION */}
+      <section className="section">
+        <div className="container">
+          <BlogSection />
+        </div>
+      </section>
+
+      {/* REGISTER / CTA */}
+      <section className="section">
+        <div className="container">
+          <RegisterSection />
         </div>
       </section>
     </main>

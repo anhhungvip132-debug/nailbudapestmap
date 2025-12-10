@@ -6,24 +6,28 @@ export default function Map({ salons = [] }) {
   const mapRef = useRef(null);
 
   useEffect(() => {
-    const safe = Array.isArray(salons) ? salons : [];
+    if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
+      console.error("❌ Google Maps API KEY is missing!");
+      return;
+    }
 
-    // Xóa callback cũ (nếu có)
-    delete window.initMap;
+    const script = document.createElement("script");
+    script.src =
+      `https://maps.googleapis.com/maps/api/js?key=` +
+      process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY +
+      `&libraries=places&callback=initMap`;
+    script.async = true;
+    script.defer = true;
 
-    // Tạo callback toàn cục cho Google
     window.initMap = () => {
-      if (!mapRef.current) return;
-
-      const map = new window.google.maps.Map(mapRef.current, {
-        center: safe.length
-          ? { lat: safe[0].lat, lng: safe[0].lng }
-          : { lat: 47.4979, lng: 19.0402 },
+      const map = new google.maps.Map(mapRef.current, {
+        center: { lat: 47.4979, lng: 19.0402 }, // Budapest
         zoom: 13,
+        mapId: "DEMO_MAP_ID",
       });
 
-      safe.forEach((s) => {
-        new window.google.maps.Marker({
+      salons.forEach((s) => {
+        new google.maps.marker.AdvancedMarkerElement({
           map,
           position: { lat: s.lat, lng: s.lng },
           title: s.name,
@@ -31,27 +35,17 @@ export default function Map({ salons = [] }) {
       });
     };
 
-    // Nạp script Google
-    const loadScript = () => {
-      const existing = document.getElementById("googlemaps-script");
-      if (existing) {
-        existing.remove();
-      }
+    document.body.appendChild(script);
 
-      const script = document.createElement("script");
-      script.id = "googlemaps-script";
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&callback=initMap`;
-      script.async = true;
-      script.defer = true;
-      document.body.appendChild(script);
+    return () => {
+      delete window.initMap;
     };
-
-    loadScript();
   }, [salons]);
 
   return (
-    <div className="map-container">
-      <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
-    </div>
+    <div
+      ref={mapRef}
+      className="w-full h-[450px] rounded-xl shadow-md bg-gray-200"
+    />
   );
 }
