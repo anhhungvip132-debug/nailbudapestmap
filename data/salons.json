@@ -1,68 +1,68 @@
 [
   {
     "id": 1,
-    "name": "Nail Queen Budapest",
-    "featured": true,
+    "name": "Nailbar Budapest",
+    "address": "Budapest, Andrássy út 10",
+    "lat": 47.50077,
+    "lng": 19.0563,
     "rating": 4.8,
-    "lat": 47.4979,
-    "lng": 19.0402,
-    "address": "Budapest Center, District 5",
-    "image": "/images/salon1.jpg",
-    "description": "Salon nail chất lượng cao tại trung tâm Budapest, chuyên gel, vẽ nghệ thuật và chăm sóc móng."
+    "phone": "+36 30 123 4567",
+    "featured": true,
+    "image": "/images/salon1.jpg"
   },
   {
     "id": 2,
-    "name": "Beauty Spa Nail Lounge",
-    "featured": true,
+    "name": "Luxury Nails Studio",
+    "address": "Budapest, Király u. 22",
+    "lat": 47.50431,
+    "lng": 19.05941,
     "rating": 4.9,
-    "lat": 47.5001,
-    "lng": 19.0415,
-    "address": "District 6, Budapest",
-    "image": "/images/salon2.jpg",
-    "description": "Không gian sang trọng, dịch vụ nail – spa – gội đầu dành cho khách nữ tại Budapest."
+    "phone": "+36 20 888 1122",
+    "featured": false,
+    "image": "/images/salon2.jpg"
   },
   {
     "id": 3,
-    "name": "Pink Blossom Nails",
-    "featured": true,
+    "name": "Pink Beauty Nails",
+    "address": "Budapest, Erzsébet krt. 25",
+    "lat": 47.50322,
+    "lng": 19.06555,
     "rating": 4.7,
-    "lat": 47.5032,
-    "lng": 19.0368,
-    "address": "District 7, Budapest",
-    "image": "/images/salon3.jpg",
-    "description": "Chuyên nail gel, đính đá, ombre và phong cách Hàn Quốc."
+    "phone": "+36 70 234 5566",
+    "featured": true,
+    "image": "/images/salon3.jpg"
   },
   {
     "id": 4,
-    "name": "Diamond Nail Studio",
+    "name": "Diamond Nails & Spa",
+    "address": "Budapest, Oktogon tér 8",
+    "lat": 47.50667,
+    "lng": 19.0695,
+    "rating": 4.8,
+    "phone": "+36 30 900 4455",
     "featured": false,
-    "rating": 4.6,
-    "lat": 47.4950,
-    "lng": 19.0340,
-    "address": "District 8, Budapest",
-    "image": "/images/salon4.jpg",
-    "description": "Dịch vụ nhanh – đẹp – giá tốt, phù hợp sinh viên Budapest."
+    "image": "/images/salon4.jpg"
   },
   {
     "id": 5,
-    "name": "Luxury Hand & Foot Care",
-    "featured": false,
-    "rating": 4.7,
-    "lat": 47.4927,
-    "lng": 19.0471,
-    "address": "District 9, Budapest",
-    "image": "/images/salon5.jpg",
-    "description": "Chăm sóc chuyên sâu móng tay – chân, phù hợp khách yêu thích sự tinh tế."
+    "name": "Budapest Nail Shop",
+    "address": "Budapest, Nyugati tér 5",
+    "lat": 47.51012,
+    "lng": 19.05644,
+    "rating": 4.6,
+    "phone": "+36 70 333 2211",
+    "featured": true,
+    "image": "/images/salon5.jpg"
   },
   {
     "id": 6,
-    "name": "Art Nail Boutique",
+    "name": "Queen Nails Studio",
+    "address": "Budapest, Váci út 6",
+    "lat": 47.51521,
+    "lng": 19.04828,
+    "rating": 4.9,
+    "phone": "+36 30 101 2020",
     "featured": false,
-    "rating": 4.5,
-    "lat": 47.5062,
-    "lng": 19.0450,
-    "address": "District 13, Budapest",
-    "image": "/images/salon6.jpg",
-    "description": "Chuyên vẽ nail nghệ thuật phức tạp, màu sắc độc đáo."
+    "image": "/images/salon6.jpg"
   }
 ]
