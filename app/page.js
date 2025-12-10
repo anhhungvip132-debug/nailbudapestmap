@@ -4,6 +4,7 @@ import HeroSlider from "@/components/ui/HeroSlider";
 import SearchBar from "@/components/ui/SearchBar";
 import CategoryList from "@/components/ui/CategoryList";
 import FeaturedAds from "@/components/ui/FeaturedAds";
+import FeaturedSalons from "@/components/ui/FeaturedSalons";  // <<< THÊM MỚI
 import NearestSalons from "@/components/ui/NearestSalons";
 import Map from "@/components/ui/Map";
 import BlogSection from "@/components/ui/BlogSection";
@@ -13,6 +14,7 @@ import salons from "@/data/salons.json";
 export default function HomePage() {
   return (
     <main className="w-full min-h-screen bg-[#fafafa] pb-20">
+
       {/* HERO SLIDER */}
       <section className="section">
         <HeroSlider />
@@ -32,10 +34,17 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FEATURED ADS / HOT SERVICES */}
+      {/* FEATURED ADS */}
       <section className="section">
         <div className="container">
           <FeaturedAds />
+        </div>
+      </section>
+
+      {/* SALON NỔI BẬT (QUẢNG CÁO) */}
+      <section className="section">
+        <div className="container">
+          <FeaturedSalons />   {/* <<< THÊM SECTION NÀY */}
         </div>
       </section>
 
@@ -50,7 +59,7 @@ export default function HomePage() {
       {/* NEAREST SALONS */}
       <section className="section">
         <div className="container">
-          <NearestSalons salons={salons} />
+          <NearestSalons />
         </div>
       </section>
 
@@ -61,12 +70,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* REGISTER / CTA */}
+      {/* REGISTER SECTION */}
       <section className="section">
         <div className="container">
           <RegisterSection />
         </div>
       </section>
+      
     </main>
   );
 }

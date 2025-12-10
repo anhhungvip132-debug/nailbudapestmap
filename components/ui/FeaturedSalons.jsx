@@ -1,9 +1,9 @@
 "use client";
-import SalonCard from "./SalonCard";
 import salons from "@/data/salons.json";
+import SalonCard from "./SalonCard";
 
 export default function FeaturedSalons() {
-  const featured = salons.filter((s) => s.featured === true).slice(0, 6);
+  const featured = salons.filter((s) => s.featured);
 
   return (
     <div className="section">
