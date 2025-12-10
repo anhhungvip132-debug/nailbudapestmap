@@ -1,32 +1,26 @@
 "use client";
+
 import Image from "next/image";
-import { useState, useEffect } from "react";
 
-export default function HeroSlider() {
-  const slides = [
-    "/images/nail1.jpg",
-    "/images/nail2.jpg",
-    "/images/nail3.jpg"
-  ];
-
-  const [current, setCurrent] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % slides.length);
-    }, 3000);
-
-    return () => clearInterval(timer);
-  }, []);
-
+export default function Hero() {
   return (
-    <div className="relative w-full h-[420px] rounded-2xl overflow-hidden">
+    <section className="relative w-full h-[420px] rounded-2xl overflow-hidden mb-10">
       <Image
-        src={slides[current]}
-        alt="Nail Budapest Slider"
+        src="/images/banner1.jpg"
+        alt="Nail Budapest Banner"
         fill
         className="object-cover"
+        priority
       />
-    </div>
+
+      <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center px-6">
+        <h1 className="text-white text-4xl font-bold drop-shadow-lg">
+          Budapest Nail Map
+        </h1>
+        <p className="text-white text-lg mt-3 max-w-xl">
+          Khám phá tiệm nail chất lượng nhất Budapest. Tìm kiếm, đặt lịch và xem đánh giá trong 1 chạm.
+        </p>
+      </div>
+    </section>
   );
 }
