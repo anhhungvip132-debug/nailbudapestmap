@@ -1,20 +1,26 @@
 [
   {
     "id": 1,
-    "title": "Top 5 mẫu nail hot nhất 2024",
-    "image": "/images/blog1.jpg",
-    "description": "Xu hướng nail đang thịnh hành tại Budapest năm 2024."
+    "title": "Top 10 Nail Trends in Budapest 2025",
+    "slug": "nail-trends-budapest-2025",
+    "image": "blog1.jpg",
+    "excerpt": "Explore the most popular nail styles taking over Budapest...",
+    "content": "Budapest is becoming a hotspot for modern nail designs..."
   },
   {
     "id": 2,
-    "title": "Cách chăm sóc móng sau khi làm nail",
-    "image": "/images/blog2.jpg",
-    "description": "Hướng dẫn chi tiết giúp móng khỏe đẹp lâu dài."
+    "title": "How to Choose the Right Nail Salon",
+    "slug": "choose-right-nail-salon",
+    "image": "blog2.jpg",
+    "excerpt": "A guide to finding the perfect nail salon for your needs.",
+    "content": "Not all nail salons are the same. Here are key things to look for..."
   },
   {
     "id": 3,
-    "title": "Salon nail chất lượng – Chọn sao cho đúng?",
-    "image": "/images/blog3.jpg",
-    "description": "Bí quyết chọn salon nail uy tín nhất Budapest."
+    "title": "Why Gel Nails Are So Popular",
+    "slug": "why-gel-nails-popular",
+    "image": "blog3.jpg",
+    "excerpt": "Gel nails are trending everywhere — here’s why.",
+    "content": "Gel nails last longer and look more natural. Let’s explore…"
   }
 ]

@@ -1,57 +1,57 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import salons from "@/data/salons.json";
 
 export default function NearestSalons() {
-  const [nearest, setNearest] = useState([]);
+  const [userPos, setUserPos] = useState(null);
+  const [sorted, setSorted] = useState([]);
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        const { latitude, longitude } = pos.coords;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const loc = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        };
+        setUserPos(loc);
 
-        const list = salons
-          .map((s) => ({
-            ...s,
-            distance: Math.sqrt(
-              (s.lat - latitude) ** 2 + (s.lng - longitude) ** 2
-            ),
-          }))
-          .sort((a, b) => a.distance - b.distance)
-          .slice(0, 3);
+        const withDistance = salons.map((salon) => {
+          const dist = Math.sqrt(
+            Math.pow(salon.lat - loc.lat, 2) +
+            Math.pow(salon.lng - loc.lng, 2)
+          );
+          return { ...salon, distance: dist };
+        });
 
-        setNearest(list);
-      });
-    }
+        setSorted(withDistance.sort((a, b) => a.distance - b.distance));
+      },
+      () => console.warn("User location blocked")
+    );
   }, []);
 
   return (
-    <section className="mt-12">
-      <h2 className="text-center text-2xl font-bold">📍 Salon Gần Bạn Nhất</h2>
+    <section className="space-y-4">
+      <h2 className="text-2xl font-bold">Nearest Nail Salons</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-        {nearest.map((s) => (
-          <div key={s.id} className="bg-white p-4 rounded-xl shadow">
-            <img src={s.image} className="w-full h-48 object-cover rounded-lg" />
-
-            <h3 className="font-bold mt-3">{s.name}</h3>
-            <p>{s.address}</p>
-
-            <p className="text-pink-600 font-semibold">
-              Cách bạn khoảng: {s.distance.toFixed(2)} km
-            </p>
-
-            <a
-              target="_blank"
-              href={`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`}
-              className="block mt-3 text-center bg-pink-500 text-white p-2 rounded-lg"
-            >
-              Chỉ đường
-            </a>
-          </div>
-        ))}
-      </div>
+      {!userPos ? (
+        <p className="text-gray-500">Waiting for location permission…</p>
+      ) : (
+        <ul className="space-y-3">
+          {sorted.slice(0, 5).map((s) => (
+            <li key={s.id} className="border p-3 rounded-xl bg-gray-50">
+              <div className="font-semibold">{s.name}</div>
+              <div className="text-sm">Distance: {(s.distance * 100).toFixed(2)} km</div>
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`}
+                target="_blank"
+                className="text-pink-600 text-sm underline"
+              >
+                Get Directions →
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
