@@ -1,28 +1,45 @@
+"use client";
+
 import Hero from "@/components/ui/Hero";
-import SearchBar from "@/components/ui/SearchBar";
 import FeaturedSalons from "@/components/ui/FeaturedSalons";
 import NearestSalons from "@/components/ui/NearestSalons";
+import CategoryList from "@/components/ui/CategoryList";
 import BlogSection from "@/components/ui/BlogSection";
 import OwnerSection from "@/components/ui/OwnerSection";
-import dynamic from "next/dynamic";
-import salons from "@/data/salons.json";
 
-const Map = dynamic(() => import("@/components/ui/Map"), {
-  ssr: false,
-});
+import { useEffect, useState } from "react";
 
-export default function Home() {
+export default default function HomePage() {
+  const [salons, setSalons] = useState([]);
+  const [nearby, setNearby] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/salons")
+      .then((res) => res.json())
+      .then((data) => setSalons(data));
+  }, []);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        fetch(
+          `/api/nearby?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`
+        )
+          .then((res) => res.json())
+          .then((data) => setNearby(data));
+      },
+      () => setNearby([])
+    );
+  }, []);
+
   return (
-    <main>
+    <>
       <Hero />
-      <SearchBar />
-      <FeaturedSalons salons={salons} />
-      <NearestSalons salons={salons} />
-
-      <Map salons={salons} />
-
+      <CategoryList />
+      <FeaturedSalons salons={salons.filter((x) => x.featured)} />
+      <NearestSalons salons={nearby} />
       <BlogSection />
       <OwnerSection />
-    </main>
+    </>
   );
 }
