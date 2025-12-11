@@ -6,7 +6,11 @@ import { useRouter } from "next/navigation";
 export default function FeaturedSalons({ salons = [] }) {
   const router = useRouter();
 
-  if (!salons || salons.length === 0) return null;
+  const filtered = Array.isArray(salons)
+    ? salons.filter((s) => s && s.featured)
+    : [];
+
+  if (!filtered.length) return null;
 
   return (
     <section className="max-w-6xl mx-auto px-4 md:px-6 lg:px-0 mt-10">
@@ -15,16 +19,16 @@ export default function FeaturedSalons({ salons = [] }) {
       </h2>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {salons.map((salon) => (
+        {filtered.map((salon) => (
           <article
-            key={salon.id}
+            key={salon.id || salon.slug}
             className="bg-white rounded-2xl shadow-sm border border-pink-50 overflow-hidden flex flex-col"
           >
             {salon.image && (
               <div className="h-40 w-full overflow-hidden">
                 <img
                   src={salon.image}
-                  alt={salon.name}
+                  alt={salon.name || "Nail salon"}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -48,14 +52,14 @@ export default function FeaturedSalons({ salons = [] }) {
                 )}
               </div>
 
-              {salon.services && salon.services.length > 0 && (
+              {Array.isArray(salon.services) && salon.services.length > 0 && (
                 <p className="mt-4 text-sm">
                   <span className="font-semibold">Dịch vụ:</span>{" "}
                   {salon.services.join(", ")}
                 </p>
               )}
 
-              {salon.highlightedServices &&
+              {Array.isArray(salon.highlightedServices) &&
                 salon.highlightedServices.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {salon.highlightedServices.map((svc, idx) => (
@@ -82,12 +86,14 @@ export default function FeaturedSalons({ salons = [] }) {
                   type="button"
                   onClick={() => {
                     const mapsQuery = encodeURIComponent(
-                      `${salon.name} ${salon.address || ""} Budapest`
+                      `${salon.name || ""} ${salon.address || ""} Budapest`
                     );
-                    window.open(
-                      `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`,
-                      "_blank"
-                    );
+                    if (typeof window !== "undefined") {
+                      window.open(
+                        `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`,
+                        "_blank"
+                      );
+                    }
                   }}
                   className="flex-1 inline-flex items-center justify-center rounded-full border border-pink-200 px-4 py-2 text-sm font-medium text-pink-600 hover:bg-pink-50 transition"
                 >
