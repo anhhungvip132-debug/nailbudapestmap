@@ -1,31 +1,28 @@
-"use client";
-import posts from "@/data/blogPosts.json";
+import blogPosts from "@/data/blogPosts.json";
 import Image from "next/image";
-import Link from "next/link";
 
 export default function BlogSection() {
   return (
-    <section className="py-12">
-      <h2 className="text-center text-3xl font-bold mb-6">📰 Bài Viết Mới</h2>
+    <section className="my-12">
+      <h2 className="text-center text-3xl font-bold mb-8">📰 Bài Viết Mới</h2>
 
-      <div className="grid md:grid-cols-3 gap-6 px-4">
-        {posts.slice(0, 3).map((post) => (
-          <Link
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {blogPosts.slice(0, 3).map((post) => (
+          <div
             key={post.id}
-            href={`/blog/${post.id}`}
-            className="block p-4 bg-white shadow-md rounded-xl hover:shadow-xl"
+            className="bg-white rounded-xl shadow-md p-4 hover:shadow-xl transition"
           >
-            <div className="relative w-full h-56 rounded-lg overflow-hidden">
+            <div className="relative w-full h-48 rounded-lg overflow-hidden">
               <Image
-                src={`/images/${post.image}`}
+                src={post.image}
                 alt={post.title}
                 fill
                 className="object-cover"
               />
             </div>
 
-            <h3 className="text-xl font-semibold mt-3">{post.title}</h3>
-          </Link>
+            <h3 className="font-semibold text-lg mt-4">{post.title}</h3>
+          </div>
         ))}
       </div>
     </section>
