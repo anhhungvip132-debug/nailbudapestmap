@@ -6,9 +6,9 @@ import { usePathname } from "next/navigation";
 
 const navLinks = [
   { href: "/", label: "Trang chủ" },
-  { href: "/map", label: "Bản đồ" },
+  { href: "/search", label: "Bản đồ" },
   { href: "/blog", label: "Blog" },
-  { href: "/for-owners", label: "Dành cho chủ tiệm" },
+  { href: "/owner", label: "Dành cho chủ tiệm" },
 ];
 
 export default function Header() {
@@ -17,6 +17,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-pink-50">
       <div className="max-w-6xl mx-auto flex items-center justify-between px-4 md:px-6 lg:px-0 py-3 md:py-4">
+
         <Link href="/" className="flex items-center gap-2">
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-pink-500 text-white font-semibold">
             NB
@@ -37,6 +38,7 @@ export default function Header() {
               link.href === "/"
                 ? pathname === "/"
                 : pathname.startsWith(link.href);
+
             return (
               <Link
                 key={link.href}
@@ -53,15 +55,17 @@ export default function Header() {
 
         <div className="flex items-center gap-2">
           <Link
-            href="/for-owners"
+            href="/owner"
             className="hidden md:inline-flex items-center rounded-full border border-pink-200 px-4 py-2 text-xs md:text-sm font-medium text-pink-600 hover:bg-pink-50 transition"
           >
             Đăng salon của bạn
           </Link>
+
           <button className="inline-flex items-center rounded-full bg-pink-500 px-4 py-2 text-xs md:text-sm font-semibold text-white hover:bg-pink-600 transition">
             Đăng nhập
           </button>
         </div>
+
       </div>
     </header>
   );
