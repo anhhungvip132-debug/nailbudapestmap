@@ -1,26 +1,38 @@
 "use client";
-
 import Image from "next/image";
+import { useState, useEffect } from "react";
 
-export default function Hero() {
+const slides = [
+  "/images/hero1.jpg",
+  "/images/hero2.jpg",
+  "/images/hero3.jpg"
+];
+
+export default function HeroSlider() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(
+      () => setIndex((prev) => (prev + 1) % slides.length),
+      3000
+    );
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <section className="relative w-full h-[420px] rounded-2xl overflow-hidden mb-10">
+    <div className="relative h-[420px] w-full overflow-hidden rounded-xl shadow-lg">
       <Image
-        src="/images/banner1.jpg"
-        alt="Nail Budapest Banner"
+        src={slides[index]}
+        alt="Nail Budapest Hero"
         fill
-        className="object-cover"
-        priority
+        className="object-cover transition-all duration-500"
       />
 
-      <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center px-6">
-        <h1 className="text-white text-4xl font-bold drop-shadow-lg">
-          Budapest Nail Map
+      <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-center px-4">
+        <h1 className="text-4xl font-bold drop-shadow-lg">
+          Discover the Best Nail Salons in Budapest
         </h1>
-        <p className="text-white text-lg mt-3 max-w-xl">
-          Khám phá tiệm nail chất lượng nhất Budapest. Tìm kiếm, đặt lịch và xem đánh giá trong 1 chạm.
-        </p>
       </div>
-    </section>
+    </div>
   );
 }

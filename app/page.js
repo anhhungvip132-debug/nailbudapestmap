@@ -1,29 +1,26 @@
-import Hero from "@/components/ui/Hero";
+import HeroSlider from "@/components/ui/HeroSlider";
 import SearchBar from "@/components/ui/SearchBar";
-import FeaturedSalons from "@/components/ui/FeaturedSalons";
+import CategoryList from "@/components/ui/CategoryList";
+import FeaturedAds from "@/components/ui/FeaturedAds";
 import NearestSalons from "@/components/ui/NearestSalons";
 import BlogSection from "@/components/ui/BlogSection";
-import OwnerSection from "@/components/ui/OwnerSection";
+import RegisterSection from "@/components/ui/RegisterSection";
+import Map from "@/components/ui/Map";
 
 export default function Home() {
   return (
-    <main className="flex flex-col gap-16 pb-20">
-      <Hero />
+    <main className="space-y-10 pb-10">
+      <HeroSlider />
 
-      {/* Thanh tìm kiếm + lọc */}
-      <SearchBar />
-
-      {/* Salon nổi bật */}
-      <FeaturedSalons />
-
-      {/* Salon gần nhất có Google Map */}
-      <NearestSalons />
-
-      {/* Bài viết mới */}
-      <BlogSection />
-
-      {/* Founder */}
-      <OwnerSection />
+      <div className="container space-y-12">
+        <SearchBar />
+        <CategoryList />
+        <FeaturedAds />
+        <NearestSalons />
+        <BlogSection />
+        <RegisterSection />
+        <Map />
+      </div>
     </main>
   );
 }

@@ -1,24 +1,27 @@
-"use client";
+import { GiNails, GiHand } from "react-icons/gi";
+import { MdSpa } from "react-icons/md";
+
+const categories = [
+  { name: "Manicure", icon: <GiHand size={28} /> },
+  { name: "Gel Nails", icon: <GiNails size={28} /> },
+  { name: "Pedicure", icon: <MdSpa size={28} /> }
+];
 
 export default function CategoryList() {
-  const categories = [
-    { name: "Nail Gel", emoji: "💅", color: "from-pink-200 to-pink-400" },
-    { name: "Spa", emoji: "🌸", color: "from-purple-200 to-purple-400" },
-    { name: "Gội đầu", emoji: "💆‍♀️", color: "from-blue-200 to-blue-400" },
-    { name: "Waxing", emoji: "✨", color: "from-yellow-200 to-yellow-400" },
-  ];
-
   return (
-    <div className="grid grid-cols-4 gap-4">
-      {categories.map((c) => (
-        <div
-          key={c.name}
-          className={`bg-gradient-to-br ${c.color} rounded-2xl p-4 text-center shadow-md hover:scale-105 transition`}
-        >
-          <span className="text-3xl">{c.emoji}</span>
-          <p className="mt-2 font-semibold text-gray-700">{c.name}</p>
-        </div>
-      ))}
-    </div>
+    <section>
+      <h2 className="text-xl font-bold mb-3">Categories</h2>
+      <div className="grid grid-cols-3 gap-4">
+        {categories.map((c) => (
+          <div
+            key={c.name}
+            className="bg-white shadow p-4 rounded-xl flex flex-col items-center gap-2"
+          >
+            {c.icon}
+            <span className="font-semibold">{c.name}</span>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
