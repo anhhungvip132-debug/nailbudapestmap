@@ -1,84 +1,85 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
-export default function SearchBar({ salons, onSearch }) {
+export default function SearchBar() {
   const [name, setName] = useState("");
-  const [district, setDistrict] = useState("all");
-  const [service, setService] = useState("all");
+  const [district, setDistrict] = useState("");
+  const [service, setService] = useState("");
 
-  const districts = useMemo(() => {
-    const list = Array.from(new Set(salons.map((s) => s.district))).sort();
-    return list;
-  }, [salons]);
+  // Danh sách quận — KHÔNG BAO GIỜ undefined
+  const districts = [
+    "District 1",
+    "District 2",
+    "District 3",
+    "District 4",
+    "District 5",
+    "District 6",
+    "District 7",
+    "District 8",
+    "District 9",
+    "District 10",
+  ];
 
-  const services = useMemo(() => {
-    const set = new Set();
-    salons.forEach((s) => s.services.forEach((sv) => set.add(sv)));
-    return Array.from(set).sort();
-  }, [salons]);
+  // Danh sách dịch vụ — KHÔNG BAO GIỜ undefined
+  const services = [
+    "Manicure",
+    "Pedicure",
+    "Gel Nails",
+    "Acrylic Nails",
+    "Nail Art",
+  ];
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSearch({
-      name: name.trim(),
-      district,
-      service
-    });
+  const handleSearch = () => {
+    console.log("Search triggered:", { name, district, service });
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-2xl bg-white p-6 shadow-md"
-    >
-      <h2 className="mb-4 text-xl font-semibold text-gray-900">
-        🔍 Tìm Kiếm Salon
-      </h2>
-      <div className="grid gap-4 md:grid-cols-3">
+    <div className="w-full bg-white shadow-md rounded-xl p-6 mt-6">
+      <h2 className="text-center text-2xl font-bold mb-4">🔍 Tìm Kiếm Salon</h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <input
           type="text"
-          placeholder="Nhập tên salon…"
-          className="w-full rounded-xl border border-pink-100 px-4 py-2 text-sm outline-none focus:border-pink-400"
+          placeholder="Nhập tên salon..."
           value={name}
           onChange={(e) => setName(e.target.value)}
+          className="border rounded-lg p-3"
         />
 
         <select
-          className="w-full rounded-xl border border-pink-100 px-4 py-2 text-sm outline-none focus:border-pink-400"
           value={district}
           onChange={(e) => setDistrict(e.target.value)}
+          className="border rounded-lg p-3"
         >
-          <option value="all">Tất cả quận</option>
-          {districts.map((d) => (
-            <option key={d} value={d}>
+          <option value="">Chọn quận</option>
+          {districts.map((d, i) => (
+            <option key={i} value={d}>
               {d}
             </option>
           ))}
         </select>
 
         <select
-          className="w-full rounded-xl border border-pink-100 px-4 py-2 text-sm outline-none focus:border-pink-400"
           value={service}
           onChange={(e) => setService(e.target.value)}
+          className="border rounded-lg p-3"
         >
-          <option value="all">Tất cả dịch vụ</option>
-          {services.map((s) => (
-            <option key={s} value={s}>
+          <option value="">Chọn dịch vụ</option>
+          {services.map((s, i) => (
+            <option key={i} value={s}>
               {s}
             </option>
           ))}
         </select>
-      </div>
 
-      <div className="mt-4 flex justify-end">
         <button
-          type="submit"
-          className="rounded-xl bg-pink-500 px-6 py-2 text-sm font-semibold text-white shadow hover:bg-pink-600"
+          onClick={handleSearch}
+          className="bg-pink-500 text-white rounded-lg p-3 font-bold"
         >
           Tìm kiếm
         </button>
       </div>
-    </form>
+    </div>
   );
 }
