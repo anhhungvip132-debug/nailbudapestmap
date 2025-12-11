@@ -14,7 +14,7 @@ export default function Hero() {
         textAlign: "center",
       }}
     >
-      <h1 style={{ fontSize: "48px", fontWeight: "bold", textShadow: "0px 0px 10px rgba(0,0,0,0.6)" }}>
+      <h1 style={{ fontSize: "48px", fontWeight: "bold", textShadow: "0 0 10px black" }}>
         Tìm Salon Nail Tốt Nhất Tại Budapest
       </h1>
     </section>
