@@ -1,124 +1,13 @@
-// app/page.js
-"use client";
+useEffect(() => {
+  if (!navigator.geolocation) return;
 
-import { useEffect, useState } from "react";
-
-import Header from "../components/ui/Header";
-import HeroSlider from "../components/ui/HeroSlider";
-import SearchBar from "../components/ui/SearchBar";
-import CategoryList from "../components/ui/CategoryList";
-import PromoBanner from "../components/ui/PromoBanner";
-import FeaturedSalons from "../components/ui/FeaturedSalons";
-import PromoSlider from "../components/ui/PromoSlider";
-import Map from "../components/ui/Map";
-import ChatWidget from "../components/ui/ChatWidget";
-import ContactSection from "../components/ui/ContactSection";
-import BlogSection from "../components/ui/BlogSection";
-
-export default function HomePage() {
-  const [allSalons, setAllSalons] = useState([]);
-  const [nearestSalons, setNearestSalons] = useState([]);
-  const [loadingNearest, setLoadingNearest] = useState(true);
-
-  /* 🆕 THÊM THEO YÊU CẦU */
-  const [activeFilters, setActiveFilters] = useState({});
-  const [filteredSalons, setFilteredSalons] = useState([]);
-
-  /** ============================================================
-   * 1) TẢI TOÀN BỘ SALON (fallback)
-   * ============================================================ */
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/salons");
-        const data = await res.json();
-
-        setAllSalons(data);
-        setNearestSalons(data.slice(0, 3)); // fallback
-      } catch (err) {
-        console.error("Không tải được salons:", err);
-      }
-    }
-
-    load();
-  }, []);
-
-  /** ============================================================
-   * 2) LẤY VỊ TRÍ USER → TÌM SALON GẦN NHẤT
-   * ============================================================ */
-  useEffect(() => {
-    if (!("geolocation" in navigator)) {
-      setLoadingNearest(false);
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-
-          const res = await fetch(
-            `/api/nearest?lat=${lat}&lng=${lng}&limit=3`
-          );
-
-          if (res.ok) {
-            const data = await res.json();
-            if (data.length > 0) {
-              setNearestSalons(data);
-            }
-          }
-        } catch (error) {
-          console.error("Lỗi gọi API nearest:", error);
-        } finally {
-          setLoadingNearest(false);
-        }
-      },
-      () => {
-        // Người dùng từ chối → dùng fallback 3 salon đầu
-        setLoadingNearest(false);
-      }
-    );
-  }, []);
-
-  /** ============================================================
-   * 3) TRẢ VỀ GIAO DIỆN TRANG CHỦ
-   * ============================================================ */
-  return (
-    <div className="bg-white text-gray-800">
-      <Header />
-      <HeroSlider />
-      <SearchBar />
-      <CategoryList />
-      <PromoBanner />
-
-      {/* ========== TIỆM GẦN BẠN ========== */}
-      <section className="max-w-7xl mx-auto mt-20 px-4">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-8">
-          Tiệm nail gần vị trí của bạn
-        </h2>
-
-        {loadingNearest ? (
-          <p className="text-center text-gray-500">Đang tìm tiệm gần bạn…</p>
-        ) : (
-          <>
-            <FeaturedSalons salons={nearestSalons} />
-            <Map salons={nearestSalons} />
-          </>
-        )}
-      </section>
-
-      {/* SLIDER KHUYẾN MÃI */}
-      <PromoSlider />
-
-      {/* BLOG */}
-      <BlogSection />
-
-      {/* FORM LIÊN HỆ */}
-      <ContactSection />
-
-      {/* CHAT WIDGET */}
-      <ChatWidget />
-    </div>
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      fetch(`/api/nearest?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`)
+        .then((res) => res.json())
+        .then((data) => setNearby(data))
+        .catch(() => setNearby([]));
+    },
+    () => setNearby([])
   );
-}
+}, []);
