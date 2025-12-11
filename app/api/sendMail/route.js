@@ -1,25 +1,15 @@
 import { Resend } from "resend";
 
 export async function POST(req) {
-  try {
-    const { name, email, message } = await req.json();
+  const { email } = await req.json();
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
-    const resend = new Resend(process.env.RESEND_API_KEY);
+  await resend.emails.send({
+    from: process.env.RESEND_FROM,
+    to: email,
+    subject: "Đăng ký thành công!",
+    html: "<p>Cảm ơn bạn đã đăng ký nhận thông tin từ Nail Budapest Map!</p>",
+  });
 
-    const result = await resend.emails.send({
-      from: "Nail Budapest <booking@nailbudapest.app>",
-      to: "anhhungvip132@gmail.com",
-      subject: `New booking from ${name}`,
-      html: `
-        <h2>New Booking Request</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Message:</strong><br>${message}</p>
-      `,
-    });
-
-    return Response.json({ success: true, data: result });
-  } catch (err) {
-    return Response.json({ success: false, error: err.message }, { status: 500 });
-  }
+  return Response.json({ success: true });
 }
