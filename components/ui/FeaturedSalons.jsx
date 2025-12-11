@@ -1,61 +1,55 @@
-import Image from "next/image";
-import Link from "next/link";
-import salonsData from "@/data/salons.json";
+"use client";
 
-export default function FeaturedSalons({ salons }) {
-  // nếu filter không trả về salon featured nào thì fallback dùng từ toàn bộ data
-  const featured =
-    salons.filter((s) => s.featured) ??
-    salonsData.filter((s) => s.featured);
+import salons from "@/data/salons.json";
 
-  if (!featured.length) {
-    return <p className="text-sm text-gray-500">Chưa có salon nổi bật.</p>;
-  }
-
+export default function FeaturedSalons() {
   return (
-    <div className="grid gap-6 md:grid-cols-3">
-      {featured.map((salon) => (
-        <article
-          key={salon.id}
-          className="flex flex-col overflow-hidden rounded-2xl bg-white shadow hover:-translate-y-1 hover:shadow-lg transition"
-        >
-          <div className="relative h-40 w-full">
-            <Image
+    <section className="mt-12 px-4 md:px-12">
+      <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+        💅 Featured Nail Salons
+      </h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {salons.slice(0, 3).map((salon) => (
+          <div
+            key={salon.id}
+            className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden"
+          >
+            <img
               src={salon.image}
               alt={salon.name}
-              fill
-              className="object-cover"
+              className="w-full h-56 object-cover"
             />
-          </div>
-          <div className="flex flex-1 flex-col p-4">
-            <h3 className="text-base font-semibold text-gray-900">
-              {salon.name}
-            </h3>
-            <p className="mt-1 text-xs text-gray-500">{salon.address}</p>
-            <p className="mt-2 line-clamp-2 text-xs text-gray-600">
-              Dịch vụ: {salon.services.join(", ")}
-            </p>
-            <div className="mt-3 flex gap-2 text-[11px] text-pink-600">
-              <span className="rounded-full bg-pink-50 px-2 py-1">
-                {salon.district}
-              </span>
-              {salon.featured && (
-                <span className="rounded-full bg-yellow-50 px-2 py-1">
-                  ⭐ Đề xuất
+
+            <div className="p-5">
+              <h3 className="font-bold text-xl">{salon.name}</h3>
+              <p className="text-gray-600">{salon.address}</p>
+
+              <p className="mt-2 text-sm">
+                <span className="font-semibold">Dịch vụ:</span> {salon.services.join(", ")}
+              </p>
+
+              <div className="flex gap-3 mt-3">
+                <span className="text-sm bg-pink-100 text-pink-600 px-3 py-1 rounded-lg">
+                  District {salon.district}
                 </span>
-              )}
-            </div>
-            <div className="mt-4 flex justify-end">
-              <Link
-                href={`/salon/${salon.id}`}
-                className="text-xs font-semibold text-pink-600 hover:text-pink-700"
-              >
-                Xem chi tiết →
-              </Link>
+
+                {salon.featured && (
+                  <span className="text-sm bg-yellow-100 text-yellow-700 px-3 py-1 rounded-lg flex items-center gap-1">
+                    ⭐ Đề xuất
+                  </span>
+                )}
+              </div>
+
+              <div className="mt-4 text-right">
+                <a href="#" className="text-pink-500 font-semibold hover:underline">
+                  Xem chi tiết →
+                </a>
+              </div>
             </div>
           </div>
-        </article>
-      ))}
-    </div>
+        ))}
+      </div>
+    </section>
   );
 }
