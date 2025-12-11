@@ -3,7 +3,10 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 
-export default function NearestSalons({ salons = [] }) {
+export default function NearestSalons({
+  salons = [],
+  onSelectSalon,
+}) {
   const router = useRouter();
   const list = Array.isArray(salons) ? salons : [];
 
@@ -22,16 +25,17 @@ export default function NearestSalons({ salons = [] }) {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {list.map((salon) => (
             <article
-              key={salon.id || salon.slug}
-              className="bg-white rounded-2xl shadow-sm border border-pink-50 p-5 flex flex-col"
+              key={salon.id}
+              className="bg-white rounded-2xl shadow-sm border border-pink-50 p-5 flex flex-col cursor-pointer hover:shadow-md transition"
+              onClick={() => onSelectSalon && onSelectSalon(salon)}
             >
               <h3 className="text-lg font-semibold mb-1">{salon.name}</h3>
               <p className="text-sm text-gray-500 mb-2">{salon.address}</p>
 
-              {typeof salon.distanceKm === "number" && (
+              {typeof salon.distance === "number" && (
                 <p className="text-sm text-gray-600 mb-2">
-                  <span className="font-semibold">Cách bạn ~</span>{" "}
-                  {salon.distanceKm.toFixed(1)} km
+                  <span className="font-semibold">Cách bạn ~ </span>
+                  {salon.distance.toFixed(1)} km
                 </p>
               )}
 
@@ -45,9 +49,10 @@ export default function NearestSalons({ salons = [] }) {
               <div className="mt-auto flex items-center justify-between gap-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     const q = encodeURIComponent(
-                      `${salon.name || ""} ${salon.address || ""} Budapest`
+                      `${salon.name} ${salon.address} Budapest`
                     );
                     window.open(
                       `https://www.google.com/maps/search/?api=1&query=${q}`,
@@ -61,9 +66,10 @@ export default function NearestSalons({ salons = [] }) {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    router.push(`/salon/${salon.slug || salon.id}`)
-                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(`/salon/${salon.id}`);
+                  }}
                   className="flex-1 inline-flex items-center justify-center rounded-full border border-pink-200 px-4 py-2 text-sm font-medium text-pink-600 hover:bg-pink-50 transition"
                 >
                   Xem chi tiết →

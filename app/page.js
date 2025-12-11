@@ -1,78 +1,138 @@
 "use client";
 
-import React from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default function NearestSalons({ salons = [] }) {
-  const router = useRouter();
-  const list = Array.isArray(salons) ? salons : [];
+import Hero from "@/components/ui/Hero";
+import SearchBar from "@/components/ui/SearchBar";
+import CategoryList from "@/components/ui/CategoryList";
+import FeaturedSalons from "@/components/ui/FeaturedSalons";
+import NearestSalons from "@/components/ui/NearestSalons";
+import Map from "@/components/ui/Map";
+import BlogSection from "@/components/ui/BlogSection";
+import OwnerSection from "@/components/ui/OwnerSection";
+
+export default function HomePage() {
+  const [salons, setSalons] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [nearby, setNearby] = useState([]);
+  const [selectedSalonId, setSelectedSalonId] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/salons")
+      .then((res) => res.json())
+      .then((data) => {
+        setSalons(data);
+        setFiltered(data);
+        if (data.length > 0) setSelectedSalonId(data[0].id);
+      })
+      .catch(() => {
+        setSalons([]);
+        setFiltered([]);
+      });
+  }, []);
+
+  function handleSearch(filters = {}) {
+    const {
+      name = "",
+      district = "",
+      service = "",
+      featuredOnly = false,
+    } = filters;
+
+    let list = [...salons];
+
+    if (name) {
+      const q = name.toLowerCase();
+      list = list.filter((s) =>
+        (s.name + " " + s.address).toLowerCase().includes(q)
+      );
+    }
+
+    if (district) {
+      const d = String(district).toLowerCase();
+      list = list.filter((s) =>
+        String(s.district).toLowerCase().includes(d)
+      );
+    }
+
+    if (service) {
+      const sv = service.toLowerCase();
+      list = list.filter(
+        (s) =>
+          Array.isArray(s.services) &&
+          s.services.some((x) => x.toLowerCase().includes(sv))
+      );
+    }
+
+    if (featuredOnly) {
+      list = list.filter((s) => s.featured);
+    }
+
+    setFiltered(list);
+    setSelectedSalonId(list.length > 0 ? list[0].id : null);
+  }
+
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        fetch(
+          `/api/nearest?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`
+        )
+          .then((res) => res.json())
+          .then((data) => setNearby(data))
+          .catch(() => setNearby([]));
+      },
+      () => setNearby([])
+    );
+  }, []);
+
+  function handleCategory(value) {
+    handleSearch({ service: value || "" });
+  }
+
+  function handleSelectSalon(salon) {
+    if (!salon || !salon.id) return;
+    setSelectedSalonId(salon.id);
+  }
 
   return (
-    <section className="max-w-6xl mx-auto px-4 mt-12 mb-12">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-2xl">📍</span>
-        <h2 className="text-2xl md:text-3xl font-bold">Salon gần bạn nhất</h2>
+    <div className="pb-24">
+      <Hero />
+
+      <div className="max-w-5xl mx-auto px-4 -mt-10 mb-8">
+        <SearchBar
+          size="lg"
+          onSearch={handleSearch}
+          salons={salons}
+          totalResults={filtered.length}
+        />
+
+        <div className="flex flex-wrap gap-6 text-sm text-gray-600 mt-4">
+          <span>⭐ Gợi ý salon uy tín</span>
+          <span>📍 Xem salon trên bản đồ</span>
+          <span>⚡ Đặt lịch nhanh chóng</span>
+        </div>
       </div>
 
-      {list.length === 0 ? (
-        <p className="text-sm text-gray-500">
-          Hãy bật định vị để xem những salon gần bạn nhất ở Budapest.
-        </p>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {list.map((salon) => (
-            <article
-              key={salon.id || salon.slug}
-              className="bg-white rounded-2xl shadow-sm border border-pink-50 p-5 flex flex-col"
-            >
-              <h3 className="text-lg font-semibold mb-1">{salon.name}</h3>
-              <p className="text-sm text-gray-500 mb-2">{salon.address}</p>
+      <div className="max-w-6xl mx-auto px-4 mb-16">
+        <Map
+          salons={filtered}
+          heightClass="h-[520px]"
+          selectedId={selectedSalonId}
+        />
+      </div>
 
-              {typeof salon.distanceKm === "number" && (
-                <p className="text-sm text-gray-600 mb-2">
-                  <span className="font-semibold">Cách bạn ~</span>{" "}
-                  {salon.distanceKm.toFixed(1)} km
-                </p>
-              )}
+      <CategoryList onSelect={handleCategory} />
 
-              {Array.isArray(salon.services) && salon.services.length > 0 && (
-                <p className="text-sm mb-3 text-gray-700">
-                  <span className="font-semibold">Dịch vụ:</span>{" "}
-                  {salon.services.join(", ")}
-                </p>
-              )}
+      <FeaturedSalons salons={filtered} onSelectSalon={handleSelectSalon} />
 
-              <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const q = encodeURIComponent(
-                      `${salon.name || ""} ${salon.address || ""} Budapest`
-                    );
-                    window.open(
-                      `https://www.google.com/maps/search/?api=1&query=${q}`,
-                      "_blank"
-                    );
-                  }}
-                  className="flex-1 inline-flex items-center justify-center rounded-full bg-pink-500 px-4 py-2 text-sm font-semibold text-white hover:bg-pink-600 transition"
-                >
-                  Chỉ đường
-                </button>
+      <NearestSalons salons={nearby} onSelectSalon={handleSelectSalon} />
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    router.push(`/salon/${salon.slug || salon.id}`)
-                  }
-                  className="flex-1 inline-flex items-center justify-center rounded-full border border-pink-200 px-4 py-2 text-sm font-medium text-pink-600 hover:bg-pink-50 transition"
-                >
-                  Xem chi tiết →
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
-    </section>
+      <BlogSection />
+
+      <OwnerSection />
+    </div>
   );
 }
