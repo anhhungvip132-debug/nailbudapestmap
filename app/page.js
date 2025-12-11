@@ -16,155 +16,92 @@ export default function HomePage() {
   const [filtered, setFiltered] = useState([]);
   const [nearby, setNearby] = useState([]);
 
-  // Load salons
   useEffect(() => {
     fetch("/api/salons")
-      .then((res) => res.json())
-      .then((data) => {
-        setSalons(data);
-        setFiltered(data); // default load
-      })
-      .catch(() => {
-        setSalons([]);
-        setFiltered([]);
+      .then((r) => r.json())
+      .then((d) => {
+        setSalons(d);
+        setFiltered(d);
       });
   }, []);
 
-  // Get nearest salons
   useEffect(() => {
     if (!navigator.geolocation) return;
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        fetch(
-          `/api/nearby?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`
-        )
-          .then((res) => res.json())
-          .then((data) => setNearby(data))
-          .catch(() => setNearby([]));
+        fetch(`/api/nearby?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`)
+          .then((r) => r.json())
+          .then((d) => setNearby(d));
       },
       () => setNearby([])
     );
   }, []);
 
-  // Handle search bar filter
   function handleSearch(filters) {
-    let data = [...salons];
+    let list = [...salons];
 
-    const { name, district, service } = filters;
-
-    // Filter by name
-    if (name) {
-      const q = name.toLowerCase();
-      data = data.filter(
-        (s) =>
-          s.name.toLowerCase().includes(q) ||
-          s.address.toLowerCase().includes(q)
+    if (filters.name)
+      list = list.filter((s) =>
+        (s.name + s.address).toLowerCase().includes(filters.name.toLowerCase())
       );
-    }
 
-    // Filter by district
-    if (district) {
-      data = data.filter((s) => s.district == district);
-    }
+    if (filters.district)
+      list = list.filter((s) => String(s.district) === String(filters.district));
 
-    // Filter by service
-    if (service) {
-      data = data.filter(
+    if (filters.service)
+      list = list.filter(
         (s) =>
           Array.isArray(s.services) &&
           s.services.some((sv) =>
-            sv.toLowerCase().includes(service.toLowerCase())
+            sv.toLowerCase().includes(filters.service.toLowerCase())
           )
       );
-    }
 
-    setFiltered(data);
+    setFiltered(list);
   }
 
-  // Category filter
-  function handleCategorySelect(service) {
-    if (!service) {
+  function handleCategory(value) {
+    if (!value) {
       setFiltered(salons);
       return;
     }
-
-    const result = salons.filter(
+    const list = salons.filter(
       (s) =>
         Array.isArray(s.services) &&
-        s.services.some((sv) =>
-          sv.toLowerCase().includes(service.toLowerCase())
-        )
+        s.services.some((sv) => sv.toLowerCase().includes(value.toLowerCase()))
     );
-
-    setFiltered(result);
+    setFiltered(list);
   }
 
   return (
-    <div className="pb-16">
-      {/* HERO */}
+    <div className="pb-20">
       <Hero />
 
-      {/* SEARCH BAR FULL WIDTH */}
-      <div className="max-w-4xl mx-auto px-4 -mt-6 mb-8">
-        <SearchBar onSearch={handleSearch} />
+      {/* SEARCH BAR (CHỈ GIỮ 1 THANH TÌM KIẾM NÀY) */}
+      <div className="max-w-5xl mx-auto px-4 -mt-8 mb-10">
+        <SearchBar onSearch={handleSearch} size="lg" />
       </div>
 
       {/* MAP */}
-      <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-0 mb-12">
-        <Map salons={filtered} heightClass="h-[420px]" />
+      <div className="max-w-6xl mx-auto px-4 mb-16">
+        <Map salons={filtered} heightClass="h-[520px]" />
       </div>
 
-      {/* CATEGORIES */}
-      <CategoryList onSelect={handleCategorySelect} />
+      {/* CATEGORY (✨ Manicure Pedicure ...) */}
+      <CategoryList onSelect={handleCategory} />
 
       {/* FEATURED SALONS */}
       <FeaturedSalons salons={salons} />
 
-      {/* NEARBY SALONS */}
+      {/* NEAREST SALONS */}
       <NearestSalons salons={nearby} />
 
       {/* BLOG */}
       <BlogSection />
 
-      {/* ABOUT YOU */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 lg:px-0 mt-12 mb-12">
-        <h2 className="text-2xl md:text-3xl font-bold mb-4">
-          👩‍💼 Giới thiệu về tôi
-        </h2>
-
-        <div className="bg-white border border-pink-100 rounded-2xl shadow-sm p-6 leading-relaxed text-gray-700">
-          Xin chào! Tôi là người xây dựng nền tảng Nail Budapest Map nhằm giúp
-          cộng đồng người Việt tại Budapest tìm kiếm những tiệm nail chất lượng,
-          uy tín và phù hợp nhu cầu.
-          <br />
-          <br />
-          Sứ mệnh của tôi là mang đến trải nghiệm tìm salon nhanh nhất, rõ ràng
-          nhất, trực quan nhất — kết hợp bản đồ, đánh giá, dịch vụ và thông tin
-          minh bạch cho người dùng.
-        </div>
-      </section>
-
-      {/* CUSTOMER SIGNUP */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 lg:px-0 mb-16">
-        <h2 className="text-2xl md:text-3xl font-bold mb-4">
-          📝 Đăng ký khách hàng
-        </h2>
-        <p className="text-gray-600 mb-4">
-          Nhận thông tin ưu đãi, giảm giá salon và bài viết làm đẹp mới nhất.
-        </p>
-
-        <div className="bg-white border border-pink-100 rounded-2xl shadow-sm p-5 max-w-md">
-          <input
-            type="email"
-            placeholder="Nhập email của bạn"
-            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-200 mb-3"
-          />
-          <button className="w-full rounded-xl bg-pink-500 px-4 py-2 text-sm font-semibold text-white hover:bg-pink-600 transition">
-            Đăng ký
-          </button>
-        </div>
-      </section>
+      {/* ABOUT + CUSTOMER SIGNUP */}
+      <OwnerSection />
     </div>
   );
 }

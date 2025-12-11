@@ -1,61 +1,39 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
-export default function SearchBar({ onSearch, className = "" }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
+export default function SearchBar({ onSearch, size = "md" }) {
   const [name, setName] = useState("");
   const [district, setDistrict] = useState("");
   const [service, setService] = useState("");
 
-  useEffect(() => {
-    setName(searchParams.get("q") || "");
-    setDistrict(searchParams.get("district") || "");
-    setService(searchParams.get("service") || "");
-  }, [searchParams]);
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    const filters = { name, district, service };
-
-    if (onSearch) {
-      onSearch(filters);
-    } else {
-      const params = new URLSearchParams();
-      if (name) params.set("q", name);
-      if (district) params.set("district", district);
-      if (service) params.set("service", service);
-      router.push(`/?${params.toString()}`);
-    }
-  }
+  const wrapper = size === "lg" ? "p-6 text-base" : "p-3 text-sm";
 
   return (
     <form
-      onSubmit={handleSubmit}
-      className={`w-full rounded-2xl bg-white shadow-lg border border-pink-100 p-3 md:p-4 flex flex-col md:flex-row gap-3 ${className}`}
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSearch({ name, district, service });
+      }}
+      className={`bg-white shadow-xl border border-pink-100 rounded-2xl flex flex-col md:flex-row gap-4 md:items-end ${wrapper}`}
     >
+      {/* Name */}
       <div className="flex-1">
-        <label className="block text-xs font-medium text-gray-500 mb-1">
-          Tên salon hoặc địa chỉ
-        </label>
+        <label className="block text-xs text-gray-500 mb-1">Tên salon</label>
         <input
           type="text"
+          className="w-full border rounded-xl px-4 py-3"
           placeholder="Ví dụ: Nailbar Budapest, Andrássy út..."
-          className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-200"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
       </div>
 
-      <div className="md:w-44">
-        <label className="block text-xs font-medium text-gray-500 mb-1">
-          Quận (District)
-        </label>
+      {/* District */}
+      <div className="md:w-52">
+        <label className="block text-xs text-gray-500 mb-1">Quận</label>
         <select
-          className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-200"
+          className="w-full border rounded-xl px-4 py-3"
           value={district}
           onChange={(e) => setDistrict(e.target.value)}
         >
@@ -69,12 +47,11 @@ export default function SearchBar({ onSearch, className = "" }) {
         </select>
       </div>
 
+      {/* Service */}
       <div className="md:w-52">
-        <label className="block text-xs font-medium text-gray-500 mb-1">
-          Dịch vụ
-        </label>
+        <label className="block text-xs text-gray-500 mb-1">Dịch vụ</label>
         <select
-          className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-200"
+          className="w-full border rounded-xl px-4 py-3"
           value={service}
           onChange={(e) => setService(e.target.value)}
         >
@@ -82,20 +59,14 @@ export default function SearchBar({ onSearch, className = "" }) {
           <option value="manicure">Manicure</option>
           <option value="pedicure">Pedicure</option>
           <option value="gel">Gel nails</option>
-          <option value="nail-art">Nail art</option>
-          <option value="acrylic">Acrylic</option>
+          <option value="nail art">Nail art</option>
           <option value="spa">Spa</option>
         </select>
       </div>
 
-      <div className="md:w-32 flex items-end">
-        <button
-          type="submit"
-          className="w-full inline-flex items-center justify-center rounded-xl bg-pink-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-pink-600 transition"
-        >
-          Tìm salon
-        </button>
-      </div>
+      <button className="bg-pink-500 text-white font-bold px-6 py-3 rounded-xl hover:bg-pink-600">
+        Tìm salon
+      </button>
     </form>
   );
 }
