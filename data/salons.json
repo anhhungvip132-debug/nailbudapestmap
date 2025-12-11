@@ -1,47 +1,112 @@
 [
   {
+    "id": 1,
     "name": "Nailbar Budapest",
-    "address": "Budapest, Andrássy út 10",
+    "address": "Andrássy út 10, Budapest",
     "district": "District 6",
-    "lat": 47.5031,
-    "lng": 19.0657,
-    "services": ["Manicure", "Gel Nails"],
-    "image": "/images/nail1.jpg"
+    "lat": 47.502,
+    "lng": 19.058,
+    "services": ["Manicure", "Pedicure", "Gel Nails"],
+    "featured": true,
+    "image": "/images/salon1.jpg"
   },
   {
+    "id": 2,
     "name": "Pink Beauty Nails",
-    "address": "Budapest, Erzsébet krt. 25",
+    "address": "Erzsébet krt. 25, Budapest",
     "district": "District 7",
-    "lat": 47.4977,
-    "lng": 19.0674,
-    "services": ["Pedicure", "Nail Art"],
-    "image": "/images/nail2.jpg"
+    "lat": 47.503,
+    "lng": 19.069,
+    "services": ["Manicure", "Nail Art", "Gel Nails"],
+    "featured": true,
+    "image": "/images/salon2.jpg"
   },
   {
+    "id": 3,
     "name": "Budapest Nail Shop",
-    "address": "Budapest, Nyugati tér 5",
-    "district": "District 6",
-    "lat": 47.5101,
-    "lng": 19.0560,
-    "services": ["Manicure"],
-    "image": "/images/nail3.jpg"
+    "address": "Nyugati tér 5, Budapest",
+    "district": "District 13",
+    "lat": 47.5108,
+    "lng": 19.0552,
+    "services": ["Acrylic", "Pedicure", "Spa"],
+    "featured": true,
+    "image": "/images/salon3.jpg"
   },
   {
+    "id": 4,
     "name": "Diamond Nails & Spa",
-    "address": "Budapest, Oktogon tér 8",
+    "address": "Oktogon tér 8, Budapest",
     "district": "District 6",
-    "lat": 47.5054,
-    "lng": 19.0651,
-    "services": ["Pedicure"],
-    "image": "/images/nail4.jpg"
+    "lat": 47.505,
+    "lng": 19.061,
+    "services": ["Spa", "Pedicure", "Gel Nails"],
+    "featured": false,
+    "image": "/images/salon4.jpg"
   },
   {
-    "name": "Luxury Nail Art Studio",
-    "address": "Budapest, Király utca 22",
-    "district": "District 7",
-    "lat": 47.5035,
-    "lng": 19.0613,
+    "id": 5,
+    "name": "Riverfront Nails Studio",
+    "address": "Belgrád rakpart 20, Budapest",
+    "district": "District 5",
+    "lat": 47.4905,
+    "lng": 19.053,
+    "services": ["Manicure", "Pedicure"],
+    "featured": false,
+    "image": "/images/salon5.jpg"
+  },
+  {
+    "id": 6,
+    "name": "Buda Hills Nail Lounge",
+    "address": "Széll Kálmán tér 3, Budapest",
+    "district": "District 2",
+    "lat": 47.507,
+    "lng": 19.024,
+    "services": ["Gel Nails", "Nail Art"],
+    "featured": false,
+    "image": "/images/salon6.jpg"
+  },
+  {
+    "id": 7,
+    "name": "Central Deák Nail Studio",
+    "address": "Deák Ferenc tér 5, Budapest",
+    "district": "District 5",
+    "lat": 47.4979,
+    "lng": 19.0535,
+    "services": ["Manicure", "Pedicure", "Acrylic"],
+    "featured": false,
+    "image": "/images/placeholder.jpg"
+  },
+  {
+    "id": 8,
+    "name": "Fashion Street Nails",
+    "address": "Deák Ferenc utca 15, Budapest",
+    "district": "District 5",
+    "lat": 47.4965,
+    "lng": 19.0505,
     "services": ["Nail Art", "Gel Nails"],
-    "image": "/images/nail5.jpg"
+    "featured": false,
+    "image": "/images/placeholder.jpg"
+  },
+  {
+    "id": 9,
+    "name": "Corvin Plaza Nails",
+    "address": "Futó utca 37, Budapest",
+    "district": "District 8",
+    "lat": 47.4855,
+    "lng": 19.077,
+    "services": ["Manicure", "Spa"],
+    "featured": false,
+    "image": "/images/placeholder.jpg"
+  },
+  {
+    "id": 10,
+    "name": "Arena Mall Nail Corner",
+    "address": "Kerepesi út 9, Budapest",
+    "district": "District 8",
+    "lat": 47.4993,
+    "lng": 19.1072,
+    "services": ["Pedicure", "Gel Nails", "Acrylic"],
+    "featured": false,
+    "image": "/images/placeholder.jpg"
   }
 ]

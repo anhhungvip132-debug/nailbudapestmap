@@ -1,80 +1,84 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-export default function SearchBar({ salons, setFiltered }) {
-  const [keyword, setKeyword] = useState("");
-  const [district, setDistrict] = useState("");
-  const [service, setService] = useState("");
+export default function SearchBar({ salons, onSearch }) {
+  const [name, setName] = useState("");
+  const [district, setDistrict] = useState("all");
+  const [service, setService] = useState("all");
 
-  const handleSearch = () => {
-    let result = salons;
+  const districts = useMemo(() => {
+    const list = Array.from(new Set(salons.map((s) => s.district))).sort();
+    return list;
+  }, [salons]);
 
-    if (keyword) {
-      result = result.filter((s) =>
-        s.name.toLowerCase().includes(keyword.toLowerCase())
-      );
-    }
+  const services = useMemo(() => {
+    const set = new Set();
+    salons.forEach((s) => s.services.forEach((sv) => set.add(sv)));
+    return Array.from(set).sort();
+  }, [salons]);
 
-    if (district) {
-      result = result.filter((s) => s.district === district);
-    }
-
-    if (service) {
-      result = result.filter((s) => s.services.includes(service));
-    }
-
-    setFiltered(result);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSearch({
+      name: name.trim(),
+      district,
+      service
+    });
   };
 
   return (
-    <section className="bg-white p-6 shadow-md rounded-xl mb-10">
-      <h2 className="text-2xl font-semibold mb-4 text-center">🔍 Tìm Kiếm Salon</h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-
-        {/* Search input */}
+    <form
+      onSubmit={handleSubmit}
+      className="rounded-2xl bg-white p-6 shadow-md"
+    >
+      <h2 className="mb-4 text-xl font-semibold text-gray-900">
+        🔍 Tìm Kiếm Salon
+      </h2>
+      <div className="grid gap-4 md:grid-cols-3">
         <input
           type="text"
-          placeholder="Nhập tên salon..."
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          className="border p-3 rounded"
+          placeholder="Nhập tên salon…"
+          className="w-full rounded-xl border border-pink-100 px-4 py-2 text-sm outline-none focus:border-pink-400"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
         />
 
-        {/* District */}
         <select
+          className="w-full rounded-xl border border-pink-100 px-4 py-2 text-sm outline-none focus:border-pink-400"
           value={district}
           onChange={(e) => setDistrict(e.target.value)}
-          className="border p-3 rounded"
         >
-          <option value="">Quận</option>
-          <option value="District 5">District 5</option>
-          <option value="District 6">District 6</option>
-          <option value="District 7">District 7</option>
+          <option value="all">Tất cả quận</option>
+          {districts.map((d) => (
+            <option key={d} value={d}>
+              {d}
+            </option>
+          ))}
         </select>
 
-        {/* Service */}
         <select
+          className="w-full rounded-xl border border-pink-100 px-4 py-2 text-sm outline-none focus:border-pink-400"
           value={service}
           onChange={(e) => setService(e.target.value)}
-          className="border p-3 rounded"
         >
-          <option value="">Dịch vụ</option>
-          <option value="Manicure">Manicure</option>
-          <option value="Pedicure">Pedicure</option>
-          <option value="Gel Nails">Gel Nails</option>
-          <option value="Nail Art">Nail Art</option>
+          <option value="all">Tất cả dịch vụ</option>
+          {services.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
         </select>
+      </div>
 
-        {/* Button */}
+      <div className="mt-4 flex justify-end">
         <button
-          onClick={handleSearch}
-          className="bg-pink-500 text-white p-3 rounded font-semibold"
+          type="submit"
+          className="rounded-xl bg-pink-500 px-6 py-2 text-sm font-semibold text-white shadow hover:bg-pink-600"
         >
           Tìm kiếm
         </button>
       </div>
-    </section>
+    </form>
   );
 }
