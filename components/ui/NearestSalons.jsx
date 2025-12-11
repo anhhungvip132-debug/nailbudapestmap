@@ -1,56 +1,22 @@
-"use client";
-import { useEffect, useState } from "react";
-import salons from "@/data/salons.json";
-import SalonCard from "./SalonCard";
+import dynamic from "next/dynamic";
 
-export default function NearestSalons() {
-  const [userPos, setUserPos] = useState(null);
-  const [sorted, setSorted] = useState([]);
+const Map = dynamic(() => import("./Map"), { ssr: false });
 
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setUserPos(loc);
-
-        const withDist = salons.map((s) => {
-          const dx = s.lat - loc.lat;
-          const dy = s.lng - loc.lng;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          return { ...s, distance: dist };
-        });
-
-        setSorted(withDist.sort((a, b) => a.distance - b.distance));
-      },
-      () => console.warn("Location blocked")
-    );
-  }, []);
-
+export default function NearestSalons({ salons }) {
   return (
-    <section>
-      <h2 className="text-xl font-bold mb-3">Nearest Salons</h2>
+    <section className="mb-14">
+      <h2 className="text-center text-3xl font-bold mb-6">📍 Salon Gần Bạn Nhất</h2>
 
-      {userPos ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {sorted.slice(0, 4).map((s) => (
-            <div key={s.id} className="rounded-xl border p-3 shadow">
-              <SalonCard salon={s} />
-              <p className="text-sm mt-2">
-                Distance: {(s.distance * 100).toFixed(1)} km
-              </p>
-              <a
-                href={`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`}
-                target="_blank"
-                className="text-pink-600 underline text-sm"
-              >
-                Get Directions →
-              </a>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-gray-500">Waiting for location…</p>
-      )}
+      <Map salons={salons} />
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        {salons.map((s, i) => (
+          <div key={i} className="shadow rounded-xl bg-white p-4">
+            <h3 className="font-semibold text-lg">{s.name}</h3>
+            <p className="text-gray-600">{s.address}</p>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }

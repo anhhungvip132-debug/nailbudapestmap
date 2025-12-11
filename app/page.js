@@ -1,26 +1,34 @@
-import HeroSlider from "@/components/ui/HeroSlider";
+"use client";
+
+import Hero from "@/components/ui/Hero";
 import SearchBar from "@/components/ui/SearchBar";
-import CategoryList from "@/components/ui/CategoryList";
-import FeaturedAds from "@/components/ui/FeaturedAds";
+import FeaturedSalons from "@/components/ui/FeaturedSalons";
 import NearestSalons from "@/components/ui/NearestSalons";
 import BlogSection from "@/components/ui/BlogSection";
-import RegisterSection from "@/components/ui/RegisterSection";
-import Map from "@/components/ui/Map";
+import OwnerSection from "@/components/ui/OwnerSection";
+
+import salons from "@/data/salons.json";
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <main className="space-y-10 pb-10">
-      <HeroSlider />
+  const [filtered, setFiltered] = useState(salons);
 
-      <div className="container space-y-12">
-        <SearchBar />
-        <CategoryList />
-        <FeaturedAds />
-        <NearestSalons />
-        <BlogSection />
-        <RegisterSection />
-        <Map />
-      </div>
+  return (
+    <main className="max-w-6xl mx-auto px-4 pb-20">
+      <Hero />
+
+      {/* SEARCH BAR */}
+      <SearchBar salons={salons} setFiltered={setFiltered} />
+
+      {/* FEATURED SALONS */}
+      <FeaturedSalons salons={filtered.slice(0, 3)} />
+
+      {/* NEAREST SALONS & MAP */}
+      <NearestSalons salons={filtered} />
+
+      {/* BLOG + OWNER */}
+      <BlogSection />
+      <OwnerSection />
     </main>
   );
 }

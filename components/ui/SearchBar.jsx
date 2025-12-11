@@ -1,79 +1,80 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import salons from "@/data/salons.json";
+import { useState } from "react";
 
-export default function SearchBar() {
-  const [text, setText] = useState("");
+export default function SearchBar({ salons, setFiltered }) {
+  const [keyword, setKeyword] = useState("");
   const [district, setDistrict] = useState("");
   const [service, setService] = useState("");
-  const [results, setResults] = useState([]);
 
-  const districts = [...new Set(salons.map((s) => s.district))];
-  const services = [...new Set(salons.flatMap((s) => s.services || []))];
+  const handleSearch = () => {
+    let result = salons;
 
-  useEffect(() => {
-    let filtered = salons;
-
-    if (text.trim()) {
-      filtered = filtered.filter((s) =>
-        s.name.toLowerCase().includes(text.toLowerCase())
+    if (keyword) {
+      result = result.filter((s) =>
+        s.name.toLowerCase().includes(keyword.toLowerCase())
       );
     }
 
-    if (district) filtered = filtered.filter((s) => s.district === district);
-    if (service) filtered = filtered.filter((s) => s.services?.includes(service));
+    if (district) {
+      result = result.filter((s) => s.district === district);
+    }
 
-    setResults(filtered.slice(0, 10));
-  }, [text, district, service]);
+    if (service) {
+      result = result.filter((s) => s.services.includes(service));
+    }
+
+    setFiltered(result);
+  };
 
   return (
-    <section className="bg-white p-5 rounded-xl shadow space-y-4">
-      <h2 className="text-xl font-bold">Find a Nail Salon</h2>
+    <section className="bg-white p-6 shadow-md rounded-xl mb-10">
+      <h2 className="text-2xl font-semibold mb-4 text-center">🔍 Tìm Kiếm Salon</h2>
 
-      <input
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Search by name…"
-        className="w-full p-3 border rounded-lg"
-      />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 
-      <div className="flex gap-4 flex-wrap">
+        {/* Search input */}
+        <input
+          type="text"
+          placeholder="Nhập tên salon..."
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          className="border p-3 rounded"
+        />
+
+        {/* District */}
         <select
           value={district}
           onChange={(e) => setDistrict(e.target.value)}
-          className="p-3 border rounded-lg"
+          className="border p-3 rounded"
         >
-          <option value="">All Districts</option>
-          {districts.map((d) => (
-            <option key={d}>{d}</option>
-          ))}
+          <option value="">Quận</option>
+          <option value="District 5">District 5</option>
+          <option value="District 6">District 6</option>
+          <option value="District 7">District 7</option>
         </select>
 
+        {/* Service */}
         <select
           value={service}
           onChange={(e) => setService(e.target.value)}
-          className="p-3 border rounded-lg"
+          className="border p-3 rounded"
         >
-          <option value="">All Services</option>
-          {services.map((s) => (
-            <option key={s}>{s}</option>
-          ))}
+          <option value="">Dịch vụ</option>
+          <option value="Manicure">Manicure</option>
+          <option value="Pedicure">Pedicure</option>
+          <option value="Gel Nails">Gel Nails</option>
+          <option value="Nail Art">Nail Art</option>
         </select>
-      </div>
 
-      {results.length > 0 && (
-        <div className="bg-gray-50 p-4 rounded-lg border">
-          <h3 className="font-semibold mb-2">Results:</h3>
-          <ul className="space-y-2">
-            {results.map((s) => (
-              <li key={s.id} className="p-2 bg-white rounded-lg shadow">
-                {s.name} — {s.district}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+        {/* Button */}
+        <button
+          onClick={handleSearch}
+          className="bg-pink-500 text-white p-3 rounded font-semibold"
+        >
+          Tìm kiếm
+        </button>
+      </div>
     </section>
   );
 }
