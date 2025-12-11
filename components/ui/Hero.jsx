@@ -1,22 +1,21 @@
+"use client";
+
+import Image from "next/image";
+
 export default function Hero() {
   return (
-    <section
-      style={{
-        backgroundImage: "url('/images/hero.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        width: "100%",
-        height: "420px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: "white",
-        textAlign: "center",
-      }}
-    >
-      <h1 style={{ fontSize: "48px", fontWeight: "bold", textShadow: "0 0 10px black" }}>
-        Tìm Salon Nail Tốt Nhất Tại Budapest
-      </h1>
+    <section className="relative w-full h-[350px] rounded-xl overflow-hidden mt-3">
+      <Image
+        src="/images/hero.jpg"
+        alt="Hero banner"
+        fill
+        className="object-cover opacity-70"
+      />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <h1 className="text-4xl font-bold text-white drop-shadow-lg">
+          Tìm Salon Nail Tốt Nhất Tại Budapest
+        </h1>
+      </div>
     </section>
   );
 }

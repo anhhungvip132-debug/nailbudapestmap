@@ -1,102 +1,92 @@
 [
   {
     "id": 1,
-    "name": "Diamond Nails & Spa",
-    "district": "District VII",
-    "services": ["Nail Art", "Manicure", "Pedicure"],
-    "address": "Budapest, Erzsébet krt. 8",
+    "name": "Nailbar Budapest",
+    "lat": 47.49801,
+    "lng": 19.03991,
+    "address": "Andrássy út 10, Budapest",
     "image": "/images/salon1.jpg",
-    "lat": 47.4979,
-    "lng": 19.0402
+    "featured": true
   },
   {
     "id": 2,
     "name": "Pink Beauty Nails",
-    "district": "District V",
-    "services": ["Gel Nails", "Acrylic Nails"],
-    "address": "Budapest, Arany János u. 22",
+    "lat": 47.5041,
+    "lng": 19.0552,
+    "address": "Erzsébet körút 25, Budapest",
     "image": "/images/salon2.jpg",
-    "lat": 47.5039,
-    "lng": 19.0473
+    "featured": true
   },
   {
     "id": 3,
     "name": "Budapest Nail Shop",
-    "district": "District VI",
-    "services": ["Manicure", "Pedicure"],
-    "address": "Budapest, Nyugati tér 5",
+    "lat": 47.5099,
+    "lng": 19.0577,
+    "address": "Nyugati tér 5, Budapest",
     "image": "/images/salon3.jpg",
-    "lat": 47.5093,
-    "lng": 19.0561
+    "featured": true
   },
   {
     "id": 4,
-    "name": "BrillBird Nail Studio",
-    "district": "District XIII",
-    "services": ["Nail Art", "Design"],
-    "address": "Budapest, Váci út 64",
+    "name": "Diamond Nails & Spa",
+    "lat": 47.4988,
+    "lng": 19.0543,
+    "address": "Oktogon tér 8, Budapest",
     "image": "/images/salon4.jpg",
-    "lat": 47.5281,
-    "lng": 19.0614
+    "featured": false
   },
   {
     "id": 5,
-    "name": "Luxury Nails Budapest",
-    "district": "District V",
-    "services": ["Spa Nails", "Manicure"],
-    "address": "Budapest, Deák Ferenc u. 5",
+    "name": "Luxury Nail Studio Budapest",
+    "lat": 47.5034,
+    "lng": 19.0455,
+    "address": "Bajcsy-Zsilinszky út 14",
     "image": "/images/salon5.jpg",
-    "lat": 47.4972,
-    "lng": 19.0551
+    "featured": false
   },
   {
     "id": 6,
-    "name": "Glamour Nails",
-    "district": "District VIII",
-    "services": ["Pedicure", "Manicure"],
-    "address": "Budapest, József krt. 34",
+    "name": "ArtNail Pro Salon",
+    "lat": 47.4922,
+    "lng": 19.0631,
+    "address": "Rákóczi út 32",
     "image": "/images/salon6.jpg",
-    "lat": 47.4921,
-    "lng": 19.0706
+    "featured": false
   },
   {
     "id": 7,
-    "name": "Royal Nails",
-    "district": "District XI",
-    "services": ["Stone Nail", "Design"],
-    "address": "Budapest, Bartók Béla út 32",
+    "name": "Royal Nails Budapest",
+    "lat": 47.4961,
+    "lng": 19.0302,
+    "address": "Fő utca 68",
     "image": "/images/salon7.jpg",
-    "lat": 47.4780,
-    "lng": 19.0497
+    "featured": false
   },
   {
     "id": 8,
-    "name": "Queen Beauty Nails",
-    "district": "District IV",
-    "services": ["Gel Nails", "Pedicure"],
-    "address": "Budapest, István út 20",
+    "name": "Profi ManiCure Studio",
+    "lat": 47.5077,
+    "lng": 19.0454,
+    "address": "Szent István körút 10",
     "image": "/images/salon8.jpg",
-    "lat": 47.5612,
-    "lng": 19.0911
+    "featured": false
   },
   {
     "id": 9,
-    "name": "Sunshine Nails",
-    "district": "District IX",
-    "services": ["Classic Nails", "Design"],
-    "address": "Budapest, Ferenc krt. 15",
+    "name": "NailArt Queen Budapest",
+    "lat": 47.4913,
+    "lng": 19.0511,
+    "address": "Wesselényi utca 38",
     "image": "/images/salon9.jpg",
-    "lat": 47.4853,
-    "lng": 19.0677
+    "featured": false
   },
   {
     "id": 10,
-    "name": "Beauty Nail Studio Budapest",
-    "district": "District II",
-    "services": ["Manicure", "Nail Spa"],
-    "address": "Budapest, Margit krt. 45",
+    "name": "Perfect Nails Studio",
+    "lat": 47.5039,
+    "lng": 19.0309,
+    "address": "Margit körút 15",
     "image": "/images/salon10.jpg",
-    "lat": 47.5165,
-    "lng": 19.0281
+    "featured": false
   }
 ]

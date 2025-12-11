@@ -7,9 +7,9 @@ import OwnerSection from "@/components/ui/OwnerSection";
 
 export default function Home() {
   return (
-    <main>
+    <main className="p-4">
       <Hero />
-      <SearchBar onSearch={(r) => console.log("Kết quả:", r)} />
+      <SearchBar />
       <FeaturedSalons />
       <NearestSalons />
       <BlogSection />

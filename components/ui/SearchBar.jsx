@@ -1,49 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import salons from "@/data/salons.json";
 
 export default function SearchBar({ onSearch }) {
   const [keyword, setKeyword] = useState("");
-  const [district, setDistrict] = useState("");
-  const [service, setService] = useState("");
 
-  const districts = [...new Set(salons.map(s => s.district))];
-  const services = [...new Set(salons.flatMap(s => s.services))];
-
-  const search = () => {
-    const results = salons.filter(salon =>
-      salon.name.toLowerCase().includes(keyword.toLowerCase()) &&
-      (district === "" || salon.district === district) &&
-      (service === "" || salon.services.includes(service))
-    );
-    onSearch(results);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (onSearch) onSearch(keyword);
   };
 
   return (
-    <div className="search-bar">
+    <form
+      onSubmit={handleSubmit}
+      className="w-full max-w-xl mx-auto mt-6 flex gap-3"
+    >
       <input
-        placeholder="Tìm tên salon…"
+        type="text"
+        placeholder="Tìm salon, dịch vụ, quận..."
         value={keyword}
         onChange={(e) => setKeyword(e.target.value)}
-        className="input"
+        className="flex-1 p-3 bg-white border rounded-xl shadow-sm"
       />
-
-      <select value={district} onChange={(e) => setDistrict(e.target.value)}>
-        <option value="">Tất cả quận</option>
-        {districts.map((d, i) => (
-          <option key={i} value={d}>{d}</option>
-        ))}
-      </select>
-
-      <select value={service} onChange={(e) => setService(e.target.value)}>
-        <option value="">Tất cả dịch vụ</option>
-        {services.map((s, i) => (
-          <option key={i} value={s}>{s}</option>
-        ))}
-      </select>
-
-      <button onClick={search}>Tìm kiếm</button>
-    </div>
+      <button
+        type="submit"
+        className="px-5 py-3 bg-pink-500 text-white rounded-xl shadow-md"
+      >
+        Tìm
+      </button>
+    </form>
   );
 }

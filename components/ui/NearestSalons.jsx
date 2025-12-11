@@ -1,28 +1,57 @@
 "use client";
 
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { useEffect, useState } from "react";
 import salons from "@/data/salons.json";
 
 export default function NearestSalons() {
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY
-  });
+  const [nearest, setNearest] = useState([]);
 
-  if (!isLoaded) return <p>Đang tải bản đồ…</p>;
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const { latitude, longitude } = pos.coords;
+
+        const list = salons
+          .map((s) => ({
+            ...s,
+            distance: Math.sqrt(
+              (s.lat - latitude) ** 2 + (s.lng - longitude) ** 2
+            ),
+          }))
+          .sort((a, b) => a.distance - b.distance)
+          .slice(0, 3);
+
+        setNearest(list);
+      });
+    }
+  }, []);
 
   return (
-    <section>
-      <h2>📍 Salon Gần Bạn Nhất</h2>
+    <section className="mt-12">
+      <h2 className="text-center text-2xl font-bold">📍 Salon Gần Bạn Nhất</h2>
 
-      <GoogleMap
-        center={{ lat: 47.4979, lng: 19.0402 }}
-        zoom={12}
-        mapContainerStyle={{ width: "100%", height: "400px", borderRadius: "12px" }}
-      >
-        {salons.map(s => (
-          <Marker key={s.id} position={{ lat: s.lat, lng: s.lng }} />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        {nearest.map((s) => (
+          <div key={s.id} className="bg-white p-4 rounded-xl shadow">
+            <img src={s.image} className="w-full h-48 object-cover rounded-lg" />
+
+            <h3 className="font-bold mt-3">{s.name}</h3>
+            <p>{s.address}</p>
+
+            <p className="text-pink-600 font-semibold">
+              Cách bạn khoảng: {s.distance.toFixed(2)} km
+            </p>
+
+            <a
+              target="_blank"
+              href={`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`}
+              className="block mt-3 text-center bg-pink-500 text-white p-2 rounded-lg"
+            >
+              Chỉ đường
+            </a>
+          </div>
         ))}
-      </GoogleMap>
+      </div>
     </section>
   );
 }
