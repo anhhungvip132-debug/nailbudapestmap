@@ -39,7 +39,7 @@ export default function HomePage() {
         )
           .then((r) => r.json())
           .then((d) => setNearby(d))
-          .catch(() => setNearby([]);
+          .catch(() => setNearby([]));
       },
       () => setNearby([])
     );
@@ -47,6 +47,7 @@ export default function HomePage() {
 
   function handleSearch(filters = {}) {
     const { name = "", district = "", service = "" } = filters;
+
     let list = [...salons];
 
     if (name) {
@@ -57,7 +58,9 @@ export default function HomePage() {
     }
 
     if (district) {
-      list = list.filter((s) => String(s.district) === String(district));
+      list = list.filter(
+        (s) => String(s.district).toLowerCase() === String(district).toLowerCase()
+      );
     }
 
     if (service) {
@@ -80,7 +83,6 @@ export default function HomePage() {
     <div className="pb-20">
       <Hero />
 
-      {/* Thanh tìm kiếm + dòng mô tả dưới */}
       <div className="max-w-5xl mx-auto px-4 -mt-8 mb-10">
         <SearchBar onSearch={handleSearch} size="lg" />
         <div className="flex flex-wrap gap-6 text-sm text-gray-500 mt-3">
@@ -90,19 +92,18 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Map dùng danh sách đã lọc */}
       <div className="max-w-6xl mx-auto px-4 mb-16">
         <Map salons={filtered} heightClass="h-[520px]" />
       </div>
 
-      {/* Dịch vụ nổi bật + danh sách salon bên dưới (đã lọc) */}
       <CategoryList onSelect={handleCategory} />
+
       <FeaturedSalons salons={filtered} />
 
-      {/* Salon gần bạn nhất */}
       <NearestSalons salons={nearby} />
 
       <BlogSection />
+
       <OwnerSection />
     </div>
   );
