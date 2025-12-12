@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
 
-export async function POST(request) {
+export async function POST(request: Request) {
   try {
     const body = await request.json()
 
@@ -9,11 +9,8 @@ export async function POST(request) {
     const rating = Number(body?.rating)
     const comment = body?.comment ?? null
 
-    if (!salonId || !rating || rating < 1 || rating > 5) {
-      return NextResponse.json(
-        { error: "Invalid input" },
-        { status: 400 }
-      )
+    if (!salonId || rating < 1 || rating > 5) {
+      return NextResponse.json({ error: "Invalid input" }, { status: 400 })
     }
 
     await prisma.review.create({
@@ -39,8 +36,7 @@ export async function POST(request) {
     })
 
     return NextResponse.json({ ok: true })
-  } catch (err) {
-    console.error("POST /api/reviews error:", err)
+  } catch {
     return NextResponse.json(
       { error: "Server error" },
       { status: 500 }
