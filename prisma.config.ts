@@ -1,13 +1,8 @@
-import { defineConfig } from "@prisma/config";
+import "dotenv/config";
+import { defineConfig } from "prisma/config";
 
 export default defineConfig({
   datasource: {
-    db: {
-      adapter: "postgresql",
-      url: process.env.DATABASE_URL!,
-    },
-  },
-  client: {
-    preventReconnect: true,
+    url: process.env.NEON_DATABASE_URL!,
   },
 });

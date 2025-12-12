@@ -4,48 +4,41 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // ❌ KHÔNG ĐƯỢC có dòng url ở đây (Prisma 7)
+  url      = env("DATABASE_URL")
 }
 
 model Salon {
-  id        Int      @id @default(autoincrement())
-  name      String
-  address   String
-  phone     String?
-  image     String?
-  latitude  Float?
-  longitude Float?
+  id          Int      @id @default(autoincrement())
+  name        String
+  address     String
+  district    String?
+  image       String?
+  rating      Float    @default(0)
+  featured    Boolean  @default(false)
+  description String?
+  createdAt   DateTime @default(now())
 
-  services  Service[]
-  bookings  Booking[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Service {
-  id        Int      @id @default(autoincrement())
-  name      String
-  price     Float
-  duration  Int
-  salonId   Int
-
-  salon     Salon    @relation(fields: [salonId], references: [id])
-  bookings  Booking[]
+  bookings    Booking[]
+  reviews     Review[]
 }
 
 model Booking {
-  id         Int      @id @default(autoincrement())
-  name       String
-  phone      String
-  email      String?
-  date       DateTime
-  message    String?
-  salonId    Int
-  serviceId  Int
+  id        Int      @id @default(autoincrement())
+  salonId   Int
+  name      String
+  phone     String
+  date      DateTime
+  createdAt DateTime @default(now())
 
-  salon      Salon    @relation(fields: [salonId], references: [id])
-  service    Service  @relation(fields: [serviceId], references: [id])
+  salon     Salon    @relation(fields: [salonId], references: [id])
+}
 
-  createdAt  DateTime @default(now())
+model Review {
+  id        Int      @id @default(autoincrement())
+  salonId   Int
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  salon     Salon    @relation(fields: [salonId], references: [id])
 }
