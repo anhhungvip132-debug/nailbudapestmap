@@ -1,14 +1,13 @@
-import Header from "@/components/Header"
-import SearchBar from "@/components/SearchBar"
-import CategoryList from "@/components/CategoryList"
-import FeaturedSalons from "@/components/FeaturedSalons"
-import NearestSalons from "@/components/NearestSalons"
+import Header from "@/components/ui/Header"
+import SearchBar from "@/components/ui/SearchBar"
+import CategoryList from "@/components/ui/CategoryList"
+import FeaturedSalons from "@/components/ui/FeaturedSalons"
+import NearestSalons from "@/components/ui/NearestSalons"
 import Map from "@/components/ui/Map"
 
 export const dynamic = "force-dynamic"
 
 export default async function HomePage() {
-  // Lấy danh sách salon
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/salons`,
     { cache: "no-store" }
@@ -18,7 +17,6 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* HEADER */}
       <Header />
 
       <main>
@@ -35,35 +33,30 @@ export default async function HomePage() {
           <SearchBar />
         </section>
 
-        {/* CATEGORY / SERVICES */}
+        {/* CATEGORY */}
         <section className="section">
           <h2 className="section-title">Dịch vụ nổi bật</h2>
           <CategoryList />
         </section>
 
-        {/* FEATURED SALONS */}
+        {/* FEATURED */}
         <section className="section">
           <h2 className="section-title">💖 Salon nổi bật</h2>
-
           <FeaturedSalons salons={salons} />
         </section>
 
         {/* MAP */}
         <section className="section">
           <h2 className="section-title">📍 Xem salon trên bản đồ</h2>
-
           <div className="map-container">
             <Map salons={salons} />
           </div>
         </section>
 
-        {/* NEAREST SALONS */}
+        {/* NEAREST */}
         <section className="section">
           <h2 className="section-title">📌 Salon gần bạn nhất</h2>
-
           <NearestSalons salons={salons} />
         </section>
       </main>
     </>
-  )
-}
