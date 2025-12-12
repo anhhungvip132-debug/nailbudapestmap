@@ -11,22 +11,21 @@ import NearestSalons from "@/components/ui/NearestSalons"
 import BlogSection from "@/components/ui/BlogSection"
 import Footer from "@/components/ui/Footer"
 
-import dynamicImport from "next/dynamic"
+import dynamic from "next/dynamic"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
-const MapClient = dynamicImport(() => import("@/components/ui/MapClient"), {
+const MapClient = dynamic(() => import("@/components/ui/MapClient"), {
   ssr: false,
 })
 
-async function getSalonsSafe() {
+async function getSalons() {
   try {
-    const base =
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
-
-    const res = await fetch(`${base}/api/salons`, { cache: "no-store" })
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/salons`,
+      { cache: "no-store" }
+    )
     const data = await res.json()
     return Array.isArray(data) ? data : []
   } catch {
@@ -35,19 +34,15 @@ async function getSalonsSafe() {
 }
 
 export default async function HomePage() {
-  const salons = await getSalonsSafe()
+  const salons = await getSalons()
 
   return (
     <>
       <Header />
 
       <main className="container mx-auto px-4">
-        <section className="mt-6">
-          <Hero />
-          <div className="mt-6">
-            <SearchBar salons={salons} />
-          </div>
-        </section>
+        <Hero />
+        <SearchBar salons={salons} />
 
         <section className="mt-10">
           <h2 className="section-title">Dịch vụ nổi bật</h2>
@@ -59,11 +54,9 @@ export default async function HomePage() {
           <FeaturedSalons salons={salons} />
         </section>
 
-        <section className="mt-12 space-y-6">
-          <FeaturedAds />
-          <PromoBanner />
-          <PromoSlider />
-        </section>
+        <FeaturedAds />
+        <PromoBanner />
+        <PromoSlider />
 
         <section className="mt-14">
           <h2 className="section-title">Xem salon trên bản đồ</h2>
@@ -77,9 +70,7 @@ export default async function HomePage() {
           <NearestSalons salons={salons} />
         </section>
 
-        <section className="mt-16">
-          <BlogSection />
-        </section>
+        <BlogSection />
       </main>
 
       <Footer />
