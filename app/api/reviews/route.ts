@@ -1,15 +1,17 @@
 import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
 
 /**
  * ÉP API CHẠY NODEJS
- * NGĂN NEXT.JS COLLECT PAGE DATA KHI BUILD
+ * NGĂN NEXT.JS COLLECT PAGE DATA Ở BUILD TIME
  */
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 export async function POST(request: Request) {
   try {
+    // 👉 IMPORT PRISMA TẠI RUNTIME (QUAN TRỌNG NHẤT)
+    const { default: prisma } = await import("@/lib/prisma")
+
     const body = await request.json()
 
     const salonId = body?.salonId
@@ -51,3 +53,6 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Server error" },
       { status: 500 }
+    )
+  }
+}
