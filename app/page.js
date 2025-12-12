@@ -4,83 +4,72 @@ import Hero from "@/components/ui/Hero"
 import SearchBar from "@/components/ui/SearchBar"
 import CategoryList from "@/components/ui/CategoryList"
 import FeaturedSalons from "@/components/ui/FeaturedSalons"
-import FeaturedAds from "@/components/ui/FeaturedAds"
-import PromoBanner from "@/components/ui/PromoBanner"
-import PromoSlider from "@/components/ui/PromoSlider"
 import NearestSalons from "@/components/ui/NearestSalons"
 import BlogSection from "@/components/ui/BlogSection"
 import Footer from "@/components/ui/Footer"
 
-import dynamic from "next/dynamic"
+import dynamicImport from "next/dynamic"
 
-/**
- * ⛔️ BẮT BUỘC
- * Trang chủ KHÔNG được prerender
- */
+// ❗ BẮT BUỘC: tắt prerender cho trang chủ
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
-/**
- * Google Map chỉ load ở client
- */
-const MapClient = dynamic(
+// ❗ Google Map chỉ load phía client
+const MapClient = dynamicImport(
   () => import("@/components/ui/MapClient"),
   { ssr: false }
 )
 
-export default function HomePage() {
+export default async function HomePage() {
+  // ✅ AN TOÀN TUYỆT ĐỐI – không để undefined
+  let salons = []
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/salons`, {
+      cache: "no-store",
+    })
+    salons = await res.json()
+    if (!Array.isArray(salons)) salons = []
+  } catch (e) {
+    salons = []
+  }
+
   return (
     <>
       <Header />
 
-      <main className="container mx-auto px-4">
-
+      <main className="space-y-16">
         {/* HERO + SEARCH */}
-        <section className="mt-6">
-          <Hero />
-          <div className="mt-6">
-            <SearchBar />
-          </div>
-        </section>
+        <Hero />
+        <SearchBar />
 
         {/* CATEGORY */}
-        <section className="mt-10">
-          <h2 className="section-title">Dịch vụ nổi bật</h2>
+        <section className="container mx-auto px-4">
           <CategoryList />
         </section>
 
         {/* FEATURED SALONS */}
-        <section className="mt-12">
-          <h2 className="section-title">Salon nổi bật</h2>
-          <FeaturedSalons />
-        </section>
-
-        {/* ADS / PROMO */}
-        <section className="mt-12 space-y-6">
-          <FeaturedAds />
-          <PromoBanner />
-          <PromoSlider />
+        <section className="container mx-auto px-4">
+          <FeaturedSalons salons={salons} />
         </section>
 
         {/* GOOGLE MAP */}
-        <section className="mt-14">
-          <h2 className="section-title">Xem salon trên bản đồ</h2>
-          <div className="rounded-xl overflow-hidden min-h-[420px] bg-gray-100">
-            <MapClient />
-          </div>
+        <section className="container mx-auto px-4">
+          <h2 className="text-2xl font-semibold mb-4">
+            📍 Xem salon trên bản đồ
+          </h2>
+          <MapClient salons={salons} />
         </section>
 
         {/* NEAREST SALONS */}
-        <section className="mt-14">
-          <h2 className="section-title">Salon gần bạn nhất</h2>
-          <NearestSalons />
+        <section className="container mx-auto px-4">
+          <NearestSalons salons={salons} />
         </section>
 
         {/* BLOG */}
-        <section className="mt-16">
+        <section className="container mx-auto px-4">
           <BlogSection />
         </section>
-
       </main>
 
       <Footer />
