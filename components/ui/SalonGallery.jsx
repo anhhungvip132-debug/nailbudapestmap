@@ -1,49 +1,45 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
-import Lightbox from "yet-another-react-lightbox";
-import "yet-another-react-lightbox/styles.css";
 
-export default function SalonGallery({ images = [] }) {
-  const [open, setOpen] = useState(false);
-  const [index, setIndex] = useState(0);
-
-  if (!images || images.length === 0) {
-    return null;
-  }
-
-  const slides = images.map((src) => ({ src }));
+export default function SalonGallery({ salon }) {
+  const images = [
+    salon.image,
+    "/images/gallery1.jpg",
+    "/images/gallery2.jpg",
+  ].filter(Boolean);
 
   return (
-    <div>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {images.map((src, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={() => {
-              setIndex(i);
-              setOpen(true);
-            }}
-            className="relative aspect-[4/3] overflow-hidden rounded-xl"
-          >
-            <Image
-              src={src}
-              alt={`Salon image ${i + 1}`}
-              fill
-              className="object-cover hover:scale-105 transition-transform"
-            />
-          </button>
-        ))}
+    <section className="grid md:grid-cols-3 gap-4">
+      {/* Ảnh lớn bên trái */}
+      <div className="relative h-64 md:h-96 md:col-span-2">
+        <Image
+          src={images[0]}
+          alt={salon.name}
+          fill
+          className="object-cover rounded-3xl shadow-md"
+        />
       </div>
 
-      <Lightbox
-        open={open}
-        index={index}
-        close={() => setOpen(false)}
-        slides={slides}
-      />
-    </div>
+      {/* Hai ảnh nhỏ bên phải */}
+      <div className="grid gap-4">
+        <div className="relative h-44 md:h-46">
+          <Image
+            src={images[1] || images[0]}
+            alt="Salon"
+            fill
+            className="object-cover rounded-3xl shadow-md"
+          />
+        </div>
+        <div className="relative h-44 md:h-46">
+          <Image
+            src={images[2] || images[0]}
+            alt="Salon"
+            fill
+            className="object-cover rounded-3xl shadow-md"
+          />
+        </div>
+      </div>
+    </section>
   );
 }
