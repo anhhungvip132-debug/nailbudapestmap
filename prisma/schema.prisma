@@ -1,3 +1,6 @@
+// ==============================
+// PRISMA CONFIG
+// ==============================
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,38 +10,47 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ==============================
+// MODELS
+// ==============================
+
 model Salon {
-  id          Int      @id @default(autoincrement())
-  name        String
-  address     String
-  district    String?
-  image       String?
-  rating      Float    @default(0)
-  featured    Boolean  @default(false)
-  description String?
-  createdAt   DateTime @default(now())
+  id           String   @id @default(cuid())
+  name         String
+  address      String?
+  latitude     Float?
+  longitude    Float?
 
-  bookings    Booking[]
-  reviews     Review[]
-}
+  rating       Float    @default(0)
+  reviewCount  Int      @default(0)
 
-model Booking {
-  id        Int      @id @default(autoincrement())
-  salonId   Int
-  name      String
-  phone     String
-  date      DateTime
-  createdAt DateTime @default(now())
+  reviews      Review[]
+  bookings     Booking[]
 
-  salon     Salon    @relation(fields: [salonId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Review {
-  id        Int      @id @default(autoincrement())
-  salonId   Int
+  id        String   @id @default(cuid())
+  salonId   String
   rating    Int
   comment   String?
-  createdAt DateTime @default(now())
 
-  salon     Salon    @relation(fields: [salonId], references: [id])
+  salon     Salon    @relation(fields: [salonId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model Booking {
+  id            String   @id @default(cuid())
+  salonId       String
+  customerName  String
+  customerPhone String?
+  customerEmail String?
+  date          DateTime
+
+  salon         Salon    @relation(fields: [salonId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
 }

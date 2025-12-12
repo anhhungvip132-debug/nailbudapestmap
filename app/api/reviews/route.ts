@@ -10,7 +10,10 @@ export async function POST(request: Request) {
     const comment = body?.comment ?? null
 
     if (!salonId || rating < 1 || rating > 5) {
-      return NextResponse.json({ error: "Invalid input" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Invalid input" },
+        { status: 400 }
+      )
     }
 
     await prisma.review.create({
