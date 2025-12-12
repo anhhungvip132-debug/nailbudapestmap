@@ -8,23 +8,36 @@ import Map from "@/components/ui/Map"
 export const dynamic = "force-dynamic"
 
 export default async function HomePage() {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/salons`,
-    { cache: "no-store" }
-  )
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || ""
 
-  const salons = res.ok ? await res.json() : []
+  let salons = []
+
+  try {
+    const res = await fetch(`${baseUrl}/api/salons`, {
+      cache: "no-store",
+    })
+    if (res.ok) {
+      salons = await res.json()
+    }
+  } catch (e) {
+    console.error("Failed to fetch salons", e)
+  }
 
   return (
     <>
+      {/* HEADER */}
       <Header />
 
+      {/* MAIN */}
       <main>
         {/* HERO + SEARCH */}
         <section className="section hero">
           <h1 className="section-title">
-            Tìm tiệm nail đẹp nhất <br /> gần bạn ở Budapest
+            Tìm tiệm nail đẹp nhất
+            <br />
+            gần bạn ở Budapest
           </h1>
+
           <p className="section-subtitle">
             So sánh các tiệm nail theo quận, dịch vụ, giá và đánh giá khách hàng.
             Đặt lịch nhanh chỉ trong vài giây.
@@ -39,7 +52,7 @@ export default async function HomePage() {
           <CategoryList />
         </section>
 
-        {/* FEATURED */}
+        {/* FEATURED SALONS */}
         <section className="section">
           <h2 className="section-title">💖 Salon nổi bật</h2>
           <FeaturedSalons salons={salons} />
@@ -53,10 +66,12 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* NEAREST */}
+        {/* NEAREST SALONS */}
         <section className="section">
           <h2 className="section-title">📌 Salon gần bạn nhất</h2>
           <NearestSalons salons={salons} />
         </section>
       </main>
     </>
+  )
+}
