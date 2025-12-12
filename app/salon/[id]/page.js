@@ -7,7 +7,6 @@ import dynamic from "next/dynamic";
 
 import RatingStars from "@/components/ui/RatingStars";
 import ButtonPink from "@/components/ui/ButtonPink";
-import ReviewForm from "@/components/ui/ReviewForm";
 
 const SalonMapSmall = dynamic(() => import("@/components/ui/SalonMapSmall"), {
   ssr: false,
