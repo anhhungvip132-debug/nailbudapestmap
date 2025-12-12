@@ -1,84 +1,88 @@
-"use client";
+"use client"
 
-import React from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react"
+import Link from "next/link"
 
-export default function NearestSalons({
-  salons = [],
-  onSelectSalon,
-}) {
-  const router = useRouter();
-  const list = Array.isArray(salons) ? salons : [];
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371
+  const dLat = ((lat2 - lat1) * Math.PI) / 180
+  const dLon = ((lon2 - lon1) * Math.PI) / 180
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
+}
+
+export default function NearestSalons({ salons = [] }) {
+  const [pos, setPos] = useState(null)
+
+  useEffect(() => {
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      (p) => setPos({ lat: p.coords.latitude, lng: p.coords.longitude }),
+      () => setPos(null)
+    )
+  }, [])
+
+  const nearest = useMemo(() => {
+    if (!pos || !Array.isArray(salons)) return []
+    return salons
+      .filter((s) => typeof s.latitude === "number" && typeof s.longitude === "number")
+      .map((s) => ({
+        ...s,
+        _distance: haversine(
+          pos.lat,
+          pos.lng,
+          s.latitude,
+          s.longitude
+        ),
+      }))
+      .sort((a, b) => a._distance - b._distance)
+      .slice(0, 6)
+  }, [pos, salons])
+
+  if (!pos) {
+    return <p>Cho phép truy cập vị trí để xem salon gần bạn.</p>
+  }
+
+  if (nearest.length === 0) {
+    return <p>Không tìm thấy salon gần bạn.</p>
+  }
 
   return (
-    <section className="max-w-6xl mx-auto px-4 mt-12 mb-12">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-2xl">📍</span>
-        <h2 className="text-2xl md:text-3xl font-bold">Salon gần bạn nhất</h2>
-      </div>
+    <div className="list">
+      {nearest.map((s) => (
+        <article key={s.id} className="card">
+          {s.imageUrl ? (
+            <img src={s.imageUrl} alt={s.name} />
+          ) : null}
 
-      {list.length === 0 ? (
-        <p className="text-sm text-gray-500">
-          Hãy bật định vị để xem những salon gần bạn nhất ở Budapest.
-        </p>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {list.map((salon) => (
-            <article
-              key={salon.id}
-              className="bg-white rounded-2xl shadow-sm border border-pink-50 p-5 flex flex-col cursor-pointer hover:shadow-md transition"
-              onClick={() => onSelectSalon && onSelectSalon(salon)}
-            >
-              <h3 className="text-lg font-semibold mb-1">{salon.name}</h3>
-              <p className="text-sm text-gray-500 mb-2">{salon.address}</p>
+          <div className="card-body">
+            <h3 className="card-title">{s.name}</h3>
+            <p className="card-meta">{s.address || ""}</p>
 
-              {typeof salon.distance === "number" && (
-                <p className="text-sm text-gray-600 mb-2">
-                  <span className="font-semibold">Cách bạn ~ </span>
-                  {salon.distance.toFixed(1)} km
-                </p>
-              )}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <span className="badge">
+                📍 {s._distance.toFixed(2)} km
+              </span>
+              <span className="badge">⭐ {Number(s.rating ?? 0).toFixed(1)}</span>
+              <span className="badge">
+                🗣️ {s.reviewCount ?? 0} reviews
+              </span>
+            </div>
 
-              {Array.isArray(salon.services) && salon.services.length > 0 && (
-                <p className="text-sm mb-3 text-gray-700">
-                  <span className="font-semibold">Dịch vụ:</span>{" "}
-                  {salon.services.join(", ")}
-                </p>
-              )}
-
-              <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const q = encodeURIComponent(
-                      `${salon.name} ${salon.address} Budapest`
-                    );
-                    window.open(
-                      `https://www.google.com/maps/search/?api=1&query=${q}`,
-                      "_blank"
-                    );
-                  }}
-                  className="flex-1 inline-flex items-center justify-center rounded-full bg-pink-500 px-4 py-2 text-sm font-semibold text-white hover:bg-pink-600 transition"
-                >
-                  Chỉ đường
-                </button>
-
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    router.push(`/salon/${salon.id}`);
-                  }}
-                  className="flex-1 inline-flex items-center justify-center rounded-full border border-pink-200 px-4 py-2 text-sm font-medium text-pink-600 hover:bg-pink-50 transition"
-                >
-                  Xem chi tiết →
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
-    </section>
-  );
+            <div style={{ marginTop: 12 }}>
+              <Link href={`/salon/${s.id}`}>
+                <button>Chi tiết</button>
+              </Link>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  )
 }
