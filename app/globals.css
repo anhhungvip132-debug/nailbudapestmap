@@ -1,35 +1,158 @@
-/* app/globals.css */
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
-    sans-serif;
-}
-
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #111;
+  background-color: #ffffff;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0 0 0.5em 0;
+  font-weight: 600;
+}
+
+p {
+  margin: 0 0 1em 0;
+}
+
+/* Links */
 a {
   color: inherit;
   text-decoration: none;
 }
 
-img {
-  max-width: 100%;
-  height: auto;
+a:hover {
+  text-decoration: underline;
 }
 
-.leaflet-container {
+/* Form elements */
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+input,
+select,
+textarea {
   width: 100%;
-  height: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #000;
+}
+
+button {
+  padding: 8px 14px;
+  border: 1px solid #000;
+  border-radius: 4px;
+  background-color: #000;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Lists */
+ul,
+ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+/* Layout helpers */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+/* Cards */
+.card {
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: #fff;
+}
+
+/* Map container */
+.map-container {
+  width: 100%;
+  height: 400px;
+  border: 1px solid #ddd;
+}
+
+/* Utility */
+.hidden {
+  display: none;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-1 {
+  margin-top: 8px;
+}
+
+.mt-2 {
+  margin-top: 16px;
+}
+
+.mt-3 {
+  margin-top: 24px;
+}
+
+.mb-1 {
+  margin-bottom: 8px;
+}
+
+.mb-2 {
+  margin-bottom: 16px;
+}
+
+.mb-3 {
+  margin-bottom: 24px;
 }

@@ -1,18 +1,14 @@
-import "./globals.css";
-import Header from "@/components/ui/Header";
+import "./globals.css"
 
 export const metadata = {
   title: "Nail Budapest Map",
-  description: "Bản đồ các tiệm nail tại Budapest",
-};
+  description: "Tìm tiệm nail đẹp ở Budapest",
+}
 
 export default function RootLayout({ children }) {
   return (
     <html lang="vi">
-      <body className="bg-[#fafafa]">
-        <Header />
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
-  );
+  )
 }
