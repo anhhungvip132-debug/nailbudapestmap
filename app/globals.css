@@ -1,16 +1,70 @@
-.container { max-width: 1100px; }
-
-.section-title{
-  font-size: 26px;
-  font-weight: 800;
-  margin: 0 0 14px;
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #fff;
+  color: #111;
 }
 
-.map-wrapper{
-  width: 100%;
-  min-height: 420px;
-  border-radius: 16px;
-  overflow: hidden;
-  background: #f3f4f6;
-  border: 1px solid rgba(0,0,0,.06);
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #eee;
+}
+
+.hero {
+  margin: 40px 0;
+}
+
+.search-box {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.section {
+  margin: 60px 0;
+}
+
+.category-list {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 8px 14px;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+}
+
+.salon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.salon-card {
+  border: 1px solid #eee;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.footer {
+  border-top: 1px solid #eee;
+  padding: 24px;
+  text-align: center;
+}
+
+.btn-dark {
+  background: #000;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
 }

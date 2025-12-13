@@ -6,7 +6,7 @@ export default function GoogleMap({ salons }) {
   const ref = useRef(null)
 
   useEffect(() => {
-    if (!window.google || !ref.current) return
+    if (!window.google) return
 
     const map = new window.google.maps.Map(ref.current, {
       center: { lat: 47.4979, lng: 19.0402 },
@@ -17,11 +17,11 @@ export default function GoogleMap({ salons }) {
       if (!s.lat || !s.lng) return
       new window.google.maps.Marker({
         map,
-        position: { lat: Number(s.lat), lng: Number(s.lng) },
+        position: { lat: +s.lat, lng: +s.lng },
         title: s.name,
       })
     })
   }, [salons])
 
-  return <div ref={ref} style={{ width: "100%", height: 420 }} />
+  return <div style={{ height: 420, width: "100%" }} ref={ref} />
 }

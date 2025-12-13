@@ -1,38 +1,46 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import salons from "@/data/salons.json";
+import { useState } from "react"
 
-export default function SearchAdvanced() {
-  const [query, setQuery] = useState("");
-
-  const results = salons.filter((s) =>
-    s.name.toLowerCase().includes(query.toLowerCase())
-  );
+export default function SearchAdvanced({ salons }) {
+  const [keyword, setKeyword] = useState("")
+  const [district, setDistrict] = useState("")
+  const [service, setService] = useState("")
+  const [featured, setFeatured] = useState(false)
 
   return (
-    <div className="card p-5">
+    <section className="search-box">
       <input
-        type="text"
-        placeholder="Tìm salon…"
-        className="p-3 border rounded-xl w-full"
-        onChange={(e) => setQuery(e.target.value)}
-        value={query}
+        placeholder="Tên salon hoặc địa chỉ"
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
       />
 
-      {query.length > 0 && (
-        <div className="mt-3 bg-white border rounded-xl shadow-lg max-h-60 overflow-y-auto">
-          {results.map((s) => (
-            <a
-              key={s.id}
-              href={`/salon/${s.id}`}
-              className="block px-4 py-2 hover:bg-pink-50"
-            >
-              {s.name}
-            </a>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+      <select value={district} onChange={(e) => setDistrict(e.target.value)}>
+        <option value="">Tất cả quận</option>
+        <option value="5">Quận 5</option>
+        <option value="6">Quận 6</option>
+        <option value="7">Quận 7</option>
+      </select>
+
+      <select value={service} onChange={(e) => setService(e.target.value)}>
+        <option value="">Tất cả dịch vụ</option>
+        <option>Manicure</option>
+        <option>Pedicure</option>
+        <option>Gel nails</option>
+        <option>Nail art</option>
+      </select>
+
+      <label className="checkbox">
+        <input
+          type="checkbox"
+          checked={featured}
+          onChange={() => setFeatured(!featured)}
+        />
+        Chỉ hiện salon nổi bật
+      </label>
+
+      <button className="btn-dark">Tìm salon</button>
+    </section>
+  )
 }
