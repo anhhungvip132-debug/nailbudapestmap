@@ -9,23 +9,20 @@ export default function MapClient({ salons = [] }) {
 
   if (!isLoaded) return <div className="h-[400px] bg-gray-100 rounded-xl" />
 
-  const safeSalons = Array.isArray(salons) ? salons : []
-
   return (
-    <div className="h-[500px] w-full rounded-xl overflow-hidden">
+    <div className="h-[500px] rounded-xl overflow-hidden">
       <GoogleMap
         zoom={13}
         center={{ lat: 47.4979, lng: 19.0402 }}
         mapContainerStyle={{ width: "100%", height: "100%" }}
       >
-        {safeSalons.map(
+        {(salons ?? []).map(
           (s) =>
-            s.lat &&
-            s.lng && (
+            s?.lat &&
+            s?.lng && (
               <Marker
                 key={s.id}
                 position={{ lat: s.lat, lng: s.lng }}
-                title={s.name}
               />
             )
         )}
