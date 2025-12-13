@@ -2,30 +2,34 @@
 
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api"
 
-export default function MapClient({ salons }) {
+export default function MapClient({ salons = [] }) {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
   })
 
-  if (!isLoaded) return <div>Loading map...</div>
+  if (!isLoaded) return <div className="h-[400px] bg-gray-100 rounded-xl" />
 
   const safeSalons = Array.isArray(salons) ? salons : []
 
   return (
-    <GoogleMap
-      zoom={13}
-      center={{ lat: 47.4979, lng: 19.0402 }}
-      mapContainerStyle={{ width: "100%", height: "100%" }}
-    >
-      {safeSalons.map((salon) => (
-        salon.lat && salon.lng && (
-          <Marker
-            key={salon.id}
-            position={{ lat: salon.lat, lng: salon.lng }}
-            title={salon.name}
-          />
-        )
-      ))}
-    </GoogleMap>
+    <div className="h-[500px] w-full rounded-xl overflow-hidden">
+      <GoogleMap
+        zoom={13}
+        center={{ lat: 47.4979, lng: 19.0402 }}
+        mapContainerStyle={{ width: "100%", height: "100%" }}
+      >
+        {safeSalons.map(
+          (s) =>
+            s.lat &&
+            s.lng && (
+              <Marker
+                key={s.id}
+                position={{ lat: s.lat, lng: s.lng }}
+                title={s.name}
+              />
+            )
+        )}
+      </GoogleMap>
+    </div>
   )
 }
