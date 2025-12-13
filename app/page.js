@@ -2,32 +2,29 @@
 
 import Header from "@/components/ui/Header"
 import Hero from "@/components/ui/Hero"
-import SearchAdvanced from "@/components/ui/SearchAdvanced"
+import SearchBar from "@/components/ui/SearchBar"
 import CategoryList from "@/components/ui/CategoryList"
 import FeaturedSalons from "@/components/ui/FeaturedSalons"
-import PromoBanner from "@/components/ui/PromoBanner"
-import PromoSlider from "@/components/ui/PromoSlider"
+import FeaturedAds from "@/components/ui/FeaturedAds"
 import BlogSection from "@/components/ui/BlogSection"
 import Footer from "@/components/ui/Footer"
 
-// ⚠️ ĐỔI TÊN – KHÔNG DÙNG dynamic
 import dynamicImport from "next/dynamic"
 
-// ⚠️ GIỮ NGUYÊN – BẮT BUỘC
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
-// Google Map – CLIENT ONLY
+// GOOGLE MAP – CLIENT ONLY
 const MapClient = dynamicImport(
   () => import("@/components/ui/MapClient"),
   { ssr: false }
 )
 
-// SAFE FETCH
+// SAFE DATA FETCH
 async function getSalons() {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/salons`,
+      `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/salons`,
       { cache: "no-store" }
     )
     if (!res.ok) return []
@@ -45,30 +42,42 @@ export default async function HomePage() {
     <>
       <Header />
 
-      <main className="container">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-14">
+
+        {/* HERO */}
         <Hero />
 
-        <SearchAdvanced salons={salons} />
+        {/* SEARCH */}
+        <SearchBar salons={salons} />
 
-        <section className="section">
-          <h2>Dịch vụ nổi bật</h2>
+        {/* CATEGORY */}
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">Dịch vụ nổi bật</h2>
           <CategoryList />
         </section>
 
-        <section className="section">
-          <h2>Salon nổi bật</h2>
+        {/* FEATURED SALONS */}
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">Salon nổi bật</h2>
           <FeaturedSalons salons={salons} />
         </section>
 
-        <PromoBanner />
-        <PromoSlider />
+        {/* PROMO */}
+        <FeaturedAds />
 
-        <section className="section">
-          <h2>Xem salon trên bản đồ</h2>
-          <MapClient salons={salons} />
+        {/* MAP */}
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">
+            Xem salon trên bản đồ
+          </h2>
+          <div className="h-[480px] w-full rounded-xl overflow-hidden border">
+            <MapClient salons={salons} />
+          </div>
         </section>
 
+        {/* BLOG */}
         <BlogSection />
+
       </main>
 
       <Footer />
