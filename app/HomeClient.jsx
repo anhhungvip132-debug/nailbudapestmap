@@ -5,10 +5,12 @@ import { useEffect, useState, useCallback } from "react";
 import Hero from "@/components/ui/Hero";
 import SearchBar from "@/components/ui/SearchBar";
 import CategoryList from "@/components/ui/CategoryList";
+import FeaturedSalons from "@/components/ui/FeaturedSalons";
 
 export default function HomeClient() {
   const [salons, setSalons] = useState([]);
   const [filtered, setFiltered] = useState([]);
+  const [selectedSalonId, setSelectedSalonId] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -20,6 +22,7 @@ export default function HomeClient() {
         const safe = Array.isArray(data) ? data : [];
         setSalons(safe);
         setFiltered(safe);
+        setSelectedSalonId(safe.length ? safe[0].id : null);
       })
       .catch(() => {
         if (!alive) return;
@@ -33,7 +36,11 @@ export default function HomeClient() {
   }, []);
 
   const handleCategory = useCallback(() => {
-    // tạm thời KHÔNG lọc, chỉ test render
+    // tạm thời không lọc, chỉ test render
+  }, []);
+
+  const handleSelectSalon = useCallback((salon) => {
+    if (salon?.id) setSelectedSalonId(salon.id);
   }, []);
 
   return (
@@ -51,8 +58,13 @@ export default function HomeClient() {
 
       <CategoryList onSelect={handleCategory} />
 
+      <FeaturedSalons
+        salons={filtered}
+        onSelectSalon={handleSelectSalon}
+      />
+
       <div className="mt-6 text-green-600 text-sm text-center">
-        ✅ CategoryList rendered successfully
+        ✅ FeaturedSalons rendered successfully
       </div>
     </div>
   );
