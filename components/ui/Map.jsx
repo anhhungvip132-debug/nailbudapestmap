@@ -1,10 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import ClientErrorBoundary from "@/components/ui/ClientErrorBoundary";
 
-// ⚠️ BẮT BUỘC có loading fallback để tránh Suspense treo
 const MapClient = dynamic(
-  () => import("@/components/ui/MapClient.jsx"),
+  () => import("@/components/ui/MapClient"),
   {
     ssr: false,
     loading: () => (
@@ -22,12 +22,22 @@ export default function Map({
 }) {
   const safeSalons = Array.isArray(salons) ? salons : [];
 
+  if (safeSalons.length === 0) {
+    return (
+      <div className={`${heightClass} flex items-center justify-center text-sm text-gray-400`}>
+        Chưa có salon để hiển thị trên bản đồ
+      </div>
+    );
+  }
+
   return (
     <div className={heightClass}>
-      <MapClient
-        salons={safeSalons}
-        selectedId={selectedId}
-      />
+      <ClientErrorBoundary>
+        <MapClient
+          salons={safeSalons}
+          selectedId={selectedId}
+        />
+      </ClientErrorBoundary>
     </div>
   );
 }
