@@ -2,10 +2,17 @@
 
 import dynamic from "next/dynamic";
 
-// CHỈ import MapClient, KHÔNG import lại Map
+// ⚠️ BẮT BUỘC có loading fallback để tránh Suspense treo
 const MapClient = dynamic(
   () => import("@/components/ui/MapClient.jsx"),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[520px] flex items-center justify-center text-sm text-gray-500">
+        Đang tải bản đồ…
+      </div>
+    ),
+  }
 );
 
 export default function Map({
