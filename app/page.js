@@ -1,6 +1,6 @@
 "use client";
 
-// ⛔ DỨT ĐIỂM PRERENDER / SSG CHO HOMEPAGE
+// ⛔ CHẶN PRERENDER / SSG CHO HOMEPAGE (ĐÚNG CHỖ – ĐÚNG CHUẨN)
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -22,7 +22,7 @@ export default function HomePage() {
   const [selectedSalonId, setSelectedSalonId] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch salons (guarded)
+  // Fetch salons
   useEffect(() => {
     let alive = true;
 
@@ -94,12 +94,9 @@ export default function HomePage() {
     [salons]
   );
 
-  // Geolocation → nearest salons (guarded)
+  // Geolocation
   useEffect(() => {
-    if (
-      typeof navigator === "undefined" ||
-      !("geolocation" in navigator)
-    ) {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
       setNearby([]);
       return;
     }
@@ -158,12 +155,10 @@ export default function HomePage() {
       </div>
 
       <CategoryList onSelect={handleCategory} />
-
       <FeaturedSalons
         salons={filtered}
         onSelectSalon={handleSelectSalon}
       />
-
       <NearestSalons
         salons={nearby}
         onSelectSalon={handleSelectSalon}
