@@ -17,18 +17,17 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     },
+
     "plugins": [
-      {
-        "name": "next"
-      }
+      { "name": "next" }
     ]
   },
+
   "include": [
     "next-env.d.ts",
     "**/*.js",
@@ -37,7 +36,10 @@
     "**/*.tsx",
     ".next/types/**/*.ts"
   ],
+
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "prisma.config.ts",
+    "prisma/**"
   ]
 }

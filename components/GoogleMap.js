@@ -1,38 +1,52 @@
-✅ 4. Gọi Map trong app/page.js
-import GoogleMapComponent from "@/components/GoogleMap";
-import salons from "@/lib/salons.json";
+"use client";
 
-export default function Home() {
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { useMemo } from "react";
+
+/**
+ * GoogleMapComponent
+ * Props:
+ *  - salons: [{ name, address, lat, lng }]
+ */
+
+const containerStyle = {
+  width: "100%",
+  height: "400px",
+};
+
+export default function GoogleMapComponent({ salons = [] }) {
+  const center = useMemo(() => {
+    if (!salons.length) {
+      return { lat: 47.4979, lng: 19.0402 }; // Budapest
+    }
+    return { lat: salons[0].lat, lng: salons[0].lng };
+  }, [salons]);
+
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+  });
+
+  if (loadError) return <p>Map failed to load</p>;
+  if (!isLoaded) return <p>Loading map...</p>;
+
   return (
-    <main>
-      <h1>Nail Booking Map</h1>
-
-      <GoogleMapComponent salons={salons} />
-
-      <div style={{ marginTop: "20px" }}>
-        {salons.map((s, i) => (
-          <div key={i} style={{ marginBottom: "10px" }}>
-            <h3>{s.name}</h3>
-            <p>{s.address}</p>
-          </div>
-        ))}
-      </div>
-    </main>
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      center={center}
+      zoom={13}
+      options={{
+        fullscreenControl: false,
+        streetViewControl: false,
+        mapTypeControl: false,
+      }}
+    >
+      {salons.map((salon, index) => (
+        <Marker
+          key={index}
+          position={{ lat: salon.lat, lng: salon.lng }}
+          title={salon.name}
+        />
+      ))}
+    </GoogleMap>
   );
 }
-
-✅ 5. File dữ liệu salon mẫu /lib/salons.json
-[
-  {
-    "name": "Edi Nails",
-    "address": "Mozsár u. 6, 1066 Budapest",
-    "lat": 47.5033,
-    "lng": 19.0580
-  },
-  {
-    "name": "Nail Salon 2",
-    "address": "Budapest",
-    "lat": 47.4980,
-    "lng": 19.0400
-  }
-]
