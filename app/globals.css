@@ -2,60 +2,82 @@
 @tailwind components;
 @tailwind utilities;
 
-/* RESET */
+/* =========================
+   RESET CƠ BẢN
+   ========================= */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+html,
 body {
   width: 100%;
-  min-height: 100vh;
-  font-family: system-ui, sans-serif;
-  background: #fafafa;
-  color: #222;
+  min-height: 100%;
 }
 
-/* LINKS */
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  background: #fafafa;
+  color: #222;
+  line-height: 1.5;
+}
+
+/* =========================
+   LINK & BUTTON
+   ========================= */
 a {
   text-decoration: none;
   color: inherit;
 }
 
-/* BUTTON */
 button {
   cursor: pointer;
+  font-family: inherit;
 }
 
-/* IMAGES FIX */
+/* =========================
+   IMAGE FIX
+   ========================= */
 img {
   max-width: 100%;
+  height: auto;
   display: block;
 }
 
-/* CONTAINER */
+/* =========================
+   CONTAINER DÙNG CHUNG
+   ========================= */
 .container {
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
-/* SECTIONS */
+/* =========================
+   SECTION
+   ========================= */
 .section {
   padding-top: 2.5rem;
   padding-bottom: 2.5rem;
 }
 
-/* CARD SHADOW */
+/* =========================
+   CARD
+   ========================= */
 .card {
-  background: white;
+  background: #ffffff;
   border-radius: 1rem;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
-/* HEADING */
+/* =========================
+   HEADING
+   ========================= */
 .heading {
   font-size: 1.7rem;
   font-weight: 700;
@@ -63,11 +85,68 @@ img {
   margin-bottom: 1.5rem;
 }
 
-/* MAP CONTAINER */
+/* =========================
+   MAP CONTAINER (fallback)
+   ========================= */
 .map-container {
   width: 100%;
   height: 450px;
   border-radius: 1rem;
   overflow: hidden;
   background: #ddd;
+}
+
+/* =========================================================
+   🔥 LEAFLET FIX – BẮT BUỘC (QUAN TRỌNG NHẤT)
+   ========================================================= */
+
+/* container thật của Leaflet */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #e5e7eb;
+  z-index: 0;
+  font-family: system-ui, sans-serif;
+}
+
+/* tránh leaflet đè header */
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 0;
+}
+
+/* popup style */
+.leaflet-popup-content {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* fix tile bị trắng khi load chậm */
+.leaflet-tile {
+  image-rendering: auto;
+}
+
+/* mobile fix */
+@media (max-width: 768px) {
+  .map-container {
+    height: 360px;
+  }
+}
+
+/* =========================
+   SCROLLBAR (OPTIONAL – ĐẸP)
+   ========================= */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #f1a7c5;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
 }
