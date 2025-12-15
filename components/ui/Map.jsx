@@ -2,20 +2,25 @@
 
 import dynamic from "next/dynamic";
 
-const LeafletMap = dynamic(() => import("./MapContainer"), {
-  ssr: false,
-});
+// CHỈ import MapClient, KHÔNG import lại Map
+const MapClient = dynamic(
+  () => import("@/components/ui/MapClient.jsx"),
+  { ssr: false }
+);
 
 export default function Map({
   salons = [],
   heightClass = "h-[520px]",
   selectedId = null,
 }) {
+  const safeSalons = Array.isArray(salons) ? salons : [];
+
   return (
-    <div
-      className={`w-full rounded-3xl overflow-hidden bg-gray-50 border border-pink-100 ${heightClass}`}
-    >
-      <LeafletMap salons={salons} selectedId={selectedId} />
+    <div className={heightClass}>
+      <MapClient
+        salons={safeSalons}
+        selectedId={selectedId}
+      />
     </div>
   );
 }
