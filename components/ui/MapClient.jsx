@@ -9,21 +9,41 @@ const icon = L.icon({
   iconSize: [32, 32],
 });
 
-export default function MapClient({ salons }) {
+export default function MapClient({ salons = [] }) {
+  const list = Array.isArray(salons)
+    ? salons.filter(
+        (s) =>
+          typeof s.lat === "number" &&
+          typeof s.lng === "number"
+      )
+    : [];
+
+  if (list.length === 0) {
+    return (
+      <div className="h-[500px] flex items-center justify-center text-sm text-gray-500">
+        Đang tải bản đồ…
+      </div>
+    );
+  }
+
   return (
     <MapContainer
       center={[47.4979, 19.0402]}
       zoom={12}
       style={{ height: "500px", width: "100%" }}
-      scrollWheelZoom={true}
+      scrollWheelZoom
     >
       <TileLayer
-        attribution='&copy; OpenStreetMap contributors'
+        attribution="&copy; OpenStreetMap contributors"
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
-      {salons.map((salon, i) => (
-        <Marker key={i} position={[salon.lat, salon.lng]} icon={icon}>
+      {list.map((salon) => (
+        <Marker
+          key={salon.id}
+          position={[salon.lat, salon.lng]}
+          icon={icon}
+        >
           <Popup>
             <b>{salon.name}</b>
             <br />
