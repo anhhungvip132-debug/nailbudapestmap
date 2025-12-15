@@ -19,8 +19,8 @@ export default function HomeClient() {
   const [loading, setLoading] = useState(true);
 
   /* =========================
-     FETCH SALONS
-     ========================= */
+     FETCH SALONS (SAFE)
+  ========================== */
   useEffect(() => {
     let alive = true;
 
@@ -28,7 +28,6 @@ export default function HomeClient() {
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
         if (!alive) return;
-
         const safe = Array.isArray(data) ? data : [];
         setSalons(safe);
         setFiltered(safe);
@@ -39,9 +38,7 @@ export default function HomeClient() {
         setSalons([]);
         setFiltered([]);
       })
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
+      .finally(() => alive && setLoading(false));
 
     return () => {
       alive = false;
@@ -50,7 +47,7 @@ export default function HomeClient() {
 
   /* =========================
      SEARCH / FILTER
-     ========================= */
+  ========================== */
   const handleSearch = useCallback(
     (filters = {}) => {
       const {
@@ -65,14 +62,18 @@ export default function HomeClient() {
       if (name) {
         const q = name.toLowerCase();
         list = list.filter((s) =>
-          `${s.name ?? ""} ${s.address ?? ""}`.toLowerCase().includes(q)
+          `${s.name ?? ""} ${s.address ?? ""}`
+            .toLowerCase()
+            .includes(q)
         );
       }
 
       if (district) {
         const d = String(district).toLowerCase();
         list = list.filter((s) =>
-          String(s.district ?? "").toLowerCase().includes(d)
+          String(s.district ?? "")
+            .toLowerCase()
+            .includes(d)
         );
       }
 
@@ -99,11 +100,11 @@ export default function HomeClient() {
 
   /* =========================
      GEOLOCATION → NEAREST
-     ========================= */
+  ========================== */
   useEffect(() => {
     if (
       typeof navigator === "undefined" ||
-      !("geolocation" in navigator)
+      !navigator.geolocation
     ) {
       setNearby([]);
       return;
@@ -126,7 +127,7 @@ export default function HomeClient() {
 
   /* =========================
      HANDLERS
-     ========================= */
+  ========================== */
   const handleCategory = useCallback(
     (value) => handleSearch({ service: value || "" }),
     [handleSearch]
@@ -138,7 +139,7 @@ export default function HomeClient() {
 
   /* =========================
      RENDER
-     ========================= */
+  ========================== */
   return (
     <div className="pb-24">
       <Hero />
@@ -147,9 +148,9 @@ export default function HomeClient() {
       <div className="max-w-5xl mx-auto px-4 -mt-10 mb-8">
         <SearchBar
           size="lg"
+          onSearch={handleSearch}
           salons={salons}
           totalResults={filtered.length}
-          onSearch={handleSearch}
         />
 
         <div className="flex flex-wrap gap-6 text-sm text-gray-600 mt-4">
@@ -166,6 +167,7 @@ export default function HomeClient() {
             salons={filtered}
             heightClass="h-[520px]"
             selectedId={selectedSalonId}
+            onSelectSalon={handleSelectSalon}
           />
         )}
       </div>
@@ -185,7 +187,7 @@ export default function HomeClient() {
         onSelectSalon={handleSelectSalon}
       />
 
-      {/* BLOG + OWNER */}
+      {/* CONTENT */}
       <BlogSection />
       <OwnerSection />
     </div>

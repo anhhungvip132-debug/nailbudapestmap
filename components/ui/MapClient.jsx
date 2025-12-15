@@ -1,15 +1,36 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
+import { useEffect } from "react";
 import "leaflet/dist/leaflet.css";
 
-const icon = L.icon({
+const defaultIcon = L.icon({
   iconUrl: "/marker.png",
   iconSize: [32, 32],
 });
 
-export default function MapClient({ salons = [] }) {
+const activeIcon = L.icon({
+  iconUrl: "/marker-active.png",
+  iconSize: [36, 36],
+});
+
+function FocusOnSalon({ salon }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!salon) return;
+    map.setView([salon.lat, salon.lng], 15, { animate: true });
+  }, [salon, map]);
+
+  return null;
+}
+
+export default function MapClient({
+  salons = [],
+  selectedId,
+  onSelectSalon,
+}) {
   const list = Array.isArray(salons)
     ? salons.filter(
         (s) =>
@@ -18,10 +39,12 @@ export default function MapClient({ salons = [] }) {
       )
     : [];
 
+  const selectedSalon = list.find((s) => s.id === selectedId);
+
   if (list.length === 0) {
     return (
-      <div className="h-[500px] flex items-center justify-center text-sm text-gray-500">
-        Đang tải bản đồ…
+      <div className="h-[520px] flex items-center justify-center text-sm text-gray-500">
+        Không có salon để hiển thị bản đồ
       </div>
     );
   }
@@ -30,7 +53,7 @@ export default function MapClient({ salons = [] }) {
     <MapContainer
       center={[47.4979, 19.0402]}
       zoom={12}
-      style={{ height: "500px", width: "100%" }}
+      className="h-full w-full rounded-xl"
       scrollWheelZoom
     >
       <TileLayer
@@ -38,14 +61,19 @@ export default function MapClient({ salons = [] }) {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
+      {selectedSalon && <FocusOnSalon salon={selectedSalon} />}
+
       {list.map((salon) => (
         <Marker
           key={salon.id}
           position={[salon.lat, salon.lng]}
-          icon={icon}
+          icon={salon.id === selectedId ? activeIcon : defaultIcon}
+          eventHandlers={{
+            click: () => onSelectSalon && onSelectSalon(salon),
+          }}
         >
           <Popup>
-            <b>{salon.name}</b>
+            <strong>{salon.name}</strong>
             <br />
             {salon.address}
           </Popup>
