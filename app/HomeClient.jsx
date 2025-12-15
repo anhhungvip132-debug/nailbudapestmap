@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 import Hero from "@/components/ui/Hero";
 import SearchBar from "@/components/ui/SearchBar";
+import CategoryList from "@/components/ui/CategoryList";
 
 export default function HomeClient() {
   const [salons, setSalons] = useState([]);
@@ -31,6 +32,10 @@ export default function HomeClient() {
     };
   }, []);
 
+  const handleCategory = useCallback(() => {
+    // tạm thời KHÔNG lọc, chỉ test render
+  }, []);
+
   return (
     <div className="pb-24">
       <Hero />
@@ -42,10 +47,12 @@ export default function HomeClient() {
           totalResults={filtered.length}
           onSearch={() => {}}
         />
+      </div>
 
-        <div className="mt-6 text-green-600 text-sm">
-          ✅ SearchBar rendered successfully
-        </div>
+      <CategoryList onSelect={handleCategory} />
+
+      <div className="mt-6 text-green-600 text-sm text-center">
+        ✅ CategoryList rendered successfully
       </div>
     </div>
   );
