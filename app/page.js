@@ -1,6 +1,8 @@
 "use client";
 
+// ⛔ DỨT ĐIỂM PRERENDER / SSG CHO HOMEPAGE
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 import { useEffect, useState, useCallback } from "react";
 
@@ -20,7 +22,7 @@ export default function HomePage() {
   const [selectedSalonId, setSelectedSalonId] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch salons
+  // Fetch salons (guarded)
   useEffect(() => {
     let alive = true;
 
@@ -31,16 +33,14 @@ export default function HomePage() {
         const safe = Array.isArray(data) ? data : [];
         setSalons(safe);
         setFiltered(safe);
-        setSelectedSalonId(safe.length > 0 ? safe[0].id : null);
+        setSelectedSalonId(safe.length ? safe[0].id : null);
       })
       .catch(() => {
         if (!alive) return;
         setSalons([]);
         setFiltered([]);
       })
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
+      .finally(() => alive && setLoading(false));
 
     return () => {
       alive = false;
@@ -89,12 +89,12 @@ export default function HomePage() {
       }
 
       setFiltered(list);
-      setSelectedSalonId(list.length > 0 ? list[0].id : null);
+      setSelectedSalonId(list.length ? list[0].id : null);
     },
     [salons]
   );
 
-  // Geolocation → nearest salons
+  // Geolocation → nearest salons (guarded)
   useEffect(() => {
     if (
       typeof navigator === "undefined" ||
@@ -125,9 +125,7 @@ export default function HomePage() {
   );
 
   const handleSelectSalon = useCallback((salon) => {
-    if (salon && salon.id) {
-      setSelectedSalonId(salon.id);
-    }
+    if (salon?.id) setSelectedSalonId(salon.id);
   }, []);
 
   return (
