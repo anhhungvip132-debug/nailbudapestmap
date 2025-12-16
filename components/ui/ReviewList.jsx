@@ -1,45 +1,31 @@
-"use client";
-
-import { useState } from "react";
-import RatingStars from "./RatingStars";
-
-export default function ReviewList() {
-  const [reviews, setReviews] = useState([
-    { name: "Ngọc", rating: 5, text: "Rất đẹp và chuyên nghiệp!" }
-  ]);
-
-  const [text, setText] = useState("");
-
-  const submitReview = () => {
-    if (!text.trim()) return;
-    setReviews([...reviews, { name: "Ẩn danh", rating: 5, text }]);
-    setText("");
-  };
+export default function ReviewList({ reviews = [] }) {
+  if (reviews.length === 0) {
+    return (
+      <p className="text-sm text-gray-500 mt-4">
+        Chưa có đánh giá nào được duyệt.
+      </p>
+    );
+  }
 
   return (
-    <div className="card p-6 mt-8">
-      <h2 className="heading text-left">Đánh giá</h2>
-
+    <div className="mt-6 space-y-4">
       {reviews.map((r, i) => (
-        <div key={i} className="border-b py-3">
-          <RatingStars rating={r.rating} />
-          <p className="mt-1">{r.text}</p>
+        <div
+          key={i}
+          className="border border-pink-100 bg-white p-4 rounded-xl"
+        >
+          <div className="flex justify-between mb-1">
+            <strong>{r.name}</strong>
+            <span className="text-yellow-500">
+              {"★".repeat(r.rating)}
+            </span>
+          </div>
+          <p className="text-gray-700">{r.comment}</p>
+          <p className="text-xs text-gray-400 mt-1">
+            {new Date(r.date).toLocaleDateString()}
+          </p>
         </div>
       ))}
-
-      <textarea
-        className="w-full p-3 border rounded-xl mt-4"
-        placeholder="Viết đánh giá..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-
-      <button
-        onClick={submitReview}
-        className="mt-3 bg-pink-600 text-white py-2 px-4 rounded-xl"
-      >
-        Gửi đánh giá
-      </button>
     </div>
   );
 }

@@ -18,20 +18,18 @@ export default function HomeClient() {
   const [selectedSalonId, setSelectedSalonId] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  /* =========================
-     FETCH SALONS (SAFE)
-  ========================== */
+  // LOAD SALONS
   useEffect(() => {
     let alive = true;
 
     fetch("/api/salons")
-      .then((res) => (res.ok ? res.json() : []))
+      .then((r) => (r.ok ? r.json() : []))
       .then((data) => {
         if (!alive) return;
-        const safe = Array.isArray(data) ? data : [];
-        setSalons(safe);
-        setFiltered(safe);
-        setSelectedSalonId(safe.length ? safe[0].id : null);
+        const list = Array.isArray(data) ? data : [];
+        setSalons(list);
+        setFiltered(list);
+        setSelectedSalonId(list[0]?.id ?? null);
       })
       .catch(() => {
         if (!alive) return;
@@ -45,149 +43,100 @@ export default function HomeClient() {
     };
   }, []);
 
-  /* =========================
-     SEARCH / FILTER
-  ========================== */
+  // SEARCH
   const handleSearch = useCallback(
     (filters = {}) => {
-      const {
-        name = "",
-        district = "",
-        service = "",
-        featuredOnly = false,
-      } = filters;
+      let list = [...salons];
+      const { name = "", district = "", service = "", featuredOnly = false } =
+        filters;
 
-      let list = Array.isArray(salons) ? [...salons] : [];
-
-      if (name) {
-        const q = name.toLowerCase();
+      if (name)
         list = list.filter((s) =>
-          `${s.name ?? ""} ${s.address ?? ""}`
-            .toLowerCase()
-            .includes(q)
+          `${s.name} ${s.address}`.toLowerCase().includes(name.toLowerCase())
         );
-      }
 
-      if (district) {
-        const d = String(district).toLowerCase();
+      if (district)
         list = list.filter((s) =>
-          String(s.district ?? "")
-            .toLowerCase()
-            .includes(d)
+          String(s.district).toLowerCase().includes(district.toLowerCase())
         );
-      }
 
-      if (service) {
-        const sv = service.toLowerCase();
-        list = list.filter(
-          (s) =>
-            Array.isArray(s.services) &&
-            s.services.some((x) =>
-              String(x).toLowerCase().includes(sv)
-            )
+      if (service)
+        list = list.filter((s) =>
+          s.services?.some((x) =>
+            String(x).toLowerCase().includes(service.toLowerCase())
+          )
         );
-      }
 
-      if (featuredOnly) {
-        list = list.filter((s) => s.featured);
-      }
+      if (featuredOnly) list = list.filter((s) => s.featured);
 
       setFiltered(list);
-      setSelectedSalonId(list.length ? list[0].id : null);
+      setSelectedSalonId(list[0]?.id ?? null);
     },
     [salons]
   );
 
-  /* =========================
-     GEOLOCATION → NEAREST
-  ========================== */
+  // GEOLOCATION
   useEffect(() => {
-    if (
-      typeof navigator === "undefined" ||
-      !navigator.geolocation
-    ) {
-      setNearby([]);
-      return;
-    }
+    if (!navigator?.geolocation) return;
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         fetch(
           `/api/nearest?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`
         )
-          .then((res) => (res.ok ? res.json() : []))
-          .then((data) =>
-            setNearby(Array.isArray(data) ? data : [])
-          )
+          .then((r) => (r.ok ? r.json() : []))
+          .then((d) => setNearby(Array.isArray(d) ? d : []))
           .catch(() => setNearby([]));
       },
       () => setNearby([])
     );
   }, []);
 
-  /* =========================
-     HANDLERS
-  ========================== */
-  const handleCategory = useCallback(
-    (value) => handleSearch({ service: value || "" }),
-    [handleSearch]
-  );
-
   const handleSelectSalon = useCallback((salon) => {
     if (salon?.id) setSelectedSalonId(salon.id);
   }, []);
 
-  /* =========================
-     RENDER
-  ========================== */
   return (
     <div className="pb-24">
       <Hero />
 
-      {/* SEARCH */}
       <div className="max-w-5xl mx-auto px-4 -mt-10 mb-8">
         <SearchBar
           size="lg"
-          onSearch={handleSearch}
           salons={salons}
           totalResults={filtered.length}
+          onSearch={handleSearch}
         />
-
-        <div className="flex flex-wrap gap-6 text-sm text-gray-600 mt-4">
-          <span>⭐ Gợi ý salon uy tín</span>
-          <span>📍 Xem salon trên bản đồ</span>
-          <span>⚡ Đặt lịch nhanh chóng</span>
-        </div>
       </div>
 
       {/* MAP */}
       <div className="max-w-6xl mx-auto px-4 mb-16">
-        {!loading && (
+        {loading ? (
+          <div className="h-[520px] rounded-xl bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">
+            Đang tải bản đồ…
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="h-[520px] rounded-xl bg-gray-50 flex items-center justify-center text-gray-500">
+            Không tìm thấy salon phù hợp
+          </div>
+        ) : (
           <Map
             salons={filtered}
-            heightClass="h-[520px]"
             selectedId={selectedSalonId}
             onSelectSalon={handleSelectSalon}
           />
         )}
       </div>
 
-      {/* CATEGORY */}
-      <CategoryList onSelect={handleCategory} />
+      <CategoryList onSelect={(v) => handleSearch({ service: v })} />
 
-      {/* FEATURED */}
       <FeaturedSalons
         salons={filtered}
         onSelectSalon={handleSelectSalon}
       />
 
-      {/* NEAREST */}
-      <NearestSalons
-        salons={nearby}
-        onSelectSalon={handleSelectSalon}
-      />
+      <NearestSalons salons={nearby} onSelectSalon={handleSelectSalon} />
 
-      {/* CONTENT */}
       <BlogSection />
       <OwnerSection />
     </div>
