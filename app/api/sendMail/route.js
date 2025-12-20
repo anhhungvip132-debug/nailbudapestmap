@@ -1,34 +1,25 @@
 import { Resend } from "resend";
 
 /**
- * POST /api/sendMail
- * Body:
- * {
- *   salonName,
- *   customerName,
- *   customerEmail,
- *   customerPhone,
- *   service,
- *   date,
- *   time,
- *   message
- * }
+ * IMPORTANT:
+ * - MUST run in Node.js runtime (Resend does NOT support Edge)
+ * - MUST use default sender EXACTLY as provided by Resend
  */
+
+export const runtime = "nodejs";
+
 export async function POST(req) {
   try {
-    // ✅ CHECK ENV RUNTIME (KHÔNG CRASH BUILD)
     const apiKey = process.env.RESEND_API_KEY;
 
     if (!apiKey) {
-      console.error("RESEND_API_KEY is missing");
       return new Response(
-        JSON.stringify({ error: "Email service not configured" }),
+        JSON.stringify({ error: "RESEND_API_KEY missing" }),
         { status: 500 }
       );
     }
 
     const resend = new Resend(apiKey);
-
     const body = await req.json();
 
     const {
@@ -42,7 +33,6 @@ export async function POST(req) {
       message,
     } = body;
 
-    // ✅ VALIDATION
     if (!customerName || !customerEmail || !service || !date || !time) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
@@ -50,8 +40,7 @@ export async function POST(req) {
       );
     }
 
-    // ✅ EMAIL TEMPLATE
-    const emailHtml = `
+    const html = `
       <h2>💅 New Booking Request</h2>
 
       <p><strong>Salon:</strong> ${salonName}</p>
@@ -61,29 +50,28 @@ export async function POST(req) {
 
       <hr />
 
-      <h3>👤 Customer Information</h3>
+      <h3>👤 Customer</h3>
       <p><strong>Name:</strong> ${customerName}</p>
       <p><strong>Email:</strong> ${customerEmail}</p>
-      <p><strong>Phone:</strong> ${customerPhone || "Not provided"}</p>
+      <p><strong>Phone:</strong> ${customerPhone || "N/A"}</p>
 
       <h3>📝 Message</h3>
-      <p>${message || "No additional message."}</p>
+      <p>${message || "No message"}</p>
     `;
 
-    // ✅ SEND EMAIL
     const result = await resend.emails.send({
-      from: "Nail Budapest Map <onboarding@resend.dev>",
-      to: ["anhhungvip132@gmail.com"], // 👉 đổi thành email salon sau
+      from: "onboarding@resend.dev", // ⛔ DO NOT CHANGE
+      to: ["anhhungvip132@gmail.com"],
       subject: `Booking request – ${salonName}`,
-      html: emailHtml,
+      html,
     });
 
     return new Response(
-      JSON.stringify({ success: true, result }),
+      JSON.stringify({ success: true, id: result.id }),
       { status: 200 }
     );
-  } catch (error) {
-    console.error("SendMail API Error:", error);
+  } catch (err) {
+    console.error("SendMail error:", err);
 
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
