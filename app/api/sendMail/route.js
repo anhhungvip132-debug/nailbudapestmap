@@ -1,18 +1,19 @@
 import { Resend } from "resend";
 
 /**
- * IMPORTANT:
- * - MUST run in Node.js runtime (Resend does NOT support Edge)
- * - MUST use default sender EXACTLY as provided by Resend
+ * ⚠️ BẮT BUỘC
+ * ép Vercel chạy bằng NodeJS
+ * nếu không → KHÔNG có Functions
  */
-
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(req) {
   try {
     const apiKey = process.env.RESEND_API_KEY;
 
     if (!apiKey) {
+      console.error("❌ RESEND_API_KEY missing");
       return new Response(
         JSON.stringify({ error: "RESEND_API_KEY missing" }),
         { status: 500 }
@@ -20,6 +21,7 @@ export async function POST(req) {
     }
 
     const resend = new Resend(apiKey);
+
     const body = await req.json();
 
     const {
@@ -42,39 +44,34 @@ export async function POST(req) {
 
     const html = `
       <h2>💅 New Booking Request</h2>
-
       <p><strong>Salon:</strong> ${salonName}</p>
       <p><strong>Service:</strong> ${service}</p>
       <p><strong>Date:</strong> ${date}</p>
       <p><strong>Time:</strong> ${time}</p>
-
       <hr />
-
-      <h3>👤 Customer</h3>
       <p><strong>Name:</strong> ${customerName}</p>
       <p><strong>Email:</strong> ${customerEmail}</p>
-      <p><strong>Phone:</strong> ${customerPhone || "N/A"}</p>
-
-      <h3>📝 Message</h3>
-      <p>${message || "No message"}</p>
+      <p><strong>Phone:</strong> ${customerPhone || "-"}</p>
+      <p>${message || ""}</p>
     `;
 
     const result = await resend.emails.send({
-      from: "onboarding@resend.dev", // ⛔ DO NOT CHANGE
+      from: "Nail Budapest Map <onboarding@resend.dev>",
       to: ["anhhungvip132@gmail.com"],
-      subject: `Booking request – ${salonName}`,
+      subject: `Booking – ${salonName}`,
       html,
     });
+
+    console.log("✅ EMAIL SENT:", result.id);
 
     return new Response(
       JSON.stringify({ success: true, id: result.id }),
       { status: 200 }
     );
   } catch (err) {
-    console.error("SendMail error:", err);
-
+    console.error("❌ SENDMAIL ERROR:", err);
     return new Response(
-      JSON.stringify({ error: "Internal server error" }),
+      JSON.stringify({ error: "Internal error" }),
       { status: 500 }
     );
   }
