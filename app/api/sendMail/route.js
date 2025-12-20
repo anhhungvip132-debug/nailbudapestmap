@@ -1,29 +1,18 @@
 import { Resend } from "resend";
 
-/**
- * ⚠️ BẮT BUỘC
- * ép Vercel chạy bằng NodeJS
- * nếu không → KHÔNG có Functions
- */
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+export const runtime = "nodejs"; // ⚠️ BẮT BUỘC cho Resend
 
 export async function POST(req) {
   try {
     const apiKey = process.env.RESEND_API_KEY;
-
     if (!apiKey) {
-      console.error("❌ RESEND_API_KEY missing");
       return new Response(
         JSON.stringify({ error: "RESEND_API_KEY missing" }),
         { status: 500 }
       );
     }
 
-    const resend = new Resend(apiKey);
-
     const body = await req.json();
-
     const {
       salonName = "Nail Budapest Map",
       customerName,
@@ -42,36 +31,28 @@ export async function POST(req) {
       );
     }
 
-    const html = `
-      <h2>💅 New Booking Request</h2>
-      <p><strong>Salon:</strong> ${salonName}</p>
-      <p><strong>Service:</strong> ${service}</p>
-      <p><strong>Date:</strong> ${date}</p>
-      <p><strong>Time:</strong> ${time}</p>
-      <hr />
-      <p><strong>Name:</strong> ${customerName}</p>
-      <p><strong>Email:</strong> ${customerEmail}</p>
-      <p><strong>Phone:</strong> ${customerPhone || "-"}</p>
-      <p>${message || ""}</p>
-    `;
+    const resend = new Resend(apiKey);
 
     const result = await resend.emails.send({
       from: "Nail Budapest Map <onboarding@resend.dev>",
-      to: ["anhhungvip132@gmail.com"],
-      subject: `Booking – ${salonName}`,
-      html,
+      to: ["delivered@resend.dev"], // TEST CHẮC CHẮN
+      subject: `Booking request – ${salonName}`,
+      html: `
+        <h2>💅 New Booking</h2>
+        <p><b>Customer:</b> ${customerName}</p>
+        <p><b>Email:</b> ${customerEmail}</p>
+        <p><b>Phone:</b> ${customerPhone || "-"}</p>
+        <p><b>Service:</b> ${service}</p>
+        <p><b>Date:</b> ${date} ${time}</p>
+        <p>${message || ""}</p>
+      `,
     });
 
-    console.log("✅ EMAIL SENT:", result.id);
-
-    return new Response(
-      JSON.stringify({ success: true, id: result.id }),
-      { status: 200 }
-    );
+    return Response.json({ success: true, result });
   } catch (err) {
-    console.error("❌ SENDMAIL ERROR:", err);
+    console.error("SendMail error:", err);
     return new Response(
-      JSON.stringify({ error: "Internal error" }),
+      JSON.stringify({ error: "Internal server error" }),
       { status: 500 }
     );
   }
