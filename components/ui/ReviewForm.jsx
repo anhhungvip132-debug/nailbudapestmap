@@ -5,21 +5,44 @@ import { useState } from "react";
 export default function ReviewForm({ salonId, onSubmit }) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+    setError("");
 
-    const review = {
-      salonId,
-      rating,
-      comment,
-      createdAt: new Date().toISOString(),
-    };
+    if (!comment.trim()) {
+      setError("Vui lòng nhập nội dung đánh giá.");
+      return;
+    }
 
-    if (onSubmit) onSubmit(review);
+    setLoading(true);
 
-    setRating(5);
-    setComment("");
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          salonId: String(salonId),
+          rating,
+          comment,
+        }),
+      });
+
+      if (!res.ok) throw new Error("submit_failed");
+
+      const saved = await res.json();
+
+      if (onSubmit) onSubmit(saved);
+
+      setRating(5);
+      setComment("");
+    } catch (err) {
+      setError("Không thể gửi đánh giá. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -37,6 +60,7 @@ export default function ReviewForm({ salonId, onSubmit }) {
         value={rating}
         onChange={(e) => setRating(Number(e.target.value))}
         className="border rounded-lg px-3 py-2 mb-3 w-full"
+        disabled={loading}
       >
         {[5, 4, 3, 2, 1].map((r) => (
           <option key={r} value={r}>
@@ -51,13 +75,17 @@ export default function ReviewForm({ salonId, onSubmit }) {
         onChange={(e) => setComment(e.target.value)}
         placeholder="Viết cảm nhận của bạn..."
         className="border rounded-lg px-3 py-2 w-full h-24 mb-3"
+        disabled={loading}
       />
+
+      {error && <p className="text-sm text-red-500 mb-2">{error}</p>}
 
       <button
         type="submit"
-        className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg font-semibold"
+        disabled={loading}
+        className="bg-pink-500 hover:bg-pink-600 disabled:opacity-60 text-white px-4 py-2 rounded-lg font-semibold"
       >
-        Gửi đánh giá
+        {loading ? "Đang gửi..." : "Gửi đánh giá"}
       </button>
     </form>
   );
