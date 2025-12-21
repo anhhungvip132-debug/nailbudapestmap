@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 "use client";
 
 import { useState } from "react";
@@ -13,7 +15,9 @@ export default function LoginPage() {
 
   return (
     <div className="container py-20 max-w-md">
-      <h1 className="text-3xl font-bold text-pink-600 mb-5">Đăng nhập</h1>
+      <h1 className="text-3xl font-bold text-pink-600 mb-5">
+        Đăng nhập
+      </h1>
 
       <input
         type="email"
