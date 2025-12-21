@@ -17,6 +17,7 @@ export default function HomePage() {
   const [nearby, setNearby] = useState([]);
   const [selectedSalonId, setSelectedSalonId] = useState(null);
 
+  // LOAD SALONS
   useEffect(() => {
     fetch("/api/salons")
       .then((res) => res.json())
@@ -31,6 +32,7 @@ export default function HomePage() {
       });
   }, []);
 
+  // SEARCH + FILTER LOGIC (DÙNG CHUNG)
   function handleSearch(filters = {}) {
     const {
       name = "",
@@ -72,6 +74,7 @@ export default function HomePage() {
     setSelectedSalonId(list.length > 0 ? list[0].id : null);
   }
 
+  // LOAD NEAREST SALONS (GEOLOCATION)
   useEffect(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) return;
 
@@ -99,8 +102,10 @@ export default function HomePage() {
 
   return (
     <div className="pb-24">
+      {/* HERO */}
       <Hero />
 
+      {/* SEARCH */}
       <div className="max-w-5xl mx-auto px-4 -mt-10 mb-8">
         <SearchBar
           size="lg"
@@ -116,6 +121,7 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* MAP */}
       <div className="max-w-6xl mx-auto px-4 mb-16">
         <Map
           salons={filtered}
@@ -124,14 +130,25 @@ export default function HomePage() {
         />
       </div>
 
+      {/* CATEGORY */}
       <CategoryList onSelect={handleCategory} />
 
-      <FeaturedSalons salons={filtered} onSelectSalon={handleSelectSalon} />
+      {/* FEATURED */}
+      <FeaturedSalons
+        salons={filtered}
+        onSelectSalon={handleSelectSalon}
+      />
 
-      <NearestSalons salons={nearby} onSelectSalon={handleSelectSalon} />
+      {/* NEAREST */}
+      <NearestSalons
+        salons={nearby}
+        onSelectSalon={handleSelectSalon}
+      />
 
+      {/* BLOG */}
       <BlogSection />
 
+      {/* OWNER */}
       <OwnerSection />
     </div>
   );
