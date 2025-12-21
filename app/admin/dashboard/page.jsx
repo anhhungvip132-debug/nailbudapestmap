@@ -1,10 +1,11 @@
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-export const revalidate = 0;
-
 "use client";
 
 import { useEffect, useState } from "react";
+
+// Render config (đặt SAU "use client")
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
 // ADMIN SERVER URL
 const ADMIN_API_BASE =
@@ -15,7 +16,6 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // LOAD REVIEW PENDING
   useEffect(() => {
     fetch(`${ADMIN_API_BASE}/reviews?status=pending`)
       .then((res) => {
@@ -36,13 +36,10 @@ export default function AdminDashboard() {
     try {
       await fetch(`${ADMIN_API_BASE}/reviews/${id}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
 
-      // remove khỏi list sau khi duyệt
       setReviews((prev) => prev.filter((r) => r.id !== id));
     } catch {
       alert("Không thể cập nhật review");
@@ -51,22 +48,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-10">
-      <h1 className="text-2xl font-bold mb-6">
-        Review chờ duyệt
-      </h1>
+      <h1 className="text-2xl font-bold mb-6">Review chờ duyệt</h1>
 
       {loading && <p>Đang tải...</p>}
-
-      {error && (
-        <p className="text-red-500">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-red-500">{error}</p>}
 
       {!loading && reviews.length === 0 && (
-        <p className="text-gray-500">
-          Không có review chờ duyệt.
-        </p>
+        <p className="text-gray-500">Không có review chờ duyệt.</p>
       )}
 
       <div className="space-y-4">
@@ -80,24 +68,18 @@ export default function AdminDashboard() {
               <span>{r.rating} ⭐</span>
             </div>
 
-            <p className="text-gray-700 mb-3">
-              {r.comment}
-            </p>
+            <p className="text-gray-700 mb-3">{r.comment}</p>
 
             <div className="flex gap-3">
               <button
-                onClick={() =>
-                  updateStatus(r.id, "approved")
-                }
+                onClick={() => updateStatus(r.id, "approved")}
                 className="px-4 py-2 rounded bg-green-600 text-white"
               >
                 Duyệt
               </button>
 
               <button
-                onClick={() =>
-                  updateStatus(r.id, "rejected")
-                }
+                onClick={() => updateStatus(r.id, "rejected")}
                 className="px-4 py-2 rounded bg-red-500 text-white"
               >
                 Từ chối
