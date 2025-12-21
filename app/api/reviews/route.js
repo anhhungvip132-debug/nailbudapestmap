@@ -13,6 +13,7 @@ import {
 import { db } from "@/lib/firebase";
 
 // GET /api/reviews?salonId=1
+// 👉 CHỈ TRẢ REVIEW ĐÃ DUYỆT
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
@@ -25,6 +26,7 @@ export async function GET(req) {
     const q = query(
       collection(db, "reviews"),
       where("salonId", "==", String(salonId)),
+      where("status", "==", "approved"),
       orderBy("createdAt", "desc")
     );
 
@@ -44,47 +46,56 @@ export async function GET(req) {
 
     return NextResponse.json(reviews, { status: 200 });
   } catch (err) {
-    return NextResponse.json({ error: "Failed to load reviews" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to load reviews" },
+      { status: 500 }
+    );
   }
 }
 
 // POST /api/reviews
+// 👉 REVIEW MỚI = pending
 export async function POST(req) {
   try {
     const body = await req.json();
 
-    const salonId = body?.salonId != null ? String(body.salonId) : "";
+    const salonId = String(body?.salonId || "");
     const rating = Number(body?.rating ?? 5);
     const comment = String(body?.comment ?? "").trim();
 
     if (!salonId || !comment) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing fields" },
+        { status: 400 }
+      );
     }
 
     const payload = {
       salonId,
       rating,
       comment,
+      status: "pending", // 🔒 CHỜ DUYỆT
       createdAt: serverTimestamp(),
     };
 
     const ref = await addDoc(collection(db, "reviews"), payload);
 
-    // đọc lại để lấy createdAt (timestamp) ngay khi save
+    // Trả về object để UI append (nhưng sẽ không hiện lại khi reload)
     const savedSnap = await getDoc(doc(db, "reviews", ref.id));
     const saved = savedSnap.data() || payload;
 
-    const result = {
+    return NextResponse.json({
       id: ref.id,
       ...saved,
       createdAt:
         saved?.createdAt?.seconds != null
           ? { seconds: saved.createdAt.seconds }
           : saved?.createdAt ?? null,
-    };
-
-    return NextResponse.json(result, { status: 200 });
+    });
   } catch (err) {
-    return NextResponse.json({ error: "Failed to save review" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to save review" },
+      { status: 500 }
+    );
   }
 }
