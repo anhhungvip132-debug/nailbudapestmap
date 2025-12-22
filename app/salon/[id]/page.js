@@ -1,141 +1,123 @@
 "use client";
 
 import { useState } from "react";
-import salons from "@/data/salons.json";
-import Image from "next/image";
-import dynamic from "next/dynamic";
 
-import RatingStars from "@/components/ui/RatingStars";
-import ButtonPink from "@/components/ui/ButtonPink";
+export default function ReviewForm({ salonId, onSubmit }) {
+  const [name, setName] = useState("");
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
-const SalonMapSmall = dynamic(() => import("@/components/ui/SalonMapSmall"), {
-  ssr: false,
-});
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setSuccess(false);
 
-export default function SalonDetail({ params }) {
-  const salon = salons.find((s) => s.id == params.id);
-  const [reviews, setReviews] = useState([]);
+    if (!comment.trim()) {
+      setError("Vui lòng nhập nội dung đánh giá.");
+      return;
+    }
 
-  if (!salon) {
-    return (
-      <p className="p-10 text-center text-gray-600">
-        Salon không tồn tại.
-      </p>
-    );
-  }
+    setLoading(true);
 
-  function addReview(review) {
-    setReviews([review, ...reviews]);
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          salonId,
+          name: name || "Ẩn danh",
+          rating,
+          comment,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to submit review");
+      }
+
+      const data = await res.json();
+
+      // append review tạm thời (chờ duyệt)
+      onSubmit?.(data);
+      setComment("");
+      setName("");
+      setRating(5);
+      setSuccess(true);
+    } catch (err) {
+      console.error(err);
+      setError("Không thể gửi đánh giá. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
-      {/* HERO IMAGE */}
-      <div className="relative w-full h-64 md:h-80 rounded-3xl overflow-hidden shadow-lg">
-        <Image
-          src={salon.image || "/images/salon-default.jpg"}
-          alt={salon.name}
-          fill
-          className="object-cover"
-        />
-      </div>
+    <form
+      onSubmit={handleSubmit}
+      className="mt-10 bg-white border border-pink-100 rounded-2xl p-6 shadow-sm"
+    >
+      <h2 className="text-xl font-semibold mb-4 text-pink-600">
+        Viết đánh giá của bạn
+      </h2>
 
-      {/* TITLE */}
-      <h1 className="text-3xl font-bold text-pink-600 mt-6">{salon.name}</h1>
-      <p className="text-gray-600 mt-1">{salon.address}</p>
-
-      {/* RATING */}
-      <div className="mt-2 flex items-center gap-3">
-        <RatingStars rating={salon.rating || 4.5} />
-        <span className="text-sm text-gray-500">
-          {salon.rating || 4.5} / 5.0
-        </span>
-      </div>
-
-      {/* CTA */}
-      <ButtonPink
-        text="Đặt lịch ngay"
-        href={`/booking/${salon.id}`}
-        className="mt-6"
+      {/* NAME */}
+      <input
+        type="text"
+        placeholder="Tên của bạn (không bắt buộc)"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="w-full border rounded-xl px-4 py-2 mb-3 text-sm"
       />
 
-      {/* DESCRIPTION */}
-      <div className="bg-white shadow-sm border border-pink-100 rounded-2xl p-6 mt-10">
-        <h2 className="text-xl font-semibold mb-3">Mô tả</h2>
-        <p className="text-gray-700">
-          {salon.description || "Salon chưa có mô tả."}
-        </p>
-      </div>
-
-      {/* SERVICES */}
-      <div className="bg-white shadow-sm border border-pink-100 rounded-2xl p-6 mt-8">
-        <h2 className="text-xl font-semibold mb-4">Dịch vụ nổi bật</h2>
-
-        {salon.services?.length > 0 ? (
-          <ul className="grid md:grid-cols-2 gap-3">
-            {salon.services.map((sv, i) => (
-              <li
-                key={i}
-                className="px-4 py-2 rounded-xl bg-pink-50 border border-pink-100 text-sm text-pink-700 font-medium"
-              >
-                {sv}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-500">Salon chưa cập nhật dịch vụ.</p>
-        )}
-      </div>
-
-      {/* MINI MAP */}
-      <div className="bg-white shadow-sm border border-pink-100 rounded-2xl p-6 mt-8">
-        <h2 className="text-xl font-semibold mb-4">Vị trí trên bản đồ</h2>
-
-        <div className="h-64 rounded-xl overflow-hidden">
-          <SalonMapSmall salon={salon} />
-        </div>
-      </div>
-
-      {/* OPEN HOURS */}
-      <div className="bg-white shadow-sm border border-pink-100 rounded-2xl p-6 mt-8">
-        <h2 className="text-xl font-semibold mb-4">Giờ mở cửa</h2>
-
-        <ul className="text-gray-700 space-y-1">
-          <li>Thứ 2 - Thứ 6: 09:00 – 19:00</li>
-          <li>Thứ 7: 09:00 – 17:00</li>
-          <li>Chủ nhật: Nghỉ</li>
-        </ul>
-      </div>
-
-      {/* REVIEW FORM */}
-      <ReviewForm salonId={salon.id} onSubmit={addReview} />
-
-      {/* REVIEW LIST */}
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Đánh giá gần đây</h2>
-
-        {reviews.length === 0 && (
-          <p className="text-sm text-gray-500">
-            Chưa có đánh giá nào. Hãy là người đầu tiên!
-          </p>
-        )}
-
-        {reviews.map((rv, i) => (
-          <div
-            key={i}
-            className="border border-pink-100 bg-white p-4 rounded-xl mb-3"
+      {/* RATING */}
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-sm text-gray-600">Đánh giá:</span>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => setRating(n)}
+            className={`text-lg ${
+              rating >= n ? "text-yellow-400" : "text-gray-300"
+            }`}
           >
-            <div className="flex justify-between items-center mb-1">
-              <strong className="text-gray-700">{rv.name}</strong>
-              <RatingStars rating={rv.rating} size={16} />
-            </div>
-            <p className="text-gray-600">{rv.comment}</p>
-            <p className="text-xs text-gray-400 mt-1">
-              {new Date(rv.date).toLocaleDateString()}
-            </p>
-          </div>
+            ★
+          </button>
         ))}
       </div>
-    </div>
+
+      {/* COMMENT */}
+      <textarea
+        rows={4}
+        placeholder="Chia sẻ trải nghiệm của bạn..."
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        className="w-full border rounded-xl px-4 py-3 text-sm mb-3"
+      />
+
+      {/* ERROR */}
+      {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+
+      {/* SUCCESS */}
+      {success && (
+        <p className="text-green-600 text-sm mb-2">
+          ✔️ Đã gửi đánh giá. Chờ quản trị viên duyệt.
+        </p>
+      )}
+
+      {/* SUBMIT */}
+      <button
+        type="submit"
+        disabled={loading}
+        className="px-6 py-2 rounded-xl bg-pink-600 text-white font-medium hover:bg-pink-700 disabled:opacity-50"
+      >
+        {loading ? "Đang gửi..." : "Gửi đánh giá"}
+      </button>
+    </form>
   );
 }

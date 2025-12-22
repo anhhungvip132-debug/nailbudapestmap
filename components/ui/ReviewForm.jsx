@@ -2,44 +2,38 @@
 
 import { useState } from "react";
 
-export default function ReviewForm({ salonId, onSubmit }) {
+export default function ReviewForm({ salonId }) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
-
-    if (!comment.trim()) {
-      setError("Vui lòng nhập nội dung đánh giá.");
-      return;
-    }
-
     setLoading(true);
+    setError("");
+    setSuccess(false);
 
     try {
       const res = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          salonId: String(salonId),
+          salonId,
           rating,
           comment,
         }),
       });
 
-      if (!res.ok) throw new Error("submit_failed");
+      if (!res.ok) throw new Error("Submit failed");
 
-      const saved = await res.json();
-
-      if (onSubmit) onSubmit(saved);
-
-      setRating(5);
+      setSuccess(true);
       setComment("");
+      setRating(5);
     } catch (err) {
-      setError("Không thể gửi đánh giá. Vui lòng thử lại.");
+      console.error(err);
+      setError("Không thể gửi review. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
@@ -48,44 +42,52 @@ export default function ReviewForm({ salonId, onSubmit }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white border border-pink-100 rounded-xl p-4 mt-4 shadow-sm"
+      className="mt-8 border rounded-xl p-5 bg-white"
     >
-      <h3 className="font-semibold mb-2">Viết đánh giá</h3>
+      <h3 className="text-lg font-semibold mb-4">
+        Gửi đánh giá của bạn
+      </h3>
 
-      {/* Rating */}
-      <label className="block mb-2 text-sm font-medium">
-        Chọn số sao:
+      <label className="block mb-2 font-medium">
+        Đánh giá
       </label>
       <select
         value={rating}
         onChange={(e) => setRating(Number(e.target.value))}
-        className="border rounded-lg px-3 py-2 mb-3 w-full"
-        disabled={loading}
+        className="border rounded px-3 py-2 mb-4 w-full"
       >
         {[5, 4, 3, 2, 1].map((r) => (
           <option key={r} value={r}>
-            {r} sao
+            {r} ⭐
           </option>
         ))}
       </select>
 
-      {/* Comment */}
+      <label className="block mb-2 font-medium">
+        Nhận xét
+      </label>
       <textarea
         value={comment}
         onChange={(e) => setComment(e.target.value)}
-        placeholder="Viết cảm nhận của bạn..."
-        className="border rounded-lg px-3 py-2 w-full h-24 mb-3"
-        disabled={loading}
+        required
+        rows={4}
+        className="border rounded px-3 py-2 w-full mb-4"
+        placeholder="Chia sẻ trải nghiệm của bạn..."
       />
 
-      {error && <p className="text-sm text-red-500 mb-2">{error}</p>}
+      {error && <p className="text-red-500 mb-3">{error}</p>}
+      {success && (
+        <p className="text-green-600 mb-3">
+          ✅ Review đã gửi và đang chờ duyệt
+        </p>
+      )}
 
       <button
         type="submit"
         disabled={loading}
-        className="bg-pink-500 hover:bg-pink-600 disabled:opacity-60 text-white px-4 py-2 rounded-lg font-semibold"
+        className="bg-pink-600 text-white px-5 py-2 rounded disabled:opacity-50"
       >
-        {loading ? "Đang gửi..." : "Gửi đánh giá"}
+        {loading ? "Đang gửi..." : "Gửi review"}
       </button>
     </form>
   );
