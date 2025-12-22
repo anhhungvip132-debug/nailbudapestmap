@@ -1,123 +1,184 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 
-export default function ReviewForm({ salonId, onSubmit }) {
-  const [name, setName] = useState("");
-  const [rating, setRating] = useState(5);
-  const [comment, setComment] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
+import salons from "@/data/salons.json";
+import RatingStars from "@/components/ui/RatingStars";
+import ButtonPink from "@/components/ui/ButtonPink";
+import ReviewForm from "@/components/ui/ReviewForm";
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError("");
-    setSuccess(false);
+const SalonMapSmall = dynamic(
+  () => import("@/components/ui/SalonMapSmall"),
+  { ssr: false }
+);
 
-    if (!comment.trim()) {
-      setError("Vui lòng nhập nội dung đánh giá.");
-      return;
-    }
+export default function SalonDetailPage({ params }) {
+  const salon = salons.find(
+    (s) => String(s.id) === String(params.id)
+  );
 
-    setLoading(true);
+  const [reviews, setReviews] = useState([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
 
-    try {
-      const res = await fetch("/api/reviews", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          salonId,
-          name: name || "Ẩn danh",
-          rating,
-          comment,
-        }),
-      });
+  useEffect(() => {
+    if (!salon?.id) return;
 
-      if (!res.ok) {
-        throw new Error("Failed to submit review");
-      }
+    setLoadingReviews(true);
+    fetch(`/api/reviews?salonId=${salon.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setReviews(Array.isArray(data) ? data : []);
+        setLoadingReviews(false);
+      })
+      .catch(() => setLoadingReviews(false));
+  }, [salon?.id]);
 
-      const data = await res.json();
+  function handleAddReview(review) {
+    setReviews((prev) => [review, ...prev]);
+  }
 
-      // append review tạm thời (chờ duyệt)
-      onSubmit?.(data);
-      setComment("");
-      setName("");
-      setRating(5);
-      setSuccess(true);
-    } catch (err) {
-      console.error(err);
-      setError("Không thể gửi đánh giá. Vui lòng thử lại.");
-    } finally {
-      setLoading(false);
-    }
+  if (!salon) {
+    return (
+      <div className="p-10 text-center text-gray-500">
+        Salon không tồn tại.
+      </div>
+    );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="mt-10 bg-white border border-pink-100 rounded-2xl p-6 shadow-sm"
-    >
-      <h2 className="text-xl font-semibold mb-4 text-pink-600">
-        Viết đánh giá của bạn
-      </h2>
-
-      {/* NAME */}
-      <input
-        type="text"
-        placeholder="Tên của bạn (không bắt buộc)"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="w-full border rounded-xl px-4 py-2 mb-3 text-sm"
-      />
-
-      {/* RATING */}
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-sm text-gray-600">Đánh giá:</span>
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button
-            key={n}
-            type="button"
-            onClick={() => setRating(n)}
-            className={`text-lg ${
-              rating >= n ? "text-yellow-400" : "text-gray-300"
-            }`}
-          >
-            ★
-          </button>
-        ))}
+    <div className="max-w-5xl mx-auto px-4 py-10">
+      {/* HERO IMAGE */}
+      <div className="relative w-full h-72 md:h-96 rounded-3xl overflow-hidden shadow-lg">
+        <Image
+          src={salon.image || "/images/salon-default.jpg"}
+          alt={salon.name}
+          fill
+          priority
+          className="object-cover"
+        />
       </div>
 
-      {/* COMMENT */}
-      <textarea
-        rows={4}
-        placeholder="Chia sẻ trải nghiệm của bạn..."
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        className="w-full border rounded-xl px-4 py-3 text-sm mb-3"
+      {/* TITLE */}
+      <h1 className="text-3xl font-bold text-pink-600 mt-6">
+        {salon.name}
+      </h1>
+      <p className="text-gray-600 mt-1">{salon.address}</p>
+
+      {/* RATING */}
+      <div className="flex items-center gap-3 mt-2">
+        <RatingStars rating={salon.rating || 4.5} />
+        <span className="text-sm text-gray-500">
+          {(salon.rating || 4.5).toFixed(1)} / 5.0
+        </span>
+      </div>
+
+      {/* CTA */}
+      <ButtonPink
+        href={`/booking/${salon.id}`}
+        text="Đặt lịch ngay"
+        className="mt-6"
       />
 
-      {/* ERROR */}
-      {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-
-      {/* SUCCESS */}
-      {success && (
-        <p className="text-green-600 text-sm mb-2">
-          ✔️ Đã gửi đánh giá. Chờ quản trị viên duyệt.
+      {/* DESCRIPTION */}
+      <div className="mt-10 bg-white border border-pink-100 rounded-2xl p-6 shadow-sm">
+        <h2 className="text-xl font-semibold mb-3">Mô tả</h2>
+        <p className="text-gray-700">
+          {salon.description || "Salon chưa có mô tả."}
         </p>
-      )}
+      </div>
 
-      {/* SUBMIT */}
-      <button
-        type="submit"
-        disabled={loading}
-        className="px-6 py-2 rounded-xl bg-pink-600 text-white font-medium hover:bg-pink-700 disabled:opacity-50"
-      >
-        {loading ? "Đang gửi..." : "Gửi đánh giá"}
-      </button>
-    </form>
+      {/* SERVICES */}
+      <div className="mt-8 bg-white border border-pink-100 rounded-2xl p-6 shadow-sm">
+        <h2 className="text-xl font-semibold mb-4">Dịch vụ nổi bật</h2>
+
+        {salon.services?.length ? (
+          <ul className="grid md:grid-cols-2 gap-3">
+            {salon.services.map((sv, i) => (
+              <li
+                key={i}
+                className="px-4 py-2 bg-pink-50 border border-pink-100 rounded-xl text-sm text-pink-700 font-medium"
+              >
+                {sv}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-500">
+            Salon chưa cập nhật dịch vụ.
+          </p>
+        )}
+      </div>
+
+      {/* MAP */}
+      <div className="mt-8 bg-white border border-pink-100 rounded-2xl p-6 shadow-sm">
+        <h2 className="text-xl font-semibold mb-4">
+          Vị trí trên bản đồ
+        </h2>
+        <div className="h-64 rounded-xl overflow-hidden">
+          <SalonMapSmall salon={salon} />
+        </div>
+      </div>
+
+      {/* OPEN HOURS */}
+      <div className="mt-8 bg-white border border-pink-100 rounded-2xl p-6 shadow-sm">
+        <h2 className="text-xl font-semibold mb-4">Giờ mở cửa</h2>
+        <ul className="text-gray-700 space-y-1">
+          <li>Thứ 2 – Thứ 6: 09:00 – 19:00</li>
+          <li>Thứ 7: 09:00 – 17:00</li>
+          <li>Chủ nhật: Nghỉ</li>
+        </ul>
+      </div>
+
+      {/* REVIEW FORM */}
+      <ReviewForm
+        salonId={String(salon.id)}
+        onSubmit={handleAddReview}
+      />
+
+      {/* REVIEW LIST */}
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">
+          Đánh giá gần đây
+        </h2>
+
+        {loadingReviews && (
+          <p className="text-sm text-gray-500">
+            Đang tải đánh giá...
+          </p>
+        )}
+
+        {!loadingReviews && reviews.length === 0 && (
+          <p className="text-sm text-gray-500">
+            Chưa có đánh giá nào.
+          </p>
+        )}
+
+        {reviews.map((rv, i) => (
+          <div
+            key={rv.id || i}
+            className="mb-3 p-4 bg-white border border-pink-100 rounded-xl"
+          >
+            <div className="flex justify-between items-center mb-1">
+              <strong className="text-gray-700">
+                {rv.name || "Ẩn danh"}
+              </strong>
+              <RatingStars rating={rv.rating || 5} size={16} />
+            </div>
+
+            <p className="text-gray-600">{rv.comment}</p>
+
+            <p className="text-xs text-gray-400 mt-1">
+              {rv.createdAt?.seconds
+                ? new Date(
+                    rv.createdAt.seconds * 1000
+                  ).toLocaleDateString()
+                : ""}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
