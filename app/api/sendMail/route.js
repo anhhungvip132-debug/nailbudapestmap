@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
 export const runtime = "nodejs";
@@ -8,65 +7,69 @@ export async function POST(req) {
   try {
     const apiKey = process.env.RESEND_API_KEY;
 
-    // ✅ Không làm crash build nữa
+    // ✅ CHỐT: không cho crash build
     if (!apiKey) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Missing RESEND_API_KEY",
-        },
+      console.error("Missing RESEND_API_KEY");
+      return Response.json(
+        { error: "Email service not configured" },
         { status: 500 }
       );
     }
 
+    // ✅ KHỞI TẠO RESEND TẠI ĐÂY (KHÔNG Ở TOP LEVEL)
     const resend = new Resend(apiKey);
 
     const body = await req.json();
 
     const {
-      to,
-      subject,
-      html,
-      text,
-      from,
-    } = body || {};
+      salonName,
+      customerName,
+      customerEmail,
+      customerPhone,
+      service,
+      date,
+      time,
+      message,
+    } = body;
 
-    if (!to || !subject || (!html && !text)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            "Missing required fields: to, subject, html/text",
-        },
+    if (!customerName || !customerEmail || !service || !date || !time) {
+      return Response.json(
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // ✅ from mặc định (bạn có thể đổi sang domain verified)
-    const fromEmail =
-      from || "NailBudapestMap <onboarding@resend.dev>";
+    const emailHtml = `
+      <h2>New Booking Request</h2>
+      <p><strong>Salon:</strong> ${salonName}</p>
+      <p><strong>Service:</strong> ${service}</p>
+      <p><strong>Date:</strong> ${date}</p>
+      <p><strong>Time:</strong> ${time}</p>
+      
+      <h3>Customer Information</h3>
+      <p><strong>Name:</strong> ${customerName}</p>
+      <p><strong>Email:</strong> ${customerEmail}</p>
+      <p><strong>Phone:</strong> ${customerPhone || "Not provided"}</p>
+
+      <h3>Message</h3>
+      <p>${message || "No additional message."}</p>
+    `;
 
     const result = await resend.emails.send({
-      from: fromEmail,
-      to,
-      subject,
-      html: html || undefined,
-      text: text || undefined,
+      from: "Nail Budapest Map <booking@nailbudapestmap.com>",
+      to: "owner@nailbudapestmap.com",
+      subject: `Booking request - ${salonName}`,
+      html: emailHtml,
     });
 
-    return NextResponse.json({
-      success: true,
-      result,
-    });
+    return Response.json(
+      { success: true, result },
+      { status: 200 }
+    );
   } catch (error) {
-    console.error("sendMail error:", error);
-
-    return NextResponse.json(
-      {
-        success: false,
-        error:
-          error?.message || "Failed to send email",
-      },
+    console.error("SendMail API Error:", error);
+    return Response.json(
+      { error: "Server error" },
       { status: 500 }
     );
   }
