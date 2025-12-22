@@ -1,55 +1,73 @@
+import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(req) {
   try {
+    const apiKey = process.env.RESEND_API_KEY;
+
+    // ✅ Không làm crash build nữa
+    if (!apiKey) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Missing RESEND_API_KEY",
+        },
+        { status: 500 }
+      );
+    }
+
+    const resend = new Resend(apiKey);
+
     const body = await req.json();
 
     const {
-      salonName,
-      customerName,
-      customerEmail,
-      customerPhone,
-      service,
-      date,
-      time,
-      message,
-    } = body;
+      to,
+      subject,
+      html,
+      text,
+      from,
+    } = body || {};
 
-    if (!customerName || !customerEmail || !service || !date || !time) {
-      return Response.json(
-        { error: "Missing required fields" },
+    if (!to || !subject || (!html && !text)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Missing required fields: to, subject, html/text",
+        },
         { status: 400 }
       );
     }
 
-    const emailHtml = `
-      <h2>New Booking Request</h2>
-      <p><strong>Salon:</strong> ${salonName}</p>
-      <p><strong>Service:</strong> ${service}</p>
-      <p><strong>Date:</strong> ${date}</p>
-      <p><strong>Time:</strong> ${time}</p>
-      
-      <h3>Customer Information</h3>
-      <p><strong>Name:</strong> ${customerName}</p>
-      <p><strong>Email:</strong> ${customerEmail}</p>
-      <p><strong>Phone:</strong> ${customerPhone || "Not provided"}</p>
-
-      <h3>Message</h3>
-      <p>${message || "No additional message."}</p>
-    `;
+    // ✅ from mặc định (bạn có thể đổi sang domain verified)
+    const fromEmail =
+      from || "NailBudapestMap <onboarding@resend.dev>";
 
     const result = await resend.emails.send({
-      from: "Nail Budapest Map <booking@nailbudapestmap.com>",
-      to: "owner@nailbudapestmap.com", // TODO: Bạn có thể đổi thành email của salon
-      subject: `Booking request - ${salonName}`,
-      html: emailHtml,
+      from: fromEmail,
+      to,
+      subject,
+      html: html || undefined,
+      text: text || undefined,
     });
 
-    return Response.json({ success: true, result }, { status: 200 });
+    return NextResponse.json({
+      success: true,
+      result,
+    });
   } catch (error) {
-    console.error("SendMail API Error:", error);
-    return Response.json({ error: "Server error" }, { status: 500 });
+    console.error("sendMail error:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          error?.message || "Failed to send email",
+      },
+      { status: 500 }
+    );
   }
 }
