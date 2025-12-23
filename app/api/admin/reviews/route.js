@@ -1,42 +1,50 @@
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  orderBy,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import admin from "firebase-admin";
 
-// GET /api/admin/reviews?status=pending
+/* ================= INIT FIREBASE ADMIN ================= */
+function initAdmin() {
+  if (admin.apps.length) return;
+
+  const cred = process.env.FIREBASE_ADMIN_CREDENTIALS;
+  if (!cred) return;
+
+  admin.initializeApp({
+    credential: admin.credential.cert(JSON.parse(cred)),
+  });
+}
+
+initAdmin();
+
+const db = admin.apps.length ? admin.firestore() : null;
+
+/* ================= GET /api/admin/reviews ================= */
 export async function GET(req) {
   try {
+    if (!db) {
+      return NextResponse.json({ success: true, data: [] });
+    }
+
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status") || "pending";
 
-    const q = query(
-      collection(db, "reviews"),
-      where("status", "==", status),
-      orderBy("createdAt", "desc")
-    );
+    const snap = await db
+      .collection("reviews")
+      .where("status", "==", status)
+      .get();
 
-    const snap = await getDocs(q);
-
-    const reviews = snap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
+    const data = snap.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
     }));
 
-    return NextResponse.json({
-      success: true,
-      data: reviews,
-    });
+    return NextResponse.json({ success: true, data });
   } catch (err) {
     console.error("ADMIN GET reviews error:", err);
     return NextResponse.json(
-      { success: false, error: "Failed to load reviews" },
+      { success: false, error: "Failed to load admin reviews" },
       { status: 500 }
     );
   }
