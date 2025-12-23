@@ -1,5 +1,5 @@
-export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import admin from "firebase-admin";
@@ -45,10 +45,22 @@ export async function GET(req) {
 
     const snap = await ref.get();
 
-    const data = snap.docs.map((d) => ({
-      id: d.id,
-      ...d.data(),
-    }));
+    const data = snap.docs.map((d) => {
+      const b = d.data();
+
+      return {
+        id: d.id,
+        ...b,
+
+        // 🔁 NORMALIZE STATUS (OLD DATA SAFE)
+        status:
+          b.status === "confirmed"
+            ? "approved"
+            : b.status === "cancelled"
+            ? "rejected"
+            : b.status,
+      };
+    });
 
     return NextResponse.json({
       success: true,
