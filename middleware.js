@@ -8,7 +8,7 @@ export function middleware(req) {
     return NextResponse.next();
   }
 
-  // 🔒 CHỈ BẢO VỆ ADMIN PRIVATE
+  // 🔒 BẢO VỆ ADMIN PRIVATE
   if (pathname.startsWith("/admin")) {
     const token = req.cookies.get("__session")?.value;
 
