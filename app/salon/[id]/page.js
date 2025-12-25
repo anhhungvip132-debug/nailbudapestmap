@@ -23,13 +23,14 @@ export default function SalonDetailPage({ params }) {
   const [reviews, setReviews] = useState([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
 
-  /* ================= NAIL SALON SCHEMA ================= */
+  /* ================= SCHEMA (LOCAL SEO) ================= */
   useEffect(() => {
     if (!salon) return;
 
     const schema = {
       "@context": "https://schema.org",
       "@type": "NailSalon",
+      "@id": `https://nailbudapestmap.com/salon/${salon.id}`,
       name: salon.name,
       url: `https://nailbudapestmap.com/salon/${salon.id}`,
       image: salon.image
@@ -41,28 +42,32 @@ export default function SalonDetailPage({ params }) {
         addressLocality: "Budapest",
         addressCountry: "HU",
       },
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: salon.rating || 4.5,
-        reviewCount: salon.reviewCount || 5,
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: salon.lat,
+        longitude: salon.lng,
       },
       priceRange: salon.priceRange || "$$",
     };
 
     const script = document.createElement("script");
     script.type = "application/ld+json";
+    script.id = "salon-schema";
     script.innerHTML = JSON.stringify(schema);
     document.head.appendChild(script);
+
+    return () => {
+      document.getElementById("salon-schema")?.remove();
+    };
   }, [salon]);
 
+  /* ================= LOAD REVIEWS ================= */
   useEffect(() => {
     if (!salon?.id) return;
 
     setLoadingReviews(true);
 
-    fetch(`/api/reviews?salonId=${salon.id}`, {
-      cache: "no-store",
-    })
+    fetch(`/api/reviews?salonId=${salon.id}`, { cache: "no-store" })
       .then((res) => res.json())
       .then((json) => {
         setReviews(Array.isArray(json) ? json : []);
@@ -81,6 +86,7 @@ export default function SalonDetailPage({ params }) {
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-10">
+      {/* IMAGE */}
       <div className="relative w-full h-72 md:h-96 rounded-3xl overflow-hidden shadow-lg">
         <Image
           src={salon.image || "/images/salon-default.jpg"}
@@ -91,11 +97,13 @@ export default function SalonDetailPage({ params }) {
         />
       </div>
 
+      {/* TITLE */}
       <h1 className="text-3xl font-bold text-pink-600 mt-6">
         {salon.name}
       </h1>
       <p className="text-gray-600 mt-1">{salon.address}</p>
 
+      {/* RATING */}
       <div className="flex items-center gap-3 mt-2">
         <RatingStars rating={salon.rating || 4.5} />
         <span className="text-sm text-gray-500">
@@ -103,10 +111,12 @@ export default function SalonDetailPage({ params }) {
         </span>
       </div>
 
+      {/* BOOKING */}
       <div className="mt-6">
         <BookingCTA salon={salon} />
       </div>
 
+      {/* DESCRIPTION */}
       <section className="mt-10 bg-white border border-pink-100 rounded-2xl p-6 shadow-sm">
         <h2 className="text-xl font-semibold mb-3">Mô tả</h2>
         <p className="text-gray-700">
@@ -114,10 +124,9 @@ export default function SalonDetailPage({ params }) {
         </p>
       </section>
 
+      {/* SERVICES */}
       <section className="mt-8 bg-white border border-pink-100 rounded-2xl p-6 shadow-sm">
-        <h2 className="text-xl font-semibold mb-4">
-          Dịch vụ nổi bật
-        </h2>
+        <h2 className="text-xl font-semibold mb-4">Dịch vụ nổi bật</h2>
 
         {salon.services?.length ? (
           <ul className="grid md:grid-cols-2 gap-3">
@@ -131,21 +140,19 @@ export default function SalonDetailPage({ params }) {
             ))}
           </ul>
         ) : (
-          <p className="text-gray-500">
-            Salon chưa cập nhật dịch vụ.
-          </p>
+          <p className="text-gray-500">Salon chưa cập nhật dịch vụ.</p>
         )}
       </section>
 
+      {/* MAP */}
       <section className="mt-8 bg-white border border-pink-100 rounded-2xl p-6 shadow-sm">
-        <h2 className="text-xl font-semibold mb-4">
-          Vị trí trên bản đồ
-        </h2>
+        <h2 className="text-xl font-semibold mb-4">Vị trí trên bản đồ</h2>
         <div className="h-64 rounded-xl overflow-hidden">
           <SalonMapSmall salon={salon} />
         </div>
       </section>
 
+      {/* REVIEW FORM */}
       <section className="mt-10">
         <ReviewForm salonId={String(salon.id)} />
         <p className="text-xs text-gray-400 mt-2">

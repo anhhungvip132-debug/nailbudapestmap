@@ -1,102 +1,177 @@
-import { NextResponse } from "next/server";
-import admin from "firebase-admin";
+"use client";
 
-/* ================= INIT FIREBASE ADMIN ================= */
-function initAdmin() {
-  if (admin.apps.length) return;
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 
-  const cred = process.env.FIREBASE_ADMIN_CREDENTIALS;
-  if (!cred) return;
+import salons from "@/data/salons.json";
+import RatingStars from "@/components/ui/RatingStars";
+import ReviewForm from "@/components/ui/ReviewForm";
+import BookingCTA from "@/components/ui/BookingCTA";
 
-  admin.initializeApp({
-    credential: admin.credential.cert(JSON.parse(cred)),
-  });
-}
+const SalonMapSmall = dynamic(
+  () => import("@/components/ui/SalonMapSmall"),
+  { ssr: false }
+);
 
-initAdmin();
+export default function SalonDetailPage({ params }) {
+  const salon = salons.find(
+    (s) => String(s.id) === String(params.id)
+  );
 
-const db = admin.apps.length ? admin.firestore() : null;
+  const [reviews, setReviews] = useState([]);
+  const [reviewCount, setReviewCount] = useState(0);
+  const [ratingValue, setRatingValue] = useState(null);
+  const [loadingReviews, setLoadingReviews] = useState(true);
 
-/* =====================================================
-   GET /api/reviews?salonId=1
-   → CHỈ TRẢ REVIEW ĐÃ APPROVED
-   ===================================================== */
-export async function GET(req) {
-  try {
-    if (!db) {
-      return NextResponse.json({ success: true, data: [] });
-    }
+  /* ===== LOAD REVIEWS + STATS ===== */
+  useEffect(() => {
+    if (!salon?.id) return;
 
-    const { searchParams } = new URL(req.url);
-    const salonId = searchParams.get("salonId");
+    setLoadingReviews(true);
 
-    if (!salonId) {
-      return NextResponse.json({ success: true, data: [] });
-    }
+    fetch(`/api/reviews?salonId=${salon.id}`, { cache: "no-store" })
+      .then((res) => res.json())
+      .then((json) => {
+        setReviews(json.reviews || []);
+        setReviewCount(json.reviewCount || 0);
+        setRatingValue(json.ratingValue || null);
+        setLoadingReviews(false);
+      })
+      .catch(() => setLoadingReviews(false));
+  }, [salon?.id]);
 
-    const snap = await db
-      .collection("reviews")
-      .where("salonId", "==", String(salonId))
-      .where("status", "==", "approved")
-      .get();
+  /* ===== SCHEMA WITH AGGREGATE RATING ===== */
+  useEffect(() => {
+    if (!salon) return;
 
-    const data = snap.docs.map((d) => ({
-      id: d.id,
-      ...d.data(),
-    }));
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "NailSalon",
+      "@id": `https://nailbudapestmap.com/salon/${salon.id}`,
+      name: salon.name,
+      url: `https://nailbudapestmap.com/salon/${salon.id}`,
+      image: salon.image
+        ? `https://nailbudapestmap.com${salon.image}`
+        : "https://nailbudapestmap.com/images/salon-default.jpg",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: salon.address,
+        addressLocality: "Budapest",
+        addressCountry: "HU",
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: salon.lat,
+        longitude: salon.lng,
+      },
+      priceRange: salon.priceRange || "$$",
+      ...(reviewCount > 0 && ratingValue
+        ? {
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue,
+              reviewCount,
+            },
+          }
+        : {}),
+    };
 
-    return NextResponse.json({ success: true, data });
-  } catch (err) {
-    console.error("GET /api/reviews error:", err);
-    return NextResponse.json(
-      { success: false, error: "Failed to load reviews" },
-      { status: 500 }
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.id = "salon-review-schema";
+    script.innerHTML = JSON.stringify(schema);
+    document.head.appendChild(script);
+
+    return () => {
+      document.getElementById("salon-review-schema")?.remove();
+    };
+  }, [salon, reviewCount, ratingValue]);
+
+  if (!salon) {
+    return (
+      <div className="p-10 text-center text-gray-500">
+        Salon không tồn tại.
+      </div>
     );
   }
-}
 
-/* =====================================================
-   POST /api/reviews
-   → USER TẠO REVIEW (pending)
-   ===================================================== */
-export async function POST(req) {
-  try {
-    if (!db) {
-      return NextResponse.json(
-        { success: false, error: "DB not ready" },
-        { status: 500 }
-      );
-    }
+  return (
+    <main className="max-w-5xl mx-auto px-4 py-10">
+      <div className="relative w-full h-72 md:h-96 rounded-3xl overflow-hidden shadow-lg">
+        <Image
+          src={salon.image || "/images/salon-default.jpg"}
+          alt={salon.name}
+          fill
+          priority
+          className="object-cover"
+        />
+      </div>
 
-    const body = await req.json();
-    const salonId = String(body?.salonId || "");
-    const rating = Number(body?.rating ?? 5);
-    const comment = String(body?.comment ?? "").trim();
+      <h1 className="text-3xl font-bold text-pink-600 mt-6">
+        {salon.name}
+      </h1>
+      <p className="text-gray-600 mt-1">{salon.address}</p>
 
-    if (!salonId || !comment) {
-      return NextResponse.json(
-        { success: false, error: "Missing fields" },
-        { status: 400 }
-      );
-    }
+      <div className="flex items-center gap-3 mt-2">
+        <RatingStars rating={ratingValue || salon.rating || 4.5} />
+        <span className="text-sm text-gray-500">
+          {(ratingValue || salon.rating || 4.5).toFixed(1)} / 5.0
+          {reviewCount > 0 && ` (${reviewCount} reviews)`}
+        </span>
+      </div>
 
-    const ref = await db.collection("reviews").add({
-      salonId,
-      rating,
-      comment,
-      status: "pending",
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+      <div className="mt-6">
+        <BookingCTA salon={salon} />
+      </div>
 
-    return NextResponse.json(
-      { success: true, id: ref.id },
-      { status: 201 }
-    );
-  } catch (err) {
-    console.error("POST /api/reviews error:", err);
-    return NextResponse.json(
-      { success: false, error: "Failed to save review" },
-      { status: 500 }
-    );
-  }
+      <section className="mt-10 bg-white border border-pink-100 rounded-2xl p-6 shadow-sm">
+        <h2 className="text-xl font-semibold mb-3">Mô tả</h2>
+        <p className="text-gray-700">
+          {salon.description || "Salon chưa có mô tả."}
+        </p>
+      </section>
+
+      <section className="mt-8 bg-white border border-pink-100 rounded-2xl p-6 shadow-sm">
+        <h2 className="text-xl font-semibold mb-4">Vị trí trên bản đồ</h2>
+        <div className="h-64 rounded-xl overflow-hidden">
+          <SalonMapSmall salon={salon} />
+        </div>
+      </section>
+
+      <section className="mt-10">
+        <ReviewForm salonId={String(salon.id)} />
+        <p className="text-xs text-gray-400 mt-2">
+          * Review sẽ hiển thị sau khi được duyệt.
+        </p>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">Đánh giá</h2>
+
+        {loadingReviews && (
+          <p className="text-sm text-gray-500">Đang tải…</p>
+        )}
+
+        {!loadingReviews && reviews.length === 0 && (
+          <p className="text-sm text-gray-500">Chưa có đánh giá.</p>
+        )}
+
+        <div className="space-y-3">
+          {reviews.map((rv) => (
+            <div
+              key={rv.id}
+              className="p-4 bg-white border border-pink-100 rounded-xl"
+            >
+              <div className="flex justify-between items-center mb-1">
+                <strong>{rv.name}</strong>
+                <RatingStars rating={rv.rating} size={16} />
+              </div>
+              <p className="text-gray-600">{rv.comment}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
 }
