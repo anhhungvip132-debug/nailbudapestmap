@@ -1,3 +1,4 @@
+// app/page.js
 "use client";
 
 import { useEffect, useState } from "react";
@@ -17,14 +18,37 @@ export default function HomePage() {
   const [nearby, setNearby] = useState([]);
   const [selectedSalonId, setSelectedSalonId] = useState(null);
 
-  // LOAD SALONS
+  /* ================= ORGANIZATION SCHEMA ================= */
   useEffect(() => {
-    fetch("/api/salons")
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "Nail Budapest Map",
+      url: "https://nailbudapestmap.com",
+      logo: "https://nailbudapestmap.com/images/og-cover.jpg",
+      description:
+        "Find the best nail salons in Budapest. Compare services, read reviews and book appointments.",
+      areaServed: {
+        "@type": "City",
+        name: "Budapest",
+      },
+    };
+
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.innerHTML = JSON.stringify(schema);
+    document.head.appendChild(script);
+  }, []);
+
+  /* ================= LOAD SALONS ================= */
+  useEffect(() => {
+    fetch("/api/salons", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
-        setSalons(data);
-        setFiltered(data);
-        if (data.length > 0) setSelectedSalonId(data[0].id);
+        const list = Array.isArray(data) ? data : [];
+        setSalons(list);
+        setFiltered(list);
+        setSelectedSalonId(list[0]?.id || null);
       })
       .catch(() => {
         setSalons([]);
@@ -32,7 +56,7 @@ export default function HomePage() {
       });
   }, []);
 
-  // SEARCH + FILTER LOGIC (DÙNG CHUNG)
+  /* ================= SEARCH + FILTER ================= */
   function handleSearch(filters = {}) {
     const {
       name = "",
@@ -46,7 +70,7 @@ export default function HomePage() {
     if (name) {
       const q = name.toLowerCase();
       list = list.filter((s) =>
-        (s.name + " " + s.address).toLowerCase().includes(q)
+        `${s.name} ${s.address}`.toLowerCase().includes(q)
       );
     }
 
@@ -71,20 +95,23 @@ export default function HomePage() {
     }
 
     setFiltered(list);
-    setSelectedSalonId(list.length > 0 ? list[0].id : null);
+    setSelectedSalonId(list[0]?.id || null);
   }
 
-  // LOAD NEAREST SALONS (GEOLOCATION)
+  /* ================= LOAD NEAREST SALONS ================= */
   useEffect(() => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+    if (!navigator?.geolocation) return;
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         fetch(
-          `/api/nearest?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`
+          `/api/nearest?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`,
+          { cache: "no-store" }
         )
           .then((res) => res.json())
-          .then((data) => setNearby(data))
+          .then((data) =>
+            setNearby(Array.isArray(data) ? data : [])
+          )
           .catch(() => setNearby([]));
       },
       () => setNearby([])
@@ -96,16 +123,14 @@ export default function HomePage() {
   }
 
   function handleSelectSalon(salon) {
-    if (!salon || !salon.id) return;
+    if (!salon?.id) return;
     setSelectedSalonId(salon.id);
   }
 
   return (
     <div className="pb-24">
-      {/* HERO */}
       <Hero />
 
-      {/* SEARCH */}
       <div className="max-w-5xl mx-auto px-4 -mt-10 mb-8">
         <SearchBar
           size="lg"
@@ -121,7 +146,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* MAP */}
       <div className="max-w-6xl mx-auto px-4 mb-16">
         <Map
           salons={filtered}
@@ -130,25 +154,10 @@ export default function HomePage() {
         />
       </div>
 
-      {/* CATEGORY */}
       <CategoryList onSelect={handleCategory} />
-
-      {/* FEATURED */}
-      <FeaturedSalons
-        salons={filtered}
-        onSelectSalon={handleSelectSalon}
-      />
-
-      {/* NEAREST */}
-      <NearestSalons
-        salons={nearby}
-        onSelectSalon={handleSelectSalon}
-      />
-
-      {/* BLOG */}
+      <FeaturedSalons salons={filtered} onSelectSalon={handleSelectSalon} />
+      <NearestSalons salons={nearby} onSelectSalon={handleSelectSalon} />
       <BlogSection />
-
-      {/* OWNER */}
       <OwnerSection />
     </div>
   );
