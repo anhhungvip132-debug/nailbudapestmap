@@ -23,6 +23,7 @@ export default function HomePage() {
     const schema = {
       "@context": "https://schema.org",
       "@type": "Organization",
+      "@id": "https://nailbudapestmap.com/#organization",
       name: "Nail Budapest Map",
       url: "https://nailbudapestmap.com",
       logo: "https://nailbudapestmap.com/images/og-cover.jpg",
@@ -36,8 +37,13 @@ export default function HomePage() {
 
     const script = document.createElement("script");
     script.type = "application/ld+json";
+    script.id = "org-schema";
     script.innerHTML = JSON.stringify(schema);
     document.head.appendChild(script);
+
+    return () => {
+      document.getElementById("org-schema")?.remove();
+    };
   }, []);
 
   /* ================= LOAD SALONS ================= */
@@ -48,11 +54,12 @@ export default function HomePage() {
         const list = Array.isArray(data) ? data : [];
         setSalons(list);
         setFiltered(list);
-        setSelectedSalonId(list[0]?.id || null);
+        setSelectedSalonId(list.length > 0 ? list[0].id : null);
       })
       .catch(() => {
         setSalons([]);
         setFiltered([]);
+        setSelectedSalonId(null);
       });
   }, []);
 
@@ -95,12 +102,13 @@ export default function HomePage() {
     }
 
     setFiltered(list);
-    setSelectedSalonId(list[0]?.id || null);
+    setSelectedSalonId(list.length > 0 ? list[0].id : null);
   }
 
   /* ================= LOAD NEAREST SALONS ================= */
   useEffect(() => {
-    if (!navigator?.geolocation) return;
+    if (typeof window === "undefined") return;
+    if (!navigator.geolocation) return;
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -118,19 +126,13 @@ export default function HomePage() {
     );
   }, []);
 
-  function handleCategory(value) {
-    handleSearch({ service: value || "" });
-  }
-
-  function handleSelectSalon(salon) {
-    if (!salon?.id) return;
-    setSelectedSalonId(salon.id);
-  }
-
+  /* ================= UI ================= */
   return (
     <div className="pb-24">
+      {/* HERO */}
       <Hero />
 
+      {/* SEARCH */}
       <div className="max-w-5xl mx-auto px-4 -mt-10 mb-8">
         <SearchBar
           size="lg"
@@ -146,6 +148,7 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* MAP */}
       <div className="max-w-6xl mx-auto px-4 mb-16">
         <Map
           salons={filtered}
@@ -154,10 +157,29 @@ export default function HomePage() {
         />
       </div>
 
-      <CategoryList onSelect={handleCategory} />
-      <FeaturedSalons salons={filtered} onSelectSalon={handleSelectSalon} />
-      <NearestSalons salons={nearby} onSelectSalon={handleSelectSalon} />
+      {/* CATEGORY */}
+      <CategoryList onSelect={(v) => handleSearch({ service: v })} />
+
+      {/* FEATURED */}
+      <FeaturedSalons
+        salons={filtered}
+        onSelectSalon={(s) =>
+          s?.id && setSelectedSalonId(s.id)
+        }
+      />
+
+      {/* NEAREST */}
+      <NearestSalons
+        salons={nearby}
+        onSelectSalon={(s) =>
+          s?.id && setSelectedSalonId(s.id)
+        }
+      />
+
+      {/* BLOG */}
       <BlogSection />
+
+      {/* OWNER */}
       <OwnerSection />
     </div>
   );
