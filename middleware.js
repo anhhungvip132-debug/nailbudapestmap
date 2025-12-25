@@ -3,31 +3,19 @@ import { NextResponse } from "next/server";
 export function middleware(req) {
   const { pathname } = req.nextUrl;
 
-  // ✅ CHỈ protect đúng admin pages (KHÔNG API)
-  if (pathname.startsWith("/admin") && !pathname.startsWith("/api")) {
-    const auth = req.headers.get("authorization");
+  // ✅ LUÔN CHO PHÉP LOGIN
+  if (pathname === "/admin/login") {
+    return NextResponse.next();
+  }
 
-    if (!auth) {
-      return new Response("Auth required", {
-        status: 401,
-        headers: {
-          "WWW-Authenticate": 'Basic realm="Admin"',
-        },
-      });
-    }
+  // 🔒 CHỈ BẢO VỆ ADMIN PRIVATE
+  if (pathname.startsWith("/admin")) {
+    const token = req.cookies.get("__session")?.value;
 
-    const [user, pass] = Buffer.from(
-      auth.split(" ")[1],
-      "base64"
-    )
-      .toString()
-      .split(":");
-
-    if (
-      user !== process.env.ADMIN_USER ||
-      pass !== process.env.ADMIN_PASS
-    ) {
-      return new Response("Forbidden", { status: 403 });
+    if (!token) {
+      return NextResponse.redirect(
+        new URL("/admin/login", req.url)
+      );
     }
   }
 
