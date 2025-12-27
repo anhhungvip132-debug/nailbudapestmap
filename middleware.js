@@ -1,14 +1,15 @@
+// middleware.js
 import { NextResponse } from "next/server";
 
 export function middleware(req) {
   const { pathname } = req.nextUrl;
 
-  // ✅ LUÔN CHO PHÉP LOGIN
+  // ✅ Allow trang login admin
   if (pathname === "/admin/login") {
     return NextResponse.next();
   }
 
-  // 🔒 BẢO VỆ ADMIN PRIVATE
+  // 🔐 Protect toàn bộ /admin/*
   if (pathname.startsWith("/admin")) {
     const token = req.cookies.get("__session")?.value;
 
@@ -19,6 +20,7 @@ export function middleware(req) {
     }
   }
 
+  // ✅ Các route khác (public, api, cron, etc.)
   return NextResponse.next();
 }
 
