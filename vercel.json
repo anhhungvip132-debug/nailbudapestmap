@@ -1,8 +1,5 @@
 {
   "crons": [
-    {
-      "path": "/api/cron/google-sync",
-      "schedule": "0 3 * * *"
-    }
+    { "path": "/api/cron/downgrade-plans", "schedule": "0 3 * * *" }
   ]
 }
