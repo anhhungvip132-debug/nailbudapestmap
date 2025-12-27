@@ -1,39 +1,27 @@
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import admin from "firebase-admin";
+import { requireAdmin } from "@/lib/adminAuth";
+import { writeAuditLog } from "@/lib/auditLog";
 
 /* ================= INIT FIREBASE ADMIN ================= */
-function initAdmin() {
-  if (admin.apps.length) return;
-
-  const cred = process.env.FIREBASE_ADMIN_CREDENTIALS;
-  if (!cred) {
-    console.warn("⚠️ FIREBASE_ADMIN_CREDENTIALS missing");
-    return;
-  }
-
+if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.cert(JSON.parse(cred)),
+    credential: admin.credential.cert(
+      JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS)
+    ),
   });
 }
 
-initAdmin();
+const db = admin.firestore();
 
-const db = admin.apps.length ? admin.firestore() : null;
-
-/* ================= PATCH /api/admin/reviews/[id] ================= */
+/* ================= PATCH /api/admin/reviews/:id ================= */
 export async function PATCH(req, { params }) {
-  try {
-    if (!db) {
-      return NextResponse.json(
-        { success: false, error: "DB not ready" },
-        { status: 500 }
-      );
-    }
+  const auth = await requireAdmin(req);
+  if (auth instanceof NextResponse) return auth;
 
-    const { id } = params;
+  try {
     const { status } = await req.json();
 
     if (!["approved", "rejected"].includes(status)) {
@@ -43,12 +31,33 @@ export async function PATCH(req, { params }) {
       );
     }
 
-    await db.collection("reviews").doc(id).update({
+    const ref = db.collection("reviews").doc(params.id);
+    const snap = await ref.get();
+
+    if (!snap.exists) {
+      return NextResponse.json(
+        { success: false, error: "Review not found" },
+        { status: 404 }
+      );
+    }
+
+    await ref.update({
       status,
       reviewedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    return NextResponse.json({ success: true, id, status });
+    // 🔐 AUDIT LOG
+    await writeAuditLog({
+      uid: auth.uid,
+      action: `review_${status}`,
+      targetId: params.id,
+      meta: {
+        rating: snap.data().rating,
+        salonId: snap.data().salonId,
+      },
+    });
+
+    return NextResponse.json({ success: true });
   } catch (err) {
     console.error("ADMIN PATCH review error:", err);
     return NextResponse.json(

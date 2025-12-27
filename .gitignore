@@ -1,9 +1,50 @@
-/node_modules
+# ===============================
+# Node / Next.js
+# ===============================
+node_modules
 /.next
 /out
 
+# ===============================
+# Environment variables
+# ===============================
 .env
 .env.local
+.env.production
+.env.development
 
+# ===============================
+# Firebase Admin (PRIVATE KEY)
+# ===============================
+firebase-admin.json
+
+# ===============================
+# Prisma (nếu có dùng sau này)
+# ===============================
 /lib/generated/prisma/*
+
+# ===============================
+# Vercel
+# ===============================
 .vercel
+
+# ===============================
+# Logs
+# ===============================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===============================
+# OS / Editor
+# ===============================
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+
+# ===============================
+# Misc
+# ===============================
+*.log

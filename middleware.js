@@ -1,29 +1,33 @@
-// middleware.js
 import { NextResponse } from "next/server";
 
 export function middleware(req) {
   const { pathname } = req.nextUrl;
 
-  // ✅ Allow trang login admin
-  if (pathname === "/admin/login") {
-    return NextResponse.next();
-  }
+  // ===== Protect Admin APIs =====
+  if (pathname.startsWith("/api/admin")) {
+    const adminKey = req.headers.get("x-admin-key");
+    const secret = process.env.ADMIN_API_KEY;
 
-  // 🔐 Protect toàn bộ /admin/*
-  if (pathname.startsWith("/admin")) {
-    const token = req.cookies.get("__session")?.value;
-
-    if (!token) {
-      return NextResponse.redirect(
-        new URL("/admin/login", req.url)
-      );
+    // DEV / EMERGENCY ACCESS
+    if (adminKey && secret && adminKey === secret) {
+      return NextResponse.next();
     }
+
+    // PRODUCTION: allow Bearer token (verify in route handler)
+    const auth = req.headers.get("authorization");
+    if (auth && auth.startsWith("Bearer ")) {
+      return NextResponse.next();
+    }
+
+    return NextResponse.json(
+      { error: "Unauthorized (middleware)" },
+      { status: 401 }
+    );
   }
 
-  // ✅ Các route khác (public, api, cron, etc.)
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/api/admin/:path*"],
 };

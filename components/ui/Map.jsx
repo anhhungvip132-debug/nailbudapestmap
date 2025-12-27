@@ -11,11 +11,16 @@ export default function Map({
   heightClass = "h-[520px]",
   selectedId = null,
 }) {
+  // ưu tiên featured lên trước
+  const sorted = [...salons].sort(
+    (a, b) => (b.featured === true) - (a.featured === true)
+  );
+
   return (
     <div
       className={`w-full rounded-3xl overflow-hidden bg-gray-50 border border-pink-100 ${heightClass}`}
     >
-      <LeafletMap salons={salons} selectedId={selectedId} />
+      <LeafletMap salons={sorted} selectedId={selectedId} />
     </div>
   );
 }

@@ -1,5 +1,9 @@
+// app/layout.jsx
+
 import "./globals.css";
+
 import Header from "@/components/ui/Header";
+import Footer from "@/components/layout/Footer";
 
 export const metadata = {
   metadataBase: new URL("https://nailbudapestmap.com"),
@@ -46,9 +50,17 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="bg-[#fafafa]">
+      <body className="bg-[#fafafa] text-gray-800 antialiased">
+        {/* HEADER */}
         <Header />
-        {children}
+
+        {/* MAIN CONTENT */}
+        <main className="min-h-screen">
+          {children}
+        </main>
+
+        {/* FOOTER (SEO LINKS + INTERNAL LINKING) */}
+        <Footer />
       </body>
     </html>
   );

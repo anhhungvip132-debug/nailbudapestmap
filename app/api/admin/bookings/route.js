@@ -2,41 +2,19 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
-import admin from "firebase-admin";
-
-/* ================= INIT FIREBASE ADMIN ================= */
-function initAdmin() {
-  if (admin.apps.length) return;
-
-  const cred = process.env.FIREBASE_ADMIN_CREDENTIALS;
-
-  if (!cred) {
-    console.warn("⚠️ FIREBASE_ADMIN_CREDENTIALS missing – skip init");
-    return;
-  }
-
-  admin.initializeApp({
-    credential: admin.credential.cert(JSON.parse(cred)),
-  });
-}
-
-initAdmin();
-
-const db = admin.apps.length ? admin.firestore() : null;
+import { getAdminDb } from "@/lib/firebaseAdmin";
+import { checkAdminAuth } from "@/lib/checkAdminAuth";
 
 /* ================= GET /api/admin/bookings ================= */
 export async function GET(req) {
-  try {
-    if (!db) {
-      return NextResponse.json(
-        { success: true, data: [] },
-        { status: 200 }
-      );
-    }
+  const authError = await checkAdminAuth(req);
+  if (authError) return authError;
 
+  try {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
 
+    const db = getAdminDb();
     let ref = db.collection("bookings");
 
     if (status) {
@@ -62,10 +40,7 @@ export async function GET(req) {
       };
     });
 
-    return NextResponse.json({
-      success: true,
-      data,
-    });
+    return NextResponse.json({ success: true, data });
   } catch (err) {
     console.error("ADMIN GET bookings error:", err);
     return NextResponse.json(

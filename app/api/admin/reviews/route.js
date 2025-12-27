@@ -2,37 +2,24 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
-import admin from "firebase-admin";
-
-/* ================= INIT FIREBASE ADMIN ================= */
-function initAdmin() {
-  if (admin.apps.length) return;
-
-  const cred = process.env.FIREBASE_ADMIN_CREDENTIALS;
-  if (!cred) return;
-
-  admin.initializeApp({
-    credential: admin.credential.cert(JSON.parse(cred)),
-  });
-}
-
-initAdmin();
-
-const db = admin.apps.length ? admin.firestore() : null;
+import { getAdminDb } from "@/lib/firebaseAdmin";
+import { checkAdminAuth } from "@/lib/checkAdminAuth";
 
 /* ================= GET /api/admin/reviews ================= */
 export async function GET(req) {
-  try {
-    if (!db) {
-      return NextResponse.json({ success: true, data: [] });
-    }
+  const authError = await checkAdminAuth(req);
+  if (authError) return authError;
 
+  try {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status") || "pending";
+
+    const db = getAdminDb();
 
     const snap = await db
       .collection("reviews")
       .where("status", "==", status)
+      .orderBy("createdAt", "desc")
       .get();
 
     const data = snap.docs.map((d) => ({
@@ -44,7 +31,7 @@ export async function GET(req) {
   } catch (err) {
     console.error("ADMIN GET reviews error:", err);
     return NextResponse.json(
-      { success: false, error: "Failed to load admin reviews" },
+      { success: false, error: "Failed to load reviews" },
       { status: 500 }
     );
   }

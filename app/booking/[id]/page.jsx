@@ -1,135 +1,178 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import salons from "@/data/salons.json";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useParams } from "next/navigation";
 
-export default function BookingPage({ params }) {
-  const router = useRouter();
-  const salonId = params.id;
+export default function BookingPage() {
+  const { id: salonId } = useParams();
 
-  const [salon, setSalon] = useState(null);
-  const [service, setService] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    date: "",
+    time: "",
+    service: "",
+    note: "",
+  });
 
-  useEffect(() => {
-    const found = salons.find((s) => String(s.id) === salonId);
-    setSalon(found || null);
-  }, [salonId]);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
-  if (!salon)
-    return <p className="p-6 text-center">Không tìm thấy salon.</p>;
-
-  function handleSubmit(e) {
-    e.preventDefault();
-
-    router.push(
-      `/booking/success?name=${encodeURIComponent(name)}&service=${encodeURIComponent(
-        service
-      )}`
-    );
+  function onChange(e) {
+    setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  const availableTimes = [
-    "09:00", "10:00", "11:00",
-    "12:00", "13:00", "14:00",
-    "15:00", "16:00", "17:00", "18:00"
-  ];
+  async function submit(e) {
+    e.preventDefault();
+    setError("");
+    setSuccess(false);
+
+    if (!form.name || !form.date || !form.time) {
+      setError("Please fill name, date and time.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          salonId,
+          ...form,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json?.error || "Booking failed");
+      }
+
+      setSuccess(true);
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        date: "",
+        time: "",
+        service: "",
+        note: "",
+      });
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold text-pink-600 mb-2">
-        Đặt lịch tại {salon.name}
-      </h1>
-      <p className="text-gray-500 mb-6">{salon.address}</p>
+    <div style={{ maxWidth: 520, margin: "40px auto", padding: 16 }}>
+      <h1>📅 Book an Appointment</h1>
+      <p style={{ color: "#666" }}>Salon ID: {salonId}</p>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white border border-pink-100 shadow-sm rounded-2xl p-6 space-y-5"
-      >
-        {/* SERVICE */}
-        <div>
-          <label className="block font-medium mb-1">Chọn dịch vụ</label>
-          <select
-            value={service}
-            required
-            onChange={(e) => setService(e.target.value)}
-            className="border rounded-xl w-full px-4 py-3"
-          >
-            <option value="">-- Chọn dịch vụ --</option>
-            {salon.services.map((sv, i) => (
-              <option key={i} value={sv}>
-                {sv}
-              </option>
-            ))}
-          </select>
+      {success && (
+        <div style={{ background: "#e6fffa", padding: 12, borderRadius: 8 }}>
+          ✅ Booking sent successfully. We’ll confirm shortly.
         </div>
+      )}
 
-        {/* DATE */}
-        <div>
-          <label className="block font-medium mb-1">Chọn ngày</label>
-          <input
-            type="date"
-            required
-            className="border rounded-xl w-full px-4 py-3"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
+      {error && (
+        <div style={{ background: "#ffe6e6", padding: 12, borderRadius: 8 }}>
+          ❌ {error}
         </div>
+      )}
 
-        {/* TIME */}
-        <div>
-          <label className="block font-medium mb-1">Chọn giờ</label>
-          <select
-            required
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            className="border rounded-xl w-full px-4 py-3"
-          >
-            <option value="">-- Chọn giờ --</option>
-            {availableTimes.map((t) => (
-              <option key={t}>{t}</option>
-            ))}
-          </select>
-        </div>
+      <form onSubmit={submit} style={{ marginTop: 16 }}>
+        <input
+          name="name"
+          placeholder="Your name *"
+          value={form.name}
+          onChange={onChange}
+          required
+          style={inputStyle}
+        />
 
-        {/* NAME */}
-        <div>
-          <label className="block font-medium mb-1">Tên của bạn</label>
-          <input
-            type="text"
-            required
-            className="border rounded-xl w-full px-4 py-3"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Nhập tên..."
-          />
-        </div>
+        <input
+          name="email"
+          type="email"
+          placeholder="Email (optional)"
+          value={form.email}
+          onChange={onChange}
+          style={inputStyle}
+        />
 
-        {/* PHONE */}
-        <div>
-          <label className="block font-medium mb-1">Số điện thoại</label>
-          <input
-            type="tel"
-            required
-            className="border rounded-xl w-full px-4 py-3"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="Ví dụ: 06201234567"
-          />
-        </div>
+        <input
+          name="phone"
+          placeholder="Phone (optional)"
+          value={form.phone}
+          onChange={onChange}
+          style={inputStyle}
+        />
 
-        {/* SUBMIT */}
+        <input
+          name="date"
+          type="date"
+          value={form.date}
+          onChange={onChange}
+          required
+          style={inputStyle}
+        />
+
+        <input
+          name="time"
+          type="time"
+          value={form.time}
+          onChange={onChange}
+          required
+          style={inputStyle}
+        />
+
+        <input
+          name="service"
+          placeholder="Service (e.g. Gel nails)"
+          value={form.service}
+          onChange={onChange}
+          style={inputStyle}
+        />
+
+        <textarea
+          name="note"
+          placeholder="Note (optional)"
+          value={form.note}
+          onChange={onChange}
+          rows={3}
+          style={{ ...inputStyle, resize: "vertical" }}
+        />
+
         <button
           type="submit"
-          className="w-full bg-pink-500 text-white py-3 rounded-xl font-semibold hover:bg-pink-600 transition"
+          disabled={loading}
+          style={{
+            marginTop: 12,
+            padding: "10px 16px",
+            borderRadius: 8,
+            border: "none",
+            background: "#e91e63",
+            color: "#fff",
+            cursor: "pointer",
+            opacity: loading ? 0.7 : 1,
+          }}
         >
-          Xác nhận đặt lịch
+          {loading ? "Sending…" : "Book now"}
         </button>
       </form>
     </div>
   );
 }
+
+const inputStyle = {
+  width: "100%",
+  padding: "10px 12px",
+  marginTop: 8,
+  borderRadius: 8,
+  border: "1px solid #ddd",
+};

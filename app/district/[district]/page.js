@@ -1,114 +1,93 @@
 // app/district/[district]/page.js
+
 import Image from "next/image";
 import Link from "next/link";
 
-import salons from "@/data/salons.json";
+import salonsBase from "@/data/salons.json";
+import { getAdminDb } from "@/lib/firebaseAdmin";
 import RatingStars from "@/components/ui/RatingStars";
+import PlanBadge from "@/components/ui/PlanBadge";
+import { sortSalonsByGoogle } from "@/lib/sortSalonsByGoogle";
 
-/* ================= SEO METADATA ================= */
-export async function generateMetadata({ params }) {
-  const district = params.district;
-  const title = `Nail Salons in District ${district}, Budapest`;
-  const description = `Discover the best nail salons in District ${district}, Budapest. Compare services, read reviews and book appointments.`;
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: `https://nailbudapestmap.com/district/${district}`,
-    },
-    openGraph: {
-      title,
-      description,
-      url: `https://nailbudapestmap.com/district/${district}`,
-      images: [
-        {
-          url: "/images/og-cover.jpg",
-          width: 1200,
-          height: 630,
-          alt: `Nail salons in District ${district}, Budapest`,
-        },
-      ],
-      type: "website",
-    },
-  };
-}
+export default async function DistrictPage({ params }) {
+  const district = String(params.district);
+  const db = getAdminDb();
 
-/* ================= PAGE ================= */
-export default function DistrictPage({ params }) {
-  const district = params.district;
+  const snap = await db.collection("salons").get();
 
-  const list = salons.filter(
-    (s) =>
-      String(s.district)
-        .replace("District ", "")
-        .trim() === String(district)
+  const baseMap = new Map(
+    salonsBase.map((s) => [String(s.id), s])
   );
 
-  if (list.length === 0) {
+  snap.forEach((doc) => {
+    if (baseMap.has(doc.id)) {
+      baseMap.set(doc.id, {
+        ...baseMap.get(doc.id),
+        ...doc.data(),
+      });
+    }
+  });
+
+  const list = Array.from(baseMap.values())
+    .filter((s) => {
+      const d = String(s.district || "")
+        .replace("District", "")
+        .trim();
+      return d === district;
+    })
+    .sort(sortSalonsByGoogle);
+
+  if (!list.length) {
     return (
-      <div className="p-10 text-center text-gray-500">
-        No nail salons found in District {district}.
-      </div>
+      <main className="max-w-4xl mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-semibold">
+          No nail salons found in District {district}
+        </h1>
+      </main>
     );
   }
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-10">
-      {/* HEADER */}
-      <h1 className="text-3xl font-bold text-pink-600 mb-2">
+      <h1 className="text-3xl font-bold text-pink-600 mb-6">
         Nail Salons in District {district}, Budapest
       </h1>
-      <p className="text-gray-600 mb-8">
-        Browse and book the best nail salons in District {district}.
-      </p>
 
-      {/* LIST */}
-      <div className="grid md:grid-cols-3 gap-6">
-        {list.map((salon) => (
-          <Link
-            key={salon.id}
-            href={`/salon/${salon.id}`}
-            className="bg-white border border-pink-100 rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden"
-          >
-            <div className="relative h-40">
-              <Image
-                src={salon.image || "/images/salon-default.jpg"}
-                alt={salon.name}
-                fill
-                className="object-cover"
-              />
-            </div>
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {list.map((salon) => {
+          const google = salon.google || {};
 
-            <div className="p-4">
-              <h2 className="font-semibold text-gray-800">
-                {salon.name}
-              </h2>
-
-              <p className="text-sm text-gray-500 mt-1">
-                {salon.address}
-              </p>
-
-              <div className="flex items-center gap-2 mt-2">
-                <RatingStars rating={salon.rating || 4.5} size={16} />
-                <span className="text-xs text-gray-500">
-                  {(salon.rating || 4.5).toFixed(1)}
-                </span>
+          return (
+            <Link
+              key={salon.id}
+              href={`/salon/${salon.id}`}
+              className="group bg-white border rounded-2xl overflow-hidden"
+            >
+              <div className="relative h-40">
+                <Image
+                  src={salon.image || "/images/salon-default.jpg"}
+                  alt={salon.name}
+                  fill
+                  className="object-cover"
+                />
               </div>
 
-              <div className="flex flex-wrap gap-2 mt-3">
-                {salon.services?.slice(0, 3).map((sv, i) => (
-                  <span
-                    key={i}
-                    className="text-xs bg-pink-50 text-pink-700 px-2 py-1 rounded"
-                  >
-                    {sv}
-                  </span>
-                ))}
+              <div className="p-4 space-y-2">
+                <div className="flex justify-between">
+                  <h2 className="font-semibold">{salon.name}</h2>
+                  <PlanBadge plan={salon.plan} />
+                </div>
+
+                {google.rating && (
+                  <RatingStars rating={google.rating} />
+                )}
               </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
       </div>
     </main>
   );

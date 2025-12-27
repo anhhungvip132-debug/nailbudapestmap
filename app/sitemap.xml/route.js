@@ -6,6 +6,7 @@ export const runtime = "nodejs";
 export async function GET() {
   const baseUrl = "https://nailbudapestmap.com";
 
+  /* ================= STATIC PAGES ================= */
   const staticPages = [
     "",
     "/search",
@@ -13,12 +14,32 @@ export async function GET() {
     "/booking-status",
   ];
 
+  /* ================= SALON DETAIL PAGES ================= */
   const salonPages = salons.map(
     (s) => `/salon/${s.id}`
   );
 
-  const urls = [...staticPages, ...salonPages];
+  /* ================= DISTRICT PAGES (LOCAL SEO) ================= */
+  const districts = [
+    ...new Set(
+      salons
+        .map((s) => String(s.district))
+        .map((d) => d.replace("District ", "").trim())
+    ),
+  ];
 
+  const districtPages = districts.map(
+    (d) => `/district/${d}`
+  );
+
+  /* ================= ALL URLS ================= */
+  const urls = [
+    ...staticPages,
+    ...salonPages,
+    ...districtPages,
+  ];
+
+  /* ================= XML BUILD ================= */
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls
@@ -27,7 +48,7 @@ ${urls
   <url>
     <loc>${baseUrl}${url}</loc>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <priority>${url === "" ? "1.0" : "0.8"}</priority>
   </url>
 `
   )
@@ -36,7 +57,7 @@ ${urls
 
   return new Response(xml, {
     headers: {
-      "Content-Type": "application/xml",
+      "Content-Type": "application/xml; charset=utf-8",
     },
   });
 }

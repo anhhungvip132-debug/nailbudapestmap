@@ -1,4 +1,3 @@
-// app/page.js
 "use client";
 
 import { useEffect, useState } from "react";
@@ -18,34 +17,6 @@ export default function HomePage() {
   const [nearby, setNearby] = useState([]);
   const [selectedSalonId, setSelectedSalonId] = useState(null);
 
-  /* ================= ORGANIZATION SCHEMA ================= */
-  useEffect(() => {
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "@id": "https://nailbudapestmap.com/#organization",
-      name: "Nail Budapest Map",
-      url: "https://nailbudapestmap.com",
-      logo: "https://nailbudapestmap.com/images/og-cover.jpg",
-      description:
-        "Find the best nail salons in Budapest. Compare services, read reviews and book appointments.",
-      areaServed: {
-        "@type": "City",
-        name: "Budapest",
-      },
-    };
-
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.id = "org-schema";
-    script.innerHTML = JSON.stringify(schema);
-    document.head.appendChild(script);
-
-    return () => {
-      document.getElementById("org-schema")?.remove();
-    };
-  }, []);
-
   /* ================= LOAD SALONS ================= */
   useEffect(() => {
     fetch("/api/salons", { cache: "no-store" })
@@ -54,23 +25,14 @@ export default function HomePage() {
         const list = Array.isArray(data) ? data : [];
         setSalons(list);
         setFiltered(list);
-        setSelectedSalonId(list.length > 0 ? list[0].id : null);
-      })
-      .catch(() => {
-        setSalons([]);
-        setFiltered([]);
-        setSelectedSalonId(null);
+        setSelectedSalonId(list[0]?.id || null);
       });
   }, []);
 
-  /* ================= SEARCH + FILTER ================= */
+  /* ================= SEARCH ================= */
   function handleSearch(filters = {}) {
-    const {
-      name = "",
-      district = "",
-      service = "",
-      featuredOnly = false,
-    } = filters;
+    const { name = "", district = "", service = "", featuredOnly = false } =
+      filters;
 
     let list = [...salons];
 
@@ -82,57 +44,45 @@ export default function HomePage() {
     }
 
     if (district) {
-      const d = String(district).toLowerCase();
       list = list.filter((s) =>
-        String(s.district).toLowerCase().includes(d)
+        String(s.district).toLowerCase().includes(String(district).toLowerCase())
       );
     }
 
     if (service) {
-      const sv = service.toLowerCase();
       list = list.filter(
         (s) =>
           Array.isArray(s.services) &&
-          s.services.some((x) => x.toLowerCase().includes(sv))
+          s.services.some((x) =>
+            x.toLowerCase().includes(service.toLowerCase())
+          )
       );
     }
 
-    if (featuredOnly) {
-      list = list.filter((s) => s.featured);
-    }
+    if (featuredOnly) list = list.filter((s) => s.featured);
 
     setFiltered(list);
-    setSelectedSalonId(list.length > 0 ? list[0].id : null);
+    setSelectedSalonId(list[0]?.id || null);
   }
 
-  /* ================= LOAD NEAREST SALONS ================= */
+  /* ================= NEAREST ================= */
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!navigator.geolocation) return;
+    if (!navigator?.geolocation) return;
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        fetch(
-          `/api/nearest?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`,
-          { cache: "no-store" }
-        )
-          .then((res) => res.json())
-          .then((data) =>
-            setNearby(Array.isArray(data) ? data : [])
-          )
-          .catch(() => setNearby([]));
-      },
-      () => setNearby([])
-    );
+    navigator.geolocation.getCurrentPosition((pos) => {
+      fetch(
+        `/api/nearest?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`,
+        { cache: "no-store" }
+      )
+        .then((res) => res.json())
+        .then((data) => setNearby(Array.isArray(data) ? data : []));
+    });
   }, []);
 
-  /* ================= UI ================= */
   return (
     <div className="pb-24">
-      {/* HERO */}
       <Hero />
 
-      {/* SEARCH */}
       <div className="max-w-5xl mx-auto px-4 -mt-10 mb-8">
         <SearchBar
           size="lg"
@@ -140,46 +90,16 @@ export default function HomePage() {
           salons={salons}
           totalResults={filtered.length}
         />
-
-        <div className="flex flex-wrap gap-6 text-sm text-gray-600 mt-4">
-          <span>⭐ Gợi ý salon uy tín</span>
-          <span>📍 Xem salon trên bản đồ</span>
-          <span>⚡ Đặt lịch nhanh chóng</span>
-        </div>
       </div>
 
-      {/* MAP */}
       <div className="max-w-6xl mx-auto px-4 mb-16">
-        <Map
-          salons={filtered}
-          heightClass="h-[520px]"
-          selectedId={selectedSalonId}
-        />
+        <Map salons={filtered} selectedId={selectedSalonId} />
       </div>
 
-      {/* CATEGORY */}
       <CategoryList onSelect={(v) => handleSearch({ service: v })} />
-
-      {/* FEATURED */}
-      <FeaturedSalons
-        salons={filtered}
-        onSelectSalon={(s) =>
-          s?.id && setSelectedSalonId(s.id)
-        }
-      />
-
-      {/* NEAREST */}
-      <NearestSalons
-        salons={nearby}
-        onSelectSalon={(s) =>
-          s?.id && setSelectedSalonId(s.id)
-        }
-      />
-
-      {/* BLOG */}
+      <FeaturedSalons salons={filtered.filter((s) => s.featured)} />
+      <NearestSalons salons={nearby} />
       <BlogSection />
-
-      {/* OWNER */}
       <OwnerSection />
     </div>
   );

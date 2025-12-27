@@ -2,92 +2,131 @@
 
 import { useEffect, useState } from "react";
 
-// Render config (đặt SAU "use client")
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-export const revalidate = 0;
-
-// ADMIN SERVER URL
-const ADMIN_API_BASE =
-  process.env.NEXT_PUBLIC_ADMIN_API_URL || "http://localhost:3001";
-
-export default function AdminDashboard() {
+export default function AdminReviewDashboard() {
   const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState("pending");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetch(`${ADMIN_API_BASE}/reviews?status=pending`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to load");
-        return res.json();
-      })
-      .then((json) => {
-        setReviews(json.data || []);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Không thể tải review.");
-        setLoading(false);
-      });
-  }, []);
-
-  async function updateStatus(id, status) {
+  async function loadReviews() {
+    setLoading(true);
+    setError("");
     try {
-      await fetch(`${ADMIN_API_BASE}/reviews/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-
-      setReviews((prev) => prev.filter((r) => r.id !== id));
-    } catch {
-      alert("Không thể cập nhật review");
+      const res = await fetch(
+        `/api/admin/reviews?status=${status}`,
+        { cache: "no-store" }
+      );
+      const json = await res.json();
+      setReviews(json.data || []);
+    } catch (e) {
+      setError("Failed to load reviews");
+    } finally {
+      setLoading(false);
     }
   }
 
+  async function updateReview(id, newStatus) {
+    if (!confirm(`Confirm ${newStatus.toUpperCase()} this review?`)) return;
+
+    try {
+      await fetch(`/api/admin/reviews/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      loadReviews(); // refresh
+    } catch {
+      alert("Update failed");
+    }
+  }
+
+  useEffect(() => {
+    loadReviews();
+  }, [status]);
+
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10">
-      <h1 className="text-2xl font-bold mb-6">Review chờ duyệt</h1>
+    <div style={{ padding: 24 }}>
+      <h1>🛠 Admin – Review Dashboard</h1>
 
-      {loading && <p>Đang tải...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-
-      {!loading && reviews.length === 0 && (
-        <p className="text-gray-500">Không có review chờ duyệt.</p>
-      )}
-
-      <div className="space-y-4">
-        {reviews.map((r) => (
-          <div
-            key={r.id}
-            className="border rounded-xl p-4 bg-white shadow-sm"
+      {/* FILTER */}
+      <div style={{ margin: "16px 0" }}>
+        {["pending", "approved", "rejected"].map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatus(s)}
+            style={{
+              marginRight: 8,
+              padding: "6px 12px",
+              background: status === s ? "#e91e63" : "#eee",
+              color: status === s ? "#fff" : "#000",
+              border: "none",
+              borderRadius: 6,
+              cursor: "pointer",
+            }}
           >
-            <div className="flex justify-between mb-2">
-              <strong>Salon ID: {r.salonId}</strong>
-              <span>{r.rating} ⭐</span>
-            </div>
-
-            <p className="text-gray-700 mb-3">{r.comment}</p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => updateStatus(r.id, "approved")}
-                className="px-4 py-2 rounded bg-green-600 text-white"
-              >
-                Duyệt
-              </button>
-
-              <button
-                onClick={() => updateStatus(r.id, "rejected")}
-                className="px-4 py-2 rounded bg-red-500 text-white"
-              >
-                Từ chối
-              </button>
-            </div>
-          </div>
+            {s.toUpperCase()}
+          </button>
         ))}
       </div>
+
+      {loading && <p>Loading…</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {/* LIST */}
+      {reviews.map((r) => (
+        <div
+          key={r.id}
+          style={{
+            border: "1px solid #ddd",
+            borderRadius: 8,
+            padding: 12,
+            marginBottom: 12,
+          }}
+        >
+          <p>
+            <b>Salon:</b> {r.salonId}
+          </p>
+          <p>
+            <b>Rating:</b> ⭐ {r.rating}
+          </p>
+          <p>{r.comment}</p>
+          <p>
+            <small>Status: {r.status}</small>
+          </p>
+
+          {status === "pending" && (
+            <div style={{ marginTop: 8 }}>
+              <button
+                onClick={() => updateReview(r.id, "approved")}
+                style={{
+                  marginRight: 8,
+                  background: "green",
+                  color: "#fff",
+                  padding: "6px 12px",
+                  border: "none",
+                  borderRadius: 6,
+                }}
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => updateReview(r.id, "rejected")}
+                style={{
+                  background: "crimson",
+                  color: "#fff",
+                  padding: "6px 12px",
+                  border: "none",
+                  borderRadius: 6,
+                }}
+              >
+                Reject
+              </button>
+            </div>
+          )}
+        </div>
+      ))}
+
+      {!loading && reviews.length === 0 && <p>No reviews</p>}
     </div>
   );
 }

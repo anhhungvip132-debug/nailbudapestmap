@@ -1,12 +1,13 @@
-// app/api/cron/downgrade-plans/route.js
-
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import admin from "firebase-admin";
+
 import { getAdminDb } from "@/lib/firebaseAdmin";
+import { isPlanExpired } from "@/lib/planUtils";
 import { sendAdminEmail } from "@/lib/sendAdminEmail";
+import { writeAuditLog } from "@/lib/auditLog";
 
 /* ================= AUTH ================= */
 function isAuthorized(req) {
@@ -14,15 +15,18 @@ function isAuthorized(req) {
   if (!secret) return false;
 
   const h1 = req.headers.get("x-cron-secret");
-  const h2 = req.headers.get("authorization"); // "Bearer <secret>"
+  const h2 = req.headers.get("authorization"); // Bearer <secret>
+
   if (h1 && h1 === secret) return true;
   if (h2 && h2 === `Bearer ${secret}`) return true;
+
   return false;
 }
 
-/* ============ HELPERS ============ */
+/* ================= HELPERS ================= */
+
+// YYYY-MM-DD (UTC)
 function getUtcDateKey(ts) {
-  // YYYY-MM-DD theo UTC để ổn định với Vercel cron (UTC)
   return ts.toDate().toISOString().slice(0, 10);
 }
 
@@ -42,32 +46,22 @@ async function commitInChunks(db, updates) {
 }
 
 /**
- * Phase 15: Idempotent daily lock
- * - real run: chỉ chạy 1 lần/ngày
- * - có TTL lock để chống chạy song song / retry
+ * Phase 15 – Idempotent daily lock
  */
 async function acquireDailyRunLock(db, runId, nowMs) {
   const ref = db.collection("cronRuns").doc(runId);
-  const LOCK_MS = 10 * 60 * 1000; // 10 phút
+  const LOCK_MS = 10 * 60 * 1000;
 
   await db.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     if (snap.exists) {
       const data = snap.data() || {};
-      const status = data.status;
-      const lockedUntil = data.lockedUntilMs || 0;
-
-      // Nếu đã chạy thành công hôm nay -> skip
-      if (status === "success") {
+      if (data.status === "success") {
         throw new Error("CRON_ALREADY_RAN_TODAY");
       }
-
-      // Nếu đang chạy và lock chưa hết hạn -> skip
-      if (status === "running" && lockedUntil > nowMs) {
+      if (data.status === "running" && data.lockedUntilMs > nowMs) {
         throw new Error("CRON_LOCKED_RUNNING");
       }
-
-      // Nếu fail hoặc lock hết hạn -> cho phép chạy lại
     }
 
     tx.set(
@@ -94,17 +88,14 @@ async function finalizeDailyRunLock(runRef, patch) {
       },
       { merge: true }
     );
-  } catch (_) {
-    // ignore
-  }
+  } catch (_) {}
 }
 
-/* ================== GET ================== */
+/* ================= GET ================= */
 export async function GET(req) {
   const startedAt = Date.now();
 
   try {
-    // Phase 15.2: nếu thiếu CRON_SECRET -> disable hẳn
     if (!process.env.CRON_SECRET) {
       return NextResponse.json(
         { ok: false, disabled: true, error: "Missing CRON_SECRET" },
@@ -114,7 +105,7 @@ export async function GET(req) {
 
     if (!isAuthorized(req)) {
       return NextResponse.json(
-        { ok: false, error: "Unauthorized (missing/invalid CRON_SECRET)" },
+        { ok: false, error: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -129,129 +120,82 @@ export async function GET(req) {
     const dateKey = getUtcDateKey(nowTs);
     const runId = `downgrade-plans_${dateKey}`;
 
-    // Phase 15.1: chỉ lock + idempotent cho REAL RUN
     let runRef = null;
     if (!dryRun) {
       runRef = await acquireDailyRunLock(db, runId, nowMs);
     }
 
     const updates = [];
-    let premiumExpiredCount = 0;
-    let sponsoredExpiredCount = 0;
+    let premiumExpired = 0;
+    let sponsoredExpired = 0;
 
-    // 1) PREMIUM hết hạn -> FREE
-    // (cần composite index: plan + planExpiresAt, bạn đã tạo rồi)
-    {
-      const snap = await db
-        .collection("salons")
-        .where("plan", "==", "premium")
-        .where("planExpiresAt", "<=", nowTs)
-        .get();
+    const snap = await db
+      .collection("salons")
+      .where("plan", "in", ["PREMIUM", "SPONSORED"])
+      .get();
 
-      for (const doc of snap.docs) {
-        premiumExpiredCount += 1;
-        updates.push({
-          ref: doc.ref,
-          data: {
-            plan: "free",
-            planExpiresAt: null,
-            "sponsored.enabled": false,
-            "sponsored.expiresAt": null,
-            updatedAt: nowTs,
-          },
-        });
-      }
-    }
+    for (const doc of snap.docs) {
+      const data = doc.data() || {};
+      if (!isPlanExpired(data.planExpiresAt)) continue;
 
-    // 2) SPONSORED hết hạn -> tắt sponsored; nếu plan=sponsored thì FREE
-    // (cần composite index: sponsored.enabled + sponsored.expiresAt, bạn đã tạo)
-    {
-      const snap = await db
-        .collection("salons")
-        .where("sponsored.enabled", "==", true)
-        .where("sponsored.expiresAt", "<=", nowTs)
-        .get();
+      if (data.plan === "PREMIUM") premiumExpired++;
+      if (data.plan === "SPONSORED") sponsoredExpired++;
 
-      for (const doc of snap.docs) {
-        const data = doc.data() || {};
-        const currentPlan = data.plan;
-
-        sponsoredExpiredCount += 1;
-
-        const patch = {
+      updates.push({
+        ref: doc.ref,
+        data: {
+          plan: "FREE",
+          planExpiresAt: null,
           "sponsored.enabled": false,
           "sponsored.expiresAt": null,
           updatedAt: nowTs,
-        };
-
-        // nếu đang "sponsored" thì hạ về free
-        if (currentPlan === "sponsored") {
-          patch.plan = "free";
-          patch.planExpiresAt = null;
-        }
-
-        updates.push({ ref: doc.ref, data: patch });
-      }
+        },
+      });
     }
 
-    // merge theo doc path để tránh update trùng
-    const mergedByPath = new Map();
-    for (const u of updates) {
-      const key = u.ref.path;
-      if (!mergedByPath.has(key)) mergedByPath.set(key, u);
-      else {
-        const prev = mergedByPath.get(key);
-        mergedByPath.set(key, { ref: prev.ref, data: { ...prev.data, ...u.data } });
-      }
-    }
-    const merged = Array.from(mergedByPath.values());
+    const merged = Array.from(
+      new Map(updates.map((u) => [u.ref.path, u])).values()
+    );
 
     let committed = 0;
     if (!dryRun && merged.length) {
       committed = await commitInChunks(db, merged);
     }
 
-    // Phase 15: chỉ gửi email khi REAL RUN và có update
     if (!dryRun && committed > 0) {
       await sendAdminEmail({
         subject: `⚠️ ${committed} salons downgraded (${dateKey})`,
         html: `
-          <h2>Cron Downgrade Plans</h2>
+          <h2>Cron – Downgrade Plans</h2>
           <p><b>Date (UTC):</b> ${dateKey}</p>
-          <p><b>Premium expired:</b> ${premiumExpiredCount}</p>
-          <p><b>Sponsored expired:</b> ${sponsoredExpiredCount}</p>
+          <p><b>Premium expired:</b> ${premiumExpired}</p>
+          <p><b>Sponsored expired:</b> ${sponsoredExpired}</p>
           <p><b>Updated docs:</b> ${committed}</p>
-          <p>Open admin cron log: <a href="https://nailbudapestmap.com/admin/cron">/admin/cron</a></p>
+          <p><a href="https://nailbudapestmap.com/admin/cron">Open admin cron</a></p>
         `,
       });
     }
 
-    // luôn ghi cronLogs để UI đọc
-    await db.collection("cronLogs").add({
-      type: "downgrade-plans",
-      runId: dryRun ? `dry_${runId}_${nowMs}` : runId,
-      dateKey,
-      at: nowTs,
-      dryRun,
-      ok: true,
-      found: {
-        premiumExpired: premiumExpiredCount,
-        sponsoredExpired: sponsoredExpiredCount,
+    /* ================= AUDIT LOG ================= */
+    await writeAuditLog({
+      type: "cron",
+      action: "DOWNGRADE_PLANS",
+      target: { collection: "salons", id: "bulk" },
+      meta: {
+        dryRun,
+        premiumExpired,
+        sponsoredExpired,
+        committed,
+        dateKey,
       },
-      updatedDocs: dryRun ? 0 : committed,
-      durationMs: Date.now() - startedAt,
+      req,
     });
 
-    // finalize lock cho REAL RUN
     if (!dryRun && runRef) {
       await finalizeDailyRunLock(runRef, {
         status: "success",
         ok: true,
-        found: {
-          premiumExpired: premiumExpiredCount,
-          sponsoredExpired: sponsoredExpiredCount,
-        },
-        updatedDocs: committed,
+        committed,
         dateKey,
       });
     }
@@ -260,17 +204,13 @@ export async function GET(req) {
       ok: true,
       dryRun,
       dateKey,
-      found: {
-        premiumExpired: premiumExpiredCount,
-        sponsoredExpired: sponsoredExpiredCount,
-      },
+      found: { premiumExpired, sponsoredExpired },
       updatedDocs: dryRun ? 0 : committed,
       durationMs: Date.now() - startedAt,
     });
   } catch (err) {
     const message = err?.message || String(err);
 
-    // Phase 15: Nếu đã chạy hôm nay hoặc đang lock -> trả ok:true (skip) để Vercel không retry vô ích
     if (message === "CRON_ALREADY_RAN_TODAY") {
       return NextResponse.json({ ok: true, skipped: "already_ran_today" });
     }
@@ -278,16 +218,13 @@ export async function GET(req) {
       return NextResponse.json({ ok: true, skipped: "locked_running" });
     }
 
-    // ghi log lỗi (best effort)
     try {
       const db = getAdminDb();
       await db.collection("cronLogs").add({
-        type: "downgrade-plans",
+        type: "DOWNGRADE_PLANS",
         at: admin.firestore.Timestamp.now(),
-        dryRun: false,
         ok: false,
         error: message,
-        durationMs: Date.now() - startedAt,
       });
     } catch (_) {}
 
